@@ -255,6 +255,7 @@ async function start() {
     const [overview, experiments, sources] = await Promise.all([api('/api/overview'),api('/api/experiments'),api('/api/sources')]);
     state.ragStatus=await api('/api/rag-status');
     try { state.corpus=await api('/api/corpus'); } catch { state.corpus=null; }
+    try { const me=await api('/api/me'); const slot=document.querySelector('#ui-switch-slot'); if(slot){ slot.innerHTML=uiSwitchHTML(me,'workspace'); bindUiSwitch(slot); } } catch { /* switch is optional */ }
     state.searchMethod=state.ragStatus.semantic_ready?'hybrid':'keyword';
     state.generateAnswer=state.ragStatus.answer_ready;
     state.allowProviderCalls=state.ragStatus.semantic_ready || state.ragStatus.answer_ready;
@@ -446,5 +447,19 @@ async function askStream(body) {
   }
   if (!result) throw new Error('The answer stream ended early. Please try again.');
   return result;
+}
+
+// ---- Switch between the public UI and the review workspace ----
+function uiSwitchHTML(me, current) {
+  // Workspace mode: workspace at "/", public preview at "/public".
+  // Public mode (Azure): public at "/", workspace at "/workspace" (admins only).
+  if (!me || !me.is_admin) return '';
+  const urls = me.mode === 'public' ? { public: '/', workspace: '/workspace' } : { public: '/public', workspace: '/' };
+  const target = current === 'public' ? urls.workspace : urls.public;
+  const on = current === 'workspace';
+  return `<div class="ui-switch"><span class="ui-switch-label${on ? '' : ' active'}" aria-hidden="true">Public</span><button type="button" role="switch" aria-checked="${on}" aria-label="Review workspace view" data-ui-target="${target}" class="ui-switch-track"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${on ? ' active' : ''}" aria-hidden="true">Workspace</span></div>`;
+}
+function bindUiSwitch(root) {
+  root.querySelector('[data-ui-target]')?.addEventListener('click', e => { window.location.assign(e.currentTarget.dataset.uiTarget); });
 }
 start();

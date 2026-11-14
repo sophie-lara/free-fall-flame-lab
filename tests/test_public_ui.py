@@ -251,3 +251,13 @@ def test_ask_stream_emits_progress_then_result(tmp_path: Path, monkeypatch) -> N
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_both_interfaces_carry_the_ui_switch() -> None:
+    from pathlib import Path
+
+    app = Path(__file__).resolve().parents[1] / "src/combustion_atlas/app"
+    for ui in ("static", "public"):
+        assert 'id="ui-switch-slot"' in (app / ui / "index.html").read_text(encoding="utf-8")
+        script = (app / ui / "app.js").read_text(encoding="utf-8")
+        assert "function uiSwitchHTML" in script and 'role="switch"' in script
