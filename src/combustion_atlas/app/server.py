@@ -12,7 +12,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Literal, cast
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from openai import OpenAIError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
@@ -413,7 +413,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 results = store.search(question, query.get("investigation"), k)
             self._json({"question": question, "results": results})
         elif parsed.path.startswith("/api/documents/"):
-            sid = parsed.path.removeprefix("/api/documents/")
+            sid = unquote(parsed.path.removeprefix("/api/documents/"))
             source = next((s for s in atlas.source_rows() if s["source_id"] == sid), None)
             path = atlas.document_path(source) if source else None
             if path is None:
@@ -427,7 +427,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
             from combustion_atlas.rag.visual_models import VisualArtifact
             from combustion_atlas.rag.visuals import crop_file
 
-            artifact_id = parsed.path.removeprefix("/api/visuals/")
+            artifact_id = unquote(parsed.path.removeprefix("/api/visuals/"))
             if not atlas.database.is_file():
                 self._json({"error": "Visual unavailable"}, HTTPStatus.NOT_FOUND)
                 return

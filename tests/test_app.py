@@ -232,6 +232,8 @@ def test_visual_crop_endpoint_is_hash_bound(
         store.upsert_visual(artifact)
     endpoint = "/api/visuals/" + artifact.artifact_id
     assert request(server, endpoint)[1] == crop.read_bytes()
+    encoded = "/api/visuals/" + artifact.artifact_id.replace(":", "%3A")
+    assert request(server, encoded)[1] == crop.read_bytes()
     assert request(server, "/api/visuals/unknown")[0] == 404
     crop.write_bytes(b"tampered")
     assert request(server, endpoint)[0] == 400

@@ -121,6 +121,20 @@ class FigureDescription(BaseModel):
     uncertainties: list[str]
 
 
+CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
+def control_character_warnings(parsed: FigureDescription) -> list[str]:
+    """Flag (never silently repair) corrupted symbols, e.g. a degree sign emitted as U+0017."""
+    bad = [text for text in [parsed.description, *parsed.visible_labels] if CONTROL.search(text)]
+    if not bad:
+        return []
+    return [
+        f"Model output contains control characters in {len(bad)} field(s); "
+        "symbols such as degree signs may be corrupted. Check labels against the crop."
+    ]
+
+
 def describe_figure(
     artifact: VisualArtifact,
     workspace: Path,
@@ -173,7 +187,11 @@ def describe_figure(
         {
             **artifact.model_dump(),
             **parsed.model_dump(),
-            "uncertainties": [*artifact.uncertainties, *parsed.uncertainties],
+            "uncertainties": [
+                *artifact.uncertainties,
+                *parsed.uncertainties,
+                *control_character_warnings(parsed),
+            ],
             "method": "openai_vision",
             "model": model,
             "prompt_version": PROMPT_VERSION,

@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from combustion_atlas.rag import DocumentStore, PageRecord, chunk_page
+from combustion_atlas.rag.store import keyword_query
 
 
 class RagTests(unittest.TestCase):
@@ -49,3 +50,24 @@ class RagTests(unittest.TestCase):
                 )
         self.assertEqual(results[0]["chunk_id"], "source:p3:c0")
         self.assertGreater(results[0]["score"], 0.9)
+
+    def test_natural_language_question_matches_without_every_word(self) -> None:
+        pages = [
+            self.page("A total of 126 tests were conducted as part of BASS-II."),
+            self.page("Oxygen sensors evaluated combustion completeness."),
+        ]
+        pages[1].physical_page = 4
+        chunks = [chunk for page in pages for chunk in chunk_page(page)]
+        with tempfile.TemporaryDirectory() as directory:
+            with DocumentStore(Path(directory) / "rag.sqlite3") as store:
+                store.replace(pages, chunks)
+                results = store.search("How many tests were conducted in BASS-II?", None, 5)
+                self.assertEqual(store.search("what is the", None, 5), [])
+        self.assertEqual([r["physical_page"] for r in results], [3])
+
+    def test_keyword_query_drops_question_words_and_punctuation(self) -> None:
+        self.assertEqual(
+            keyword_query("Which tests used BASS-II? - Tests"), '"tests" OR "used" OR "bass-ii"'
+        )
+        self.assertEqual(keyword_query("what is the"), '"what" OR "is" OR "the"')
+        self.assertEqual(keyword_query("?? --"), "")

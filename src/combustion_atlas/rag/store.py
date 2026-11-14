@@ -5,9 +5,27 @@ from __future__ import annotations
 import re
 import sqlite3
 from pathlib import Path
+from urllib.parse import quote
 
 from .models import ChunkRecord, PageRecord
 from .vectors import cosine_similarity, decode_vector, encode_vector
+
+# Question words carry no evidence; requiring them made natural-language queries
+# match almost nothing. Domain terms (e.g. "flame", "oxygen") are never listed here.
+STOPWORDS = frozenset(
+    """a about an and any are as at be by can could did do does for from give gives
+    had has have how i in is it its labelled labeled many much of on or report says
+    tell that the their there these this those to was were what when where which who
+    why with would""".split()
+)
+
+
+def keyword_query(question: str) -> str:
+    """Build an FTS5 OR query; BM25 then ranks chunks matching more rare terms first."""
+    tokens = [t for t in re.findall(r"[\w-]+", question, flags=re.UNICODE) if re.search(r"\w", t)]
+    terms = [t for t in tokens if t.lower() not in STOPWORDS] or tokens
+    unique = list(dict.fromkeys(term.lower() for term in terms))
+    return " OR ".join(f'"{term}"' for term in unique)
 
 
 class DocumentStore:
@@ -139,10 +157,9 @@ class DocumentStore:
     def search(
         self, question: str, investigation_id: str | None = None, top_k: int = 5
     ) -> list[dict[str, object]]:
-        tokens = re.findall(r"[\w-]+", question, flags=re.UNICODE)
-        if not tokens:
+        query = keyword_query(question)
+        if not query:
             return []
-        query = " ".join(f'"{token}"' for token in tokens)
         rows = self.connection.execute(
             """
             SELECT c.*, bm25(chunks_fts) AS score
@@ -180,7 +197,7 @@ class DocumentStore:
                         "model",
                     )
                 }
-                item["crop_url"] = "/api/visuals/" + artifact["artifact_id"]
+                item["crop_url"] = "/api/visuals/" + quote(artifact["artifact_id"], safe=":")
         return results
 
     def upsert_visual(self, artifact: object) -> bool:

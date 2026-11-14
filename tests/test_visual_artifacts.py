@@ -142,3 +142,14 @@ def test_figure_capture_ignores_table_captions_and_keeps_page_context(
     assert len(items) == 1 and items[0].label == "2.1"
     assert items[0].region.scope == "page_context"
     assert crop_file(tmp_path, items[0]).exists()
+
+
+def test_control_characters_in_vision_output_are_flagged() -> None:
+    from combustion_atlas.rag.visuals import FigureDescription, control_character_warnings
+
+    clean = FigureDescription(
+        description="Igniter", visible_labels=["1,300 \u00b0C"], uncertainties=[]
+    )
+    corrupt = clean.model_copy(update={"visible_labels": ["Igniter (1,300 \u00176C)"]})
+    assert control_character_warnings(clean) == []
+    assert "control characters" in control_character_warnings(corrupt)[0]
