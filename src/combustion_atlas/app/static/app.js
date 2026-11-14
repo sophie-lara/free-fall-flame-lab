@@ -196,7 +196,7 @@ async function runSearch() {
   try { const payload=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:state.question, investigation:state.investigation || null, method:state.searchMethod, generate_answer:state.generateAnswer, allow_provider_calls:state.allowProviderCalls})});
     state.results={question:payload.question,method:payload.method,answer:payload.answer,hits:payload.results.map(c=>({chunk:{...c,
       title:c.filename,page:c.physical_page,file_name:c.filename,investigation_ids:c.investigation_id?[c.investigation_id]:[],
-      extraction_method:'pdf_native_text',warnings:[]}}))}; }
+      extraction_method:c.visual?'derived_visual_text':'pdf_native_text',warnings:c.visual?[`Derived ${c.visual.kind}: ${c.visual.method}; ${c.visual.review_status}. Verify against the original crop.`]:[]}}))}; }
   catch(err) { state.results={error:err.message}; }
   state.searching=false; if(route()==='search') renderSearch();
 }
@@ -213,6 +213,20 @@ function renderSearchResults() {
     const link=source?.available_locally ? `/api/documents/${encodeURIComponent(c.source_id)}#page=${c.page}` : safeURL(c.file_url || c.source_url);
     return `<article class="result-card"><div class="result-top"><span class="eyebrow" style="margin:0">PASSAGE ${String(i+1).padStart(2,'0')} · ${esc(c.investigation_ids.map(i=>names[i]||i).join(' / '))}</span>${tag(`Page ${c.page}`)}</div><h2>${esc(c.title)}</h2>${c.section?`<span class="muted" style="font-size:11px">Section hint: ${esc(c.section)}</span>`:''}<div class="excerpt">${esc(c.text)}</div><div class="result-footer"><span>${esc(source?.category || 'Document')} · ${esc(c.extraction_method==='pdf_native_text'?'Native PDF text':'Plain text')}</span><a class="btn small" href="${link}" target="_blank" rel="noopener noreferrer">Open cited page ↗</a></div><details><summary>Source details and extraction notes</summary><p><a href="${safeURL(c.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a></p>Chunk: ${esc(c.chunk_id)}<br>SHA-256: ${esc(c.sha256)}${c.warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details></article>`;
   }).join('');
+  el.querySelectorAll('.result-card').forEach((card,index)=>{
+    const chunk=result.hits[index].chunk;
+    if(!chunk.visual || !chunk.crop_url?.startsWith('/api/visuals/')) return;
+    const note=document.createElement('p');
+    note.className='notice';
+    note.textContent=`${pretty(chunk.visual.kind)} ${chunk.visual.label} · ${pretty(chunk.visual.review_status)} · Derived visual evidence; inspect the original page.`;
+    const details=document.createElement('details');
+    const summary=document.createElement('summary');
+    summary.textContent='View original visual crop';
+    const image=document.createElement('img');
+    image.src=chunk.crop_url; image.loading='lazy'; image.style.maxWidth='100%';
+    image.alt=`Original page crop for ${chunk.visual.kind} ${chunk.visual.label}`;
+    details.append(summary,image); card.prepend(note); card.append(details);
+  });
 }
 async function start() {
   try {

@@ -189,7 +189,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("schema", help="Print the shared JSON Schema")
+    schema = commands.add_parser("schema", help="Export the shared JSON Schema")
+    schema.add_argument("--output", type=Path)
     extract = commands.add_parser("extract")
     extract.add_argument("pdf", type=Path)
     extract.add_argument("--pages", nargs="+", type=int)
@@ -213,7 +214,11 @@ def main() -> int:
     args = parser.parse_args()
     root = args.workspace.resolve()
     if args.command == "schema":
-        print(json.dumps(VisualArtifact.model_json_schema(), indent=2))
+        content = json.dumps(VisualArtifact.model_json_schema(), indent=2) + "\n"
+        if args.output:
+            args.output.write_text(content, encoding="utf-8")
+        else:
+            print(content)
     elif args.command == "extract":
         if args.output.exists():
             raise ValueError("Choose a new manifest output; capture manifests are not overwritten")
@@ -288,7 +293,11 @@ def main() -> int:
         print(json.dumps({"imported_or_changed": changed, "artifacts": len(items)}))
     elif args.command == "embed":
         config = ProviderConfig.from_environment()
-        provider = OpenAIEmbeddingProvider(config)
+        model = config.embedding_model or "text-embedding-3-small"
+        dimensions = config.embedding_dimensions or OpenAIEmbeddingProvider._default_dimensions(
+            model
+        )
+        model_key = f"openai:{model}:{dimensions}"
         if args.limit < 1:
             raise ValueError("Use a positive chunk limit")
         with DocumentStore(args.database) as store:
@@ -297,7 +306,7 @@ def main() -> int:
                 for r in store.connection.execute(
                     "SELECT vc.chunk_id FROM visual_chunks vc LEFT JOIN vectors v "
                     "ON v.chunk_id=vc.chunk_id AND v.model_key=? WHERE v.chunk_id IS NULL",
-                    (provider.model_key,),
+                    (model_key,),
                 )
             }
             chunks = [c for c in store.list_chunks() if c.chunk_id in missing][: args.limit]
@@ -311,6 +320,7 @@ def main() -> int:
                 )
             )
             if args.allow_provider_calls and chunks:
+                provider = OpenAIEmbeddingProvider(config)
                 vectors = provider.embed([c.text for c in chunks])
                 store.append_vectors(
                     model_key=provider.model_key,

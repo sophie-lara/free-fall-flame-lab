@@ -94,6 +94,12 @@ This produces candidate JSON and `data/review/psi-25-b1-b5.md`. Candidate genera
 
 ## Document index
 
+Figure extraction and the shared table handoff are documented in
+[visual_artifacts.md](visual_artifacts.md). The Pydantic contract is
+`combustion_atlas.rag.visual_models.VisualArtifact`; a language-independent
+[JSON Schema](visual-artifact.schema.json) is exported alongside that guide.
+Complex table transcription remains a separate worker's responsibility.
+
 Build page-preserving chunks and the keyword index:
 
 ```sh
