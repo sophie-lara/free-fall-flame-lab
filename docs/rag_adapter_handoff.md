@@ -24,6 +24,10 @@ both should label the evidence for each claim.
   results. They are unreviewed, with original result-file hashes; review notes are
   stored separately in `data/review/human-notes.jsonl` and bound by candidate
   fingerprint. A note alone does not automatically promote a record.
+  New `model-review-candidates-v2` envelopes additionally contain a `model_results`
+  sidecar keyed by identity: each field retains the full model mapping, independent
+  missingness/qualifier, all linked source cells, and original source context. Older
+  envelopes do not contain this sidecar; use their original result files and hashes.
 - `data/processed/full-runs/<run>/row-NNNN/01.json`: eventual unreviewed mapping
   proposals, source cells and context, model/usage metadata, and validation issues.
   Each `review-report.md` and `review-index.json` is a triage aid, not an approval.
@@ -47,6 +51,9 @@ The reviewed-evidence artifact is not directly accepted there. The bridge must
 reject or explicitly report representations it cannot faithfully convert, including
 qualitative values, multiple source cells, and unresolved source markers. Do not
 coerce them to zero, fabricate numeric values, or silently drop qualifiers.
+In particular, `EvidenceValue` currently has one location and one free-text
+qualifier: a value with multiple linked cells or with both a missingness marker and
+a separate qualifier requires its sidecar/original response to remain attached.
 
 ## Source locator conventions
 

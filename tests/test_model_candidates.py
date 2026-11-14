@@ -60,15 +60,18 @@ def test_saffire_conversion_keeps_markers_and_source_notes(tmp_path: Path) -> No
         "source_sha256": batch.cells[0].source_sha256}, "source": batch.model_dump(mode="json"),
         "proposal": {"schema_version": "mapping-proposal-v1", "profile": "saffire_ii",
             "fields": [{"canonical_field": "spread_rate_1g", "source_indexes": [2],
-                        "value": "n/a (Nomex)", "unit": None, "qualifier": None,
+                        "value": "n/a (Nomex)", "unit": None, "qualifier": "Nomex",
                         "missingness": "source_marker", "mapping_status": "direct", "note": None}]},
         "validation_issues": [], "unreferenced_source_cells": []}
     path = tmp_path / "01.json"
     path.write_text(json.dumps(result), encoding="utf-8")
-    candidate = convert(tmp_path, path)["candidate"]
+    converted = convert(tmp_path, path)
+    candidate = converted["candidate"]
     assert candidate["identity"]["test_id"] == "SAFFIRE-II-2-7"
     assert candidate["outcomes"][0]["value"] == "n/a (Nomex)"
-    assert candidate["outcomes"][0]["qualifier"] == "source_marker"
+    assert candidate["outcomes"][0]["qualifier"] == "Nomex"
+    assert converted["field_mappings"][0]["missingness"] == "source_marker"
+    assert converted["field_mappings"][0]["source_cells"][0]["original_value"] == "n/a (Nomex)"
     assert candidate["extra_metadata"]["source_note_1"]["original_value"] == "Note 1 Derived oxygen"
 
 
@@ -98,7 +101,8 @@ def test_index_import_selects_flags_and_audit_only(tmp_path: Path, monkeypatch) 
         return {"candidate": {"identity": {"investigation_id": "PSI-25",
                                            "test_id": path.parent.name}},
                 "result_file": path.name,
-                "result_sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+                "result_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                "field_mappings": [], "source_context": []}
     monkeypatch.setattr(model_candidates, "convert", convert_fake)
     monkeypatch.setattr(model_candidates, "Workspace", lambda _: SimpleNamespace(
         records=lambda: [], preserved=lambda: []))

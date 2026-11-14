@@ -146,8 +146,13 @@ def convert(root: Path, path: Path) -> dict[str, Any]:
         "extra_metadata": metadata, "raw_cells": [cell_at(i) for i in range(len(batch.cells))],
         "extraction_confidence": None, "validation_status": "review_required",
         "human_review_status": "unreviewed", "issues": issues})
+    field_mappings = []
+    for field in proposal.fields:
+        field_mappings.append({**field.model_dump(mode="json"),
+                               "source_cells": [cell_at(i) for i in field.source_indexes]})
     return {"candidate": candidate.model_dump(mode="json"), "result_file": path.name,
-            "result_sha256": hashlib.sha256(raw_result).hexdigest()}
+            "result_sha256": hashlib.sha256(raw_result).hexdigest(),
+            "field_mappings": field_mappings, "source_context": batch.context}
 
 
 def main() -> None:
@@ -207,8 +212,11 @@ def main() -> None:
         raise ValueError("Place candidate JSON under data/review/model-candidates")
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("x", encoding="utf-8") as stream:
-        json.dump({"records": [item["candidate"] for item in adapted], "model_results": [
-            {"file": item["result_file"], "sha256": item["result_sha256"]} for item in adapted]},
+        json.dump({"schema_version": "model-review-candidates-v2",
+            "records": [item["candidate"] for item in adapted], "model_results": [
+            {"identity": item["candidate"]["identity"], "file": item["result_file"],
+             "sha256": item["result_sha256"], "field_mappings": item["field_mappings"],
+             "source_context": item["source_context"]} for item in adapted]},
             stream, ensure_ascii=False, indent=2)
         stream.write("\n")
     print(f"Prepared {len(adapted)} unreviewed candidates")

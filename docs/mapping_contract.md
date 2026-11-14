@@ -123,7 +123,10 @@ It verifies the file hash, row identity and all raw cells, preserves model notes
 flags and original result hashes, and creates unreviewed evidence candidates.
 It refuses duplicate candidate identities and won't overwrite an existing file.
 The review workspace loads these candidates and binds saved notes to their
-fingerprints. Its output is not an approved `CandidateBatch`; the existing
+fingerprints. New `model-review-candidates-v2` envelopes also preserve each model
+field's complete source-cell links, mapping status, missingness, qualifier and
+source context in a sidecar. Older candidate envelopes require the original result
+files for those details. Its output is not an approved `CandidateBatch`; the existing
 `review apply` workflow requires a separate source- and decision-bound adapter.
 No model proposal or draft review note is automatically promoted to approved search.
 
