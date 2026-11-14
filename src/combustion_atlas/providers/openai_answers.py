@@ -38,6 +38,18 @@ def ungrounded_numbers(claim: Claim) -> list[str]:
     return [n for n in NUMBER.findall(claim.text) if n.replace(",", "") not in quoted]
 
 
+def claim_problem(claim: Claim, passages: dict[str, str]) -> str | None:
+    """Why a claim fails the excerpt and number checks, or None if it passes."""
+    for support in claim.supports:
+        source = passages.get(support.chunk_id)
+        quote = " ".join(support.quote.split())
+        if source is None or not quote or quote not in " ".join(source.split()):
+            return "The generated answer has an invalid supporting excerpt"
+    if missing := ungrounded_numbers(claim):
+        return f"Claim numbers not found in its quotes: {', '.join(missing)}"
+    return None
+
+
 def validate_support(answer: GroundedAnswer, context: list[dict[str, object]]) -> None:
     passages = {str(c["chunk_id"]): str(c["text"]) for c in context}
     if answer.status == "answered" and not answer.claims:
@@ -45,13 +57,33 @@ def validate_support(answer: GroundedAnswer, context: list[dict[str, object]]) -
     if answer.status == "insufficient_evidence" and answer.claims:
         raise ValueError("An abstention cannot include claims")
     for claim in answer.claims:
-        for support in claim.supports:
-            source = passages.get(support.chunk_id)
-            quote = " ".join(support.quote.split())
-            if source is None or not quote or quote not in " ".join(source.split()):
-                raise ValueError("The generated answer has an invalid supporting excerpt")
-        if missing := ungrounded_numbers(claim):
-            raise ValueError(f"Claim numbers not found in its quotes: {', '.join(missing)}")
+        if problem := claim_problem(claim, passages):
+            raise ValueError(problem)
+
+
+def keep_supported(answer: GroundedAnswer, context: list[dict[str, object]]) -> GroundedAnswer:
+    """Drop claims that fail the checks; never show an unsupported claim.
+
+    Used only after the repair attempt also fails, so users get the verified part of
+    the answer (with a note) instead of an error. No claims left means abstaining.
+    """
+    passages = {str(c["chunk_id"]): str(c["text"]) for c in context}
+    kept = [c for c in answer.claims if claim_problem(c, passages) is None]
+    removed = len(answer.claims) - len(kept)
+    if not kept:
+        return GroundedAnswer(
+            status="insufficient_evidence",
+            claims=[],
+            limitations=[
+                "The generated claims did not pass the quote and number checks, so none "
+                "are shown. Try rephrasing the question or inspect the passages below."
+            ],
+        )
+    note = (
+        f"{removed} generated claim{'s' if removed != 1 else ''} removed because the "
+        "quoted passages did not support it exactly."
+    )
+    return GroundedAnswer(status="answered", claims=kept, limitations=[*answer.limitations, note])
 
 
 class OpenAIAnswerProvider:
@@ -89,7 +121,11 @@ class OpenAIAnswerProvider:
             say("repairing", f"A check failed ({exc}); asking the model to repair it once")
             answer = self._generate(question, context, repair=True)
             say("checking", "Re-checking the repaired answer")
-            validate_support(answer, context)
+            try:
+                validate_support(answer, context)
+            except ValueError as second:
+                say("filtering", f"Still failing ({second}); keeping only verified claims")
+                answer = keep_supported(answer, context)
         return answer
 
     def _generate(
