@@ -396,6 +396,8 @@ class Workspace:
 
 class AtlasHandler(BaseHTTPRequestHandler):
     workspace = Path.cwd()
+    # Public hostnames accepted besides loopback, e.g. "atlas.azurewebsites.net".
+    allowed_hosts: frozenset[str] = frozenset()
     static_dir = Path(__file__).with_name("static")
 
     @property
@@ -423,7 +425,16 @@ class AtlasHandler(BaseHTTPRequestHandler):
     def _allowed_host(self) -> bool:
         host = self.headers.get("Host", "")
         port = cast(tuple[str, int], self.server.server_address)[1]
-        return host in {f"127.0.0.1:{port}", f"localhost:{port}"}
+        return host in {f"127.0.0.1:{port}", f"localhost:{port}"} or host in self.allowed_hosts
+
+    def _same_origin(self) -> bool:
+        origin = self.headers.get("Origin")
+        host = self.headers.get("Host")
+        if origin is None:
+            return True
+        # Deployed hosts sit behind an HTTPS front end; loopback stays plain HTTP.
+        schemes = ("http", "https") if host in self.allowed_hosts else ("http",)
+        return origin in {f"{scheme}://{host}" for scheme in schemes}
 
     def do_GET(self) -> None:  # noqa: N802
         if not self._allowed_host():
@@ -671,10 +682,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
         return matches
 
     def do_POST(self) -> None:  # noqa: N802
-        if not self._allowed_host() or self.headers.get("Origin") not in {
-            None,
-            f"http://{self.headers.get('Host')}",
-        }:
+        if not self._allowed_host() or not self._same_origin():
             self._json({"error": "Same-origin local requests required"}, HTTPStatus.FORBIDDEN)
             return
         parsed_url = urlparse(self.path)
@@ -758,12 +766,25 @@ class AtlasHandler(BaseHTTPRequestHandler):
         )
 
 
-def serve(*, workspace: Path, port: int) -> None:
+def serve(
+    *,
+    workspace: Path,
+    port: int,
+    host: str = "127.0.0.1",
+    allowed_hosts: frozenset[str] = frozenset(),
+) -> None:
+    """Serve the interface. Defaults to loopback; hosted use must name its public hosts."""
     if not 1 <= port <= 65535:
         raise ValueError("Port must be between 1 and 65535")
-    handler = type("WorkspaceHandler", (AtlasHandler,), {"workspace": workspace.resolve()})
-    server = ThreadingHTTPServer(("127.0.0.1", port), handler)
-    print(f"Combustion Atlas: http://127.0.0.1:{port}", flush=True)
+    if host not in {"127.0.0.1", "localhost"} and not allowed_hosts:
+        raise ValueError("Listening beyond loopback requires at least one allowed host name")
+    handler = type(
+        "WorkspaceHandler",
+        (AtlasHandler,),
+        {"workspace": workspace.resolve(), "allowed_hosts": allowed_hosts},
+    )
+    server = ThreadingHTTPServer((host, port), handler)
+    print(f"Combustion Atlas: http://{host}:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

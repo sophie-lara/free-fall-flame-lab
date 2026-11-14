@@ -20,4 +20,9 @@ jobs:
       - run: uv run ruff check .
       - run: uv run mypy src
       - run: uv run pytest
+      - name: requirements.txt matches uv.lock
+        if: runner.os == 'Linux'
+        run: |
+          uv export --no-dev --no-hashes --no-editable --no-header --format requirements-txt --frozen --quiet -o /tmp/requirements.txt
+          diff -u requirements.txt /tmp/requirements.txt
       - run: uv build

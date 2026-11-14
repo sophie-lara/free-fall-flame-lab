@@ -1,0 +1,68 @@
+.
+annotated-types==0.8.0
+    # via pydantic
+anyio==4.16.0
+    # via
+    #   httpx
+    #   openai
+certifi==2026.10.23
+    # via
+    #   httpcore
+    #   httpx
+cffi==2.1.1 ; platform_python_implementation != 'PyPy'
+    # via cryptography
+charset-normalizer==3.5.2
+    # via pdfminer-six
+colorama==0.4.6 ; sys_platform == 'win32'
+    # via tqdm
+cryptography==50.0.2
+    # via pdfminer-six
+distro==1.9.0
+    # via openai
+h11==0.16.0
+    # via httpcore
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via openai
+idna==3.20
+    # via
+    #   anyio
+    #   httpx
+jiter==0.19.0
+    # via openai
+openai==2.54.0
+    # via combustion-atlas
+pdfminer-six==20260107
+    # via pdfplumber
+pdfplumber==0.11.10
+    # via combustion-atlas
+pillow==13.0.0
+    # via pdfplumber
+pycparser==3.12 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+    # via cffi
+pydantic==2.14.3
+    # via
+    #   combustion-atlas
+    #   openai
+pydantic-core==2.50.4
+    # via pydantic
+pypdf==6.21.4
+    # via combustion-atlas
+pypdfium2==5.15.2
+    # via pdfplumber
+python-dotenv==1.2.4
+    # via combustion-atlas
+sniffio==1.3.1
+    # via openai
+tqdm==4.70.1
+    # via openai
+typing-extensions==4.16.0
+    # via
+    #   anyio
+    #   openai
+    #   pydantic
+    #   pydantic-core
+    #   typing-inspection
+typing-inspection==0.4.5
+    # via pydantic
