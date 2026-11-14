@@ -9,6 +9,9 @@ locals {
 
   # Default access role for apps without app roles.
   default_app_role_id = "00000000-0000-0000-0000-000000000000"
+
+  # Free/Shared tiers (F1, D1) do not support always-on; the app sleeps when idle.
+  always_on = !contains(["F1", "D1"], upper(var.app_service_sku))
 }
 
 # --- Hosting -------------------------------------------------------------
@@ -40,7 +43,7 @@ resource "azurerm_linux_web_app" "main" {
   webdeploy_publish_basic_authentication_enabled = false
 
   site_config {
-    always_on           = true
+    always_on           = local.always_on
     ftps_state          = "Disabled"
     minimum_tls_version = "1.2"
     worker_count        = 1

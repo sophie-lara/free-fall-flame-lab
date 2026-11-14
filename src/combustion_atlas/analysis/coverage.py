@@ -174,8 +174,8 @@ TABLE_MAPS: list[TableMap] = [
         notes=["SAME heats materials to produce smoke; its runs are not flames."],
     ),
 ]
-# Current scope (Sophie, 2026-11-14): BASS family only. Other maps stay defined.
-ACTIVE_ACCESSIONS = {"PSI-25", "PSI-26"}
+# Current scope (Sophie, 2026-11-14): BASS, FLEX and Saffire. SAME stays off.
+ACTIVE_ACCESSIONS = {"PSI-25", "PSI-26", "PSI-69", "PSI-98", "PSI-99", "PSI-100"}
 
 EXCLUDED = {
     "PSI-68": "The FLEX-2 table is a test matrix (lists and ranges), not individual runs.",
@@ -306,9 +306,32 @@ def find_gaps(
     return gaps[:limit]
 
 
+def apply_reviewed(records: list[dict[str, Any]], root: Path) -> dict[str, Any]:
+    """Reviewed evidence supersedes table-parsed values for the same run identity."""
+    from .evidence_bridge import coverage_overrides
+
+    overrides, report = coverage_overrides(root)
+    by_id = {(r["investigation_id"], str(r["test_id"])): r for r in records}
+    applied = 0
+    for item in overrides:
+        target = by_id.get((item["investigation_id"], str(item["test_id"])))
+        if target is None:
+            continue  # reviewed run without a parsed table row: reported, not invented
+        for key, value in item["fields"].items():
+            target[key] = value
+        for key, outcome in item["outcomes"].items():
+            target["outcomes"][key] = {**outcome, "unit": OUTCOMES.get(key, {}).get("unit")}
+        target["review_status"] = "reviewed"
+        target["review_action"] = item["review_action"]
+        applied += 1
+    report["applied_to_runs"] = applied
+    return report
+
+
 def coverage_payload(workspace: Any) -> dict[str, Any]:
     raw_root = Path(workspace.data) / "raw/psi"
     records = load_records(raw_root)
+    bridge = apply_reviewed(records, Path(workspace.data).parent)
     fields: list[dict[str, Any]] = [
         {
             "key": key,
@@ -339,6 +362,13 @@ def coverage_payload(workspace: Any) -> dict[str, Any]:
         "Only cells that are plain numbers are plotted; ranges and qualified values stay "
         "as source text.",
         "Gaps mean no runs in this collection, not that the conditions were never studied.",
+        (
+            f"{bridge['applied_to_runs']} runs use reviewed table evidence; "
+            f"{len(bridge['rejected'])} reviewed records rejected, "
+            f"{len(bridge['unconverted'])} values kept as text."
+            if bridge["accepted"]
+            else "Reviewed table evidence is not available on this server yet."
+        ),
         *dict.fromkeys(
             note
             for table in TABLE_MAPS

@@ -296,7 +296,19 @@ class DocumentStore:
     def _attach_visuals(self, results: list[dict[str, object]]) -> list[dict[str, object]]:
         import json
 
+        has_cards = (
+            self.connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE name='record_cards'"
+            ).fetchone()
+            is not None
+        )
         for item in results:
+            if has_cards:
+                card = self.connection.execute(
+                    "SELECT payload FROM record_cards WHERE card_id=?", (item["chunk_id"],)
+                ).fetchone()
+                if card:
+                    item["record_card"] = json.loads(card[0])
             row = self.connection.execute(
                 "SELECT a.payload FROM visual_chunks v JOIN visual_artifacts a "
                 "ON a.artifact_id=v.artifact_id WHERE v.chunk_id=?",
