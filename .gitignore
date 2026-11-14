@@ -1,0 +1,26 @@
+# Python and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Local configuration and operating-system files
+.env
+.DS_Store
+
+# Source captures and generated research artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/review/*
+!data/review/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/embeddings/*
+!data/embeddings/.gitkeep
+data/models/*
+!data/models/.gitkeep

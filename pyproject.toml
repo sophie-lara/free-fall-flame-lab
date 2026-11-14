@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "combustion-atlas"
+version = "0.1.0"
+description = "Provenance-preserving evidence system for microgravity combustion experiments"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Sophie Lara" }]
+dependencies = [
+  "openai>=2,<3",
+  "pydantic>=2.10,<3",
+  "pypdf>=6,<7",
+  "python-dotenv>=1,<2",
+]
+
+[project.scripts]
+combustion-atlas = "combustion_atlas.cli:main"
+
+[dependency-groups]
+dev = [
+  "mypy>=1.14",
+  "pytest>=8.3",
+  "ruff>=0.9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]

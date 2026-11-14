@@ -1,0 +1,21 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #142b3a;
+  background: #f5f7f8;
+}
+
+body { margin: 0; }
+header, main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+header { padding-top: 4rem; }
+.eyebrow { color: #b54b24; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+h1 { font-size: clamp(2.5rem, 7vw, 5rem); margin: .2rem 0; }
+h2 { margin-top: 0; }
+section { background: white; border: 1px solid #dce3e7; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.card { border: 1px solid #dce3e7; border-radius: 10px; padding: 1rem; }
+.card h3 { margin-top: 0; }
+.search-row { display: flex; gap: .75rem; }
+input { flex: 1; padding: .8rem; border: 1px solid #9cabb4; border-radius: 8px; font: inherit; }
+button { border: 0; border-radius: 8px; background: #1b5c7a; color: white; padding: .8rem 1.2rem; font: inherit; font-weight: 700; }
+code { overflow-wrap: anywhere; }

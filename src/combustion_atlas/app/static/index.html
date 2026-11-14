@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Combustion Atlas</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">NASA microgravity combustion evidence</p>
+      <h1>Combustion Atlas</h1>
+      <p>Inspect normalized experiments and retrieve page-cited document evidence.</p>
+    </header>
+    <main>
+      <section>
+        <h2>Candidate experiments</h2>
+        <p id="experiment-status">Loading candidates...</p>
+        <div id="experiments" class="cards"></div>
+      </section>
+      <section>
+        <h2>Document evidence</h2>
+        <form id="search-form">
+          <label for="question">Question or keywords</label>
+          <div class="search-row">
+            <input id="question" required placeholder="limiting oxygen index">
+            <button type="submit">Search</button>
+          </div>
+        </form>
+        <p id="search-status"></p>
+        <div id="results" class="cards"></div>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

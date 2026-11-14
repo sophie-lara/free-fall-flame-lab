@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "id": "draft-oxygen-extinction",
+      "question": "How does oxygen concentration affect flame extinction?",
+      "investigation": "PSI-69",
+      "reviewed": false,
+      "reviewer": null,
+      "expected_chunk_ids": []
+    }
+  ]
+}

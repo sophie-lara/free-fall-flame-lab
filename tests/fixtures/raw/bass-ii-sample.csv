@@ -1,0 +1,3 @@
+PI,Test #,Sample #,Fuel Sample Material,Flow restrictor,Fan display,Air display,Radiometer gain,Calibrated initial O2 % by vol,Calibrated final O2 % by vol,Initial CO2 % by vol,Final CO2 % by vol,Initial CO (ppm),Final CO (ppm)
+Example PI,B1,147,"100 micron PMMA film 2 cm wide",A,62,10,High,22.2,20.1,0.04,1.2,0,18
+Example PI,B2,148,"100 micron PMMA film 2 cm wide",A,64,11,High,21.0,19.3,0.04,1.0,0,15
