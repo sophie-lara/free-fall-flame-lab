@@ -176,3 +176,34 @@ def test_empty_workspace_has_no_invented_records(tmp_path: Path) -> None:
     workspace = Workspace(tmp_path)
     assert workspace.overview()["experiments"] == 0
     assert workspace.source_rows() == [] and workspace.notes() == []
+
+
+def test_preserved_candidates_and_notes_remain_exact(workspace: Workspace) -> None:
+    root = workspace.data / "review/preserved-review"
+    root.mkdir(parents=True)
+    candidate = {
+        "identity": {"investigation_id": "EXAMPLE", "test_id": "X1"},
+        "conditions": {"material": {"value": "example"}},
+        "raw_cells": [],
+        "outcomes": [],
+        "instrument_settings": {},
+        "extra_metadata": {},
+        "issues": [],
+    }
+    (root / "psi-25-b1-b5.json").write_text(json.dumps({"records": [candidate]}), encoding="utf-8")
+    note = {
+        "investigation_id": "EXAMPLE",
+        "test_id": "X1",
+        "reviewer": "Reviewer",
+        "decision": "correction_proposed",
+        "note": "Exact source comment.",
+        "evidence": "Source row 2",
+        "saved_at_utc": "2026-11-14T12:00:00Z",
+        "status": "draft",
+    }
+    note_path = root / "human-notes.jsonl"
+    note_path.write_text(json.dumps(note) + "\n", encoding="utf-8")
+    before = note_path.read_bytes()
+    assert workspace.preserved() == [candidate]
+    assert workspace.notes() == [note]
+    assert note_path.read_bytes() == before
