@@ -1,6 +1,6 @@
 const main = document.querySelector('#main');
 const state = { overview: null, records: [], mappings: [], notes: [], sources: [], record: 'B1', tab: 'conditions', sourceFilter: '', sourceStatus: '', question: '', investigation: '', results: null, searching: false };
-const names = { 'PSI-25': 'BASS-II', 'PSI-69': 'FLEX', 'PSI-98': 'Saffire I', 'PSI-99': 'Saffire II', 'PSI-100': 'Saffire III' };
+const names = { 'PSI-25': 'BASS-II', 'PSI-26': 'BASS', 'PSI-68': 'FLEX-2', 'PSI-101': 'SAME-R', 'PSI-102': 'SAME', 'PSI-69': 'FLEX', 'PSI-98': 'Saffire I', 'PSI-99': 'Saffire II', 'PSI-100': 'Saffire III' };
 state.reviewDrafts = {};
 state.filteredRecords = null;
 state.structuredFilters = {scope:'candidates'};
@@ -195,17 +195,17 @@ async function runSearch() {
   state.allowProviderCalls=main.querySelector('#provider-calls').checked;
   state.generateAnswer=main.querySelector('#generate-answer').checked;
   if (!state.question) return;
-  state.searching=true; renderSearch();
-  try { const payload=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:state.question, investigation:state.investigation || null, method:state.searchMethod, generate_answer:state.generateAnswer, allow_provider_calls:state.allowProviderCalls})});
+  state.searching=true; state.progress=[]; renderSearch();
+  try { const payload=await askStream({question:state.question, investigation:state.investigation || null, method:state.searchMethod, generate_answer:state.generateAnswer, allow_provider_calls:state.allowProviderCalls});
     state.results={question:payload.question,method:payload.method,answer:payload.answer,hits:payload.results.map(c=>({chunk:{...c,
       title:c.filename,page:c.physical_page,file_name:c.filename,investigation_ids:c.investigation_id?[c.investigation_id]:[],
       extraction_method:c.visual?'derived_visual_text':'pdf_native_text',warnings:c.visual?[`Derived ${c.visual.kind}: ${c.visual.method}; ${c.visual.review_status}. Verify against the original crop.`]:[]}}))}; }
   catch(err) { state.results={error:err.message}; }
-  state.searching=false; if(route()==='search') renderSearch();
+  state.searching=false; if(['ask','search'].includes(route())) renderSearch();
 }
 function renderSearchResults() {
   const el=document.querySelector('#search-results'); const result=state.results;
-  if(state.searching) { el.innerHTML='<div class="loading">Finding passages in your local corpus…</div>'; return; }
+  if(state.searching) { el.innerHTML=progressHTML(); return; }
   if(!result) { el.innerHTML=empty('A source is a good place to start.',`${count(state.overview.chunks)} passages from ${state.overview.documents} documents, with page-level citations.`); return; }
   if(result.error) { el.innerHTML=`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
   if(!result.hits.length) { el.innerHTML=empty('No matching passages.','Try different terms or a broader investigation scope. This search provides no supported answer.'); return; }
@@ -412,4 +412,39 @@ function renderDirectionsResult() {
     `<p class="form-hint">${claims.length} cited items from ${d.result.results.length} retrieved passages.</p>`;
 }
 document.addEventListener('click', e => { const a = e.target.closest('[data-claim]'); if (!a) return; e.preventDefault(); document.querySelector(`#dir-claim-${a.dataset.claim}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+// ---- Streaming answers: progress events, then the result ----
+state.progress = [];
+function progressHTML() {
+  const steps = state.progress;
+  const last = steps[steps.length - 1];
+  return `<section class="panel progress-panel" aria-live="polite"><div class="panel-body"><h2>${esc(last ? last.message : 'Starting…')}</h2><ol class="progress-steps">${steps.map((s, i) => `<li class="${i === steps.length - 1 ? 'current' : 'done'}"><span>${esc(s.message)}</span><small>${Number(s.elapsed_s || 0).toFixed(1)} s</small></li>`).join('')}</ol></div></section>`;
+}
+function showProgress(event) {
+  state.progress.push(event);
+  const el = document.querySelector('#search-results');
+  if (el && state.searching) el.innerHTML = progressHTML();
+}
+async function askStream(body) {
+  const response = await fetch('/api/ask/stream', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (response.status === 404 || !response.body) return api('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.error || 'The request could not be completed.'); }
+  const reader = response.body.getReader(), decoder = new TextDecoder();
+  let buffer = '', result = null;
+  const handle = line => {
+    if (!line.trim()) return;
+    const event = JSON.parse(line);
+    if (event.type === 'progress') showProgress(event);
+    else if (event.type === 'error') throw new Error(event.error);
+    else if (event.type === 'result') result = event;
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+    const lines = buffer.split('\n'); buffer = lines.pop();
+    lines.forEach(handle);
+    if (done) { handle(buffer); break; }
+  }
+  if (!result) throw new Error('The answer stream ended early. Please try again.');
+  return result;
+}
 start();

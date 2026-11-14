@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from typing import Any, Literal
 
 from openai import OpenAI
@@ -62,19 +63,32 @@ class OpenAIAnswerProvider:
         self.model = config.answer_model
         self.client = client or OpenAI(timeout=45.0, max_retries=0)
 
-    def answer(self, question: str, context: list[dict[str, object]]) -> GroundedAnswer:
+    def answer(
+        self,
+        question: str,
+        context: list[dict[str, object]],
+        progress: Callable[[str, str], None] | None = None,
+    ) -> GroundedAnswer:
+        def say(stage: str, message: str) -> None:
+            if progress is not None:
+                progress(stage, message)
+
         if not context:
             return GroundedAnswer(
                 status="insufficient_evidence",
                 claims=[],
                 limitations=["No matching passages were retrieved from the indexed collection."],
             )
+        say("generating", f"Writing a cited answer with {self.model} from {len(context)} passages")
         answer = self._generate(question, context)
+        say("checking", "Checking every quote and number against the passages")
         try:
             validate_support(answer, context)
-        except ValueError:
+        except ValueError as exc:
             # A bounded repair attempt; never return the failed draft to the caller.
+            say("repairing", f"A check failed ({exc}); asking the model to repair it once")
             answer = self._generate(question, context, repair=True)
+            say("checking", "Re-checking the repaired answer")
             validate_support(answer, context)
         return answer
 

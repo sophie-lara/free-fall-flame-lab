@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0B3D91">
+  <meta name="description" content="Ask decades of NASA microgravity-combustion research and see where the evidence is thin.">
+  <title>Combustion Atlas</title>
+  <link rel="icon" href="/p/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/p/styles.css">
+  <script type="module" src="/p/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#/" aria-label="Combustion Atlas home">
+        <img src="/p/logo.svg" alt="" width="32" height="32">
+        <span>Combustion <strong>Atlas</strong></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" class="site-nav" aria-label="Main">
+        <a href="#/ask" data-route="ask">Ask</a>
+        <a href="#/coverage" data-route="coverage">Coverage</a>
+        <a href="#/predict" data-route="predict">Prediction</a>
+        <a href="#/sources" data-route="sources">Sources</a>
+        <a href="#/upload" data-route="upload" class="admin-only" hidden>Add to corpus</a>
+      </nav>
+      <div id="user-badge" class="user-badge" aria-live="polite"></div>
+    </div>
+  </header>
+  <main id="main" tabindex="-1" class="container"><p class="loading">Loading…</p></main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Built for the NASA Space Apps Challenge 2026. Not an official NASA product.</span>
+      <span>Answers quote NASA documents verbatim. Figure descriptions and experiment records are unreviewed.</span>
+    </div>
+  </footer>
+</body>
+</html>
