@@ -3,19 +3,45 @@
 The app runs on Azure App Service (Linux, Python 3.12) behind Microsoft sign-in.
 GitHub deploys **code only, and only when an approved person starts the
 "Deploy to Azure" workflow and types `deploy`**. Evidence data (PDFs, figure
-crops, the SQLite index) lives on the server's persistent disk at
-`/home/site/data` and is uploaded separately.
+crops, PSI experiment tables, the SQLite index) lives on the server's persistent
+disk at `/home/site/data` and is uploaded separately.
 
-Locally nothing changes: the app still listens on `127.0.0.1:8765` and accepts
-only loopback requests unless the hosting settings below are given.
+On Azure the app runs in **public mode**: `/` is the public UI (Ask, Coverage,
+Prediction, Sources), and the review workspace is at `/workspace`, visible only to
+admins listed in `COMBUSTION_ATLAS_ADMINS`. Admins also get the *Add to corpus* page
+and a Public/Workspace switch in the header. Everyone must sign in with an account
+you have assigned.
 
-## Option A: Terraform
+Locally nothing changes: the app listens on `127.0.0.1:8765` in workspace mode
+(public UI preview at `/public`) and accepts only loopback requests.
 
-Steps 1–4 below can be done in one go with Terraform: see
-[`infra/README.md`](../infra/README.md). It creates the web app, app settings,
-Microsoft sign-in with assigned users and guests, the GitHub OIDC deploy identity,
-and the GitHub Actions secrets and variables. Then continue with step 5 (upload
-the evidence data). The manual portal steps below remain the reference.
+## Quick start (recommended: Terraform)
+
+1. **Tools:** Azure account (Space Apps offer), [Terraform](https://developer.hashicorp.com/terraform/install)
+   ≥ 1.6, Azure CLI, GitHub CLI, `sqlite3`.
+2. **Sign in:** `az login` (then `az account set -s <subscription-id>`), and
+   `gh auth login` with admin rights on the repo.
+3. **Configure:** `cd infra && cp terraform.tfvars.example terraform.tfvars`, then
+   set `subscription_id`, `location` (e.g. `eastus`), a globally unique `app_name`,
+   `admin_emails = ["you@…"]`, and the people allowed in
+   (`allowed_user_principal_names`, `guest_emails`). Export the OpenAI key without
+   writing it to a file: `read -rs TF_VAR_openai_api_key && export TF_VAR_openai_api_key`.
+4. **Create everything:** `terraform init && terraform validate && terraform plan`,
+   review the plan, then `terraform apply`. This creates the web app and settings,
+   sign-in, the GitHub deploy identity, and the GitHub secrets/variables.
+   (This configuration has not been validated against a live subscription yet; fix
+   any `validate`/`plan` errors before applying.)
+5. **Upload the data:** from the repo root, `scripts/azure_upload_data.sh <app_name> <resource_group>`
+   (dry run, ~210 MB), then again with `--upload`.
+6. **Deploy the code:** push your commits, then on GitHub **Actions → Deploy to
+   Azure → Run workflow** on `main` and type `deploy`. It runs the tests first.
+7. **Check:** open `https://<app_name>.azurewebsites.net` in a private window. You
+   should be asked to sign in; after signing in as an admin you should see the
+   switch, the corpus counts on the home page, and `/api/me` should report
+   `"is_admin": true`.
+
+Details for each part are in [`infra/README.md`](../infra/README.md). The manual
+portal steps below do the same thing by hand and remain the reference.
 
 ## 1. Create the web app (portal, once)
 
@@ -37,6 +63,8 @@ the evidence data). The manual portal steps below remain the reference.
 | `COMBUSTION_ATLAS_ANSWER_PROVIDER` | `openai` |
 | `COMBUSTION_ATLAS_ANSWER_MODEL` | e.g. `gpt-6-luna` |
 | `COMBUSTION_ATLAS_ALLOWED_HOSTS` | `<name>.azurewebsites.net` (comma-separate custom domains) |
+| `COMBUSTION_ATLAS_UI` | `public` (public UI at `/`, workspace at `/workspace` for admins) |
+| `COMBUSTION_ATLAS_ADMINS` | your sign-in email(s), comma-separated; only these can upload or open the workspace |
 | `SCM_DO_BUILD_DURING_DEPLOYMENT` | `true` (installs `requirements.txt` on deploy) |
 
 Copy any other `COMBUSTION_ATLAS_*` values from your local `.env`. Never commit
@@ -104,7 +132,7 @@ scripts/azure_upload_data.sh <name> <resource-group> --upload             # firs
 scripts/azure_upload_data.sh <name> <resource-group> --upload --overwrite # replace server data
 ```
 
-The package (~80 MB) holds `data/raw`, `data/processed/{rag,visuals}`,
+The package (~210 MB) holds `data/raw` (indexed PDFs, PSI tables and documents, NTRS papers), `data/processed/{rag,visuals}`,
 `data/review` and a consistent SQLite snapshot. It never includes `.env`, backups
 or evaluation outputs. Because documents uploaded through the hosted app are stored
 on the server, the script refuses to replace an existing server index without
