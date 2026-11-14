@@ -173,9 +173,10 @@ function renderSourceTable() {
 }
 function renderSearch() {
   main.innerHTML = heading('ASK THE EVIDENCE','Find the context behind the data.','Ask about past experiments and follow the evidence back to its original page.') +
-  `<form id="search-form" class="search-box"><input id="question" name="question" type="search" maxlength="1000" required aria-label="Search document passages" placeholder="e.g. limiting oxygen index" value="${esc(state.question)}"><select id="investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${state.searching?'disabled':''}>${state.searching?'Searching…':'Search evidence'}</button></form>
+  `<div class="notice"><strong>Local RAG POC · ${count(state.ragStatus.embedded_chunks)} embedded passages</strong><br>Currently testing the BASS-II Summary Report. This POC searches extracted text; dedicated table and figure extraction is still pending.</div>
+  <form id="search-form" class="search-box"><input id="question" name="question" type="search" maxlength="1000" required aria-label="Search document passages" placeholder="Which variables were tested in BASS-II?" value="${esc(state.question)}"><select id="investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${state.searching?'disabled':''}>${state.searching?'Searching…':'Ask the evidence'}</button></form>
   <div class="panel panel-body"><label>Search method <select id="search-method">${[['keyword','Keyword'],['dense','Semantic'],['hybrid','Hybrid']].map(([v,t])=>`<option value="${v}" ${state.searchMethod===v?'selected':''}>${t}</option>`).join('')}</select></label> <label><input id="provider-calls" type="checkbox" ${state.allowProviderCalls?'checked':''}> Allow OpenAI calls for this query</label> <label><input id="generate-answer" type="checkbox" ${state.generateAnswer?'checked':''} ${state.ragStatus.answer_ready?'':'disabled'}> Generate cited answer</label><p class="form-hint">Semantic and hybrid search send the question to OpenAI. Answer generation also sends retrieved passages. ${state.ragStatus.answer_ready?'Answer generation is configured.':'Answer generation needs an answer provider and model configured locally.'}</p></div>
-  <div class="suggestions"><span>TRY A SEARCH</span>${['material sample dimensions','experimental conditions','flame spread measurements'].map(q => `<button data-query="${q}">${q}</button>`).join('')}</div><div class="notice">Document evidence is separate from candidate record approval. Generated claims include supporting excerpts; verify their meaning and numerical accuracy against the source.</div><div id="search-results" aria-live="polite"></div>`;
+  <div class="suggestions"><span>TRY A QUESTION</span>${['Which variables were tested in BASS-II?','How many tests were conducted in BASS-II?','What measured flame spread rates does this report give for titanium alloy samples at Martian surface pressure?'].map(q => `<button data-query="${q}" ${state.searching?'disabled':''}>${q}</button>`).join('')}</div><div class="notice">Document evidence is separate from candidate record approval. Generated claims include supporting excerpts; verify their meaning and numerical accuracy against the source.</div><div id="search-results" aria-live="polite"></div>`;
   renderSearchResults();
   main.querySelectorAll('[data-support]').forEach(button => button.addEventListener('click', () => {
     const index=state.results.hits.findIndex(hit=>hit.chunk.chunk_id===button.dataset.support);
@@ -185,6 +186,7 @@ function renderSearch() {
   main.querySelectorAll('[data-query]').forEach(btn => btn.addEventListener('click', () => { main.querySelector('#question').value=btn.dataset.query; runSearch(); }));
 }
 async function runSearch() {
+  if(state.searching) return;
   state.question = main.querySelector('#question').value.trim(); state.investigation=main.querySelector('#investigation').value;
   state.searchMethod=main.querySelector('#search-method').value;
   state.allowProviderCalls=main.querySelector('#provider-calls').checked;
@@ -216,6 +218,10 @@ async function start() {
   try {
     const [overview, experiments, sources] = await Promise.all([api('/api/overview'),api('/api/experiments'),api('/api/sources')]);
     state.ragStatus=await api('/api/rag-status');
+    state.searchMethod=state.ragStatus.semantic_ready?'hybrid':'keyword';
+    state.generateAnswer=state.ragStatus.answer_ready;
+    state.allowProviderCalls=state.ragStatus.semantic_ready || state.ragStatus.answer_ready;
+    if(sources.sources.length && sources.sources.every(s=>s.investigation_ids.length===1 && s.investigation_ids[0]==='PSI-25')) state.investigation='PSI-25';
     state.recordSources=experiments.record_sources; state.overview=overview; state.preservedRecords=experiments.preserved_records || []; state.records=[...experiments.records.map(presentRecord),...state.preservedRecords]; state.mappings=experiments.mappings; state.notes=experiments.notes; state.sources=sources.sources;
     document.querySelector('#nav-count').textContent=overview.experiments;
     if(overview.demo) document.querySelector('.stage').textContent='SYNTHETIC DEMO';

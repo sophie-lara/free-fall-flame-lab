@@ -301,8 +301,26 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._json(atlas.overview())
         elif parsed.path == "/api/rag-status":
             config = ProviderConfig.from_environment()
+            chunks = vectors = 0
+            dimensions = config.embedding_dimensions or {
+                "text-embedding-3-small": 1536,
+                "text-embedding-3-large": 3072,
+            }.get(config.embedding_model)
+            if atlas.database.is_file():
+                with sqlite3.connect(atlas.database) as connection:
+                    chunks = connection.execute("SELECT count(*) FROM chunks").fetchone()[0]
+                    vectors = connection.execute(
+                        "SELECT count(*) FROM vectors WHERE model_key = ?",
+                        (f"openai:{config.embedding_model}:{dimensions}",),
+                    ).fetchone()[0]
             self._json(
                 {
+                    "indexed_chunks": chunks,
+                    "embedded_chunks": vectors,
+                    "semantic_ready": chunks > 0
+                    and vectors == chunks
+                    and config.embedding_provider == "openai"
+                    and config.openai_api_key_present,
                     "answer_ready": config.answer_provider == "openai"
                     and bool(config.answer_model)
                     and config.openai_api_key_present,

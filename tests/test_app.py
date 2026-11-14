@@ -111,6 +111,9 @@ def test_workspace_endpoints_and_candidate_schema(server: ThreadingHTTPServer) -
     assert request(server, "/api/structured-search?oxygen_min_pct=30&oxygen_max_pct=20")[0] == 400
     assert request(server, "/api/structured-search?unknown=1")[0] == 400
     assert request(server, "/api/search?q=oxygen")[0] == 503
+    readiness = request(server, "/api/rag-status")[1]
+    assert readiness["indexed_chunks"] == 0 and readiness["embedded_chunks"] == 0
+    assert not readiness["semantic_ready"]
     assert request(server, "/")[0] == 200
     assert request(server, "/../pyproject.toml")[0] == 404
 

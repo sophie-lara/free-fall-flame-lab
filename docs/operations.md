@@ -139,6 +139,18 @@ uv run python -m combustion_atlas.review apply \
 
 ## Local interface
 
+For the local text-RAG POC, open `http://127.0.0.1:8765/#search` after launching
+the app below. With matching stored embeddings and a configured answer model,
+the UI selects hybrid search and cited answers. Each submitted query uses OpenAI;
+the settings panel shows the selected behavior and permits local keyword-only search.
+The readiness banner shows the number of stored embeddings.
+
+Try the built-in questions about BASS-II variables and test counts. Then try
+the titanium/Martian-pressure question to check insufficient-evidence behavior.
+Use **View supporting passage** and **Open cited page** to inspect answers.
+Check relevance, citation correctness, qualifications and numerical values.
+Tables and figures do not yet have dedicated extraction in this POC.
+
 ```sh
 uv run python -m combustion_atlas.app --port 8765
 ```
