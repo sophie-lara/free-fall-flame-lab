@@ -226,3 +226,5 @@ dl.kv dd { margin: 0; }
 .ui-switch-track[aria-checked="true"] .ui-switch-knob{transform:translateX(18px)}
 .ui-switch-track:focus-visible{outline:2px solid #0b3d91;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.ui-switch-track,.ui-switch-knob{transition:none}}
+
+.steps-summary{padding-top:12px;padding-bottom:12px}.steps-summary summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none;font-weight:600}.steps-summary summary::-webkit-details-marker{display:none}.steps-summary summary::after{content:"▸";margin-left:8px;color:#6b7280}.steps-summary[open] summary::after{content:"▾"}.steps-summary .steps{margin-top:12px}

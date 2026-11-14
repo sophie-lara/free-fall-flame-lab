@@ -207,11 +207,11 @@ function renderSearchResults() {
   const el=document.querySelector('#search-results'); const result=state.results;
   if(state.searching) { el.innerHTML=progressHTML(); return; }
   if(!result) { el.innerHTML=empty('A source is a good place to start.',`${count(state.overview.chunks)} passages from ${state.overview.documents} documents, with page-level citations.`); return; }
-  if(result.error) { el.innerHTML=`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
+  if(result.error) { el.innerHTML=stepsSummaryHTML(true)+`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
   if(!result.hits.length) { el.innerHTML=empty('No matching passages.','Try different terms or a broader investigation scope. This search provides no supported answer.'); return; }
   const answer=result.answer;
   const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(claim.text)}</p>${claim.supports.map(s=>`<blockquote>${esc(s.quote)}</blockquote><button class="btn link" data-support="${esc(s.chunk_id)}">View supporting passage →</button>`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}${answer.status==='answered'?'<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p>':'<p class="form-hint">No claim was supported by the retrieved passages. This means missing from the indexed collection, not unstudied.</p>'}</div></section>` : '';
-  el.innerHTML=answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
+  el.innerHTML=stepsSummaryHTML() + answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
     const c=hit.chunk; const source=state.sources.find(s=>s.source_id===c.source_id);
     const link=source?.available_locally ? `/api/documents/${encodeURIComponent(c.source_id)}#page=${c.page}` : safeURL(c.file_url || c.source_url);
     return `<article class="result-card"><div class="result-top"><span class="eyebrow" style="margin:0">PASSAGE ${String(i+1).padStart(2,'0')} · ${esc(c.investigation_ids.map(i=>names[i]||i).join(' / '))}</span>${tag(`Page ${c.page}`)}</div><h2>${esc(c.title)}</h2>${c.section?`<span class="muted" style="font-size:11px">Section hint: ${esc(c.section)}</span>`:''}<div class="excerpt">${esc(c.text)}</div><div class="result-footer"><span>${esc(source?.category || 'Document')} · ${esc(c.extraction_method==='pdf_native_text'?'Native PDF text':c.extraction_method==='derived_visual_text'?'Derived visual text (not source text)':'Plain text')}</span><a class="btn small" href="${link}" target="_blank" rel="noopener noreferrer">Open cited page ↗</a></div><details><summary>Source details and extraction notes</summary><p><a href="${safeURL(c.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a></p>Chunk: ${esc(c.chunk_id)}<br>SHA-256: ${esc(c.sha256)}${c.warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details></article>`;
@@ -419,6 +419,13 @@ function progressHTML() {
   const steps = state.progress;
   const last = steps[steps.length - 1];
   return `<section class="panel progress-panel" aria-live="polite"><div class="panel-body"><h2>${esc(last ? last.message : 'Starting…')}</h2><ol class="progress-steps">${steps.map((s, i) => `<li class="${i === steps.length - 1 ? 'current' : 'done'}"><span>${esc(s.message)}</span><small>${Number(s.elapsed_s || 0).toFixed(1)} s</small></li>`).join('')}</ol></div></section>`;
+}
+// After the answer arrives, keep the steps as a collapsed summary above it.
+function stepsSummaryHTML(failed = false) {
+  const steps = state.progress || [];
+  if (!steps.length) return '';
+  const total = Number(steps[steps.length - 1].elapsed_s || 0).toFixed(1);
+  return `<details class="panel steps-summary"><summary><span>${failed ? '⚠ Stopped' : '✓ Answered'} in ${total} s</span><small>${steps.length} step${steps.length === 1 ? '' : 's'}</small></summary><ol class="progress-steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><small>${Number(s.elapsed_s || 0).toFixed(1)} s</small></li>`).join('')}</ol></details>`;
 }
 function showProgress(event) {
   state.progress.push(event);

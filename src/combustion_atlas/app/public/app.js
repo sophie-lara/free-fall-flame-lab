@@ -182,6 +182,14 @@ function progressHTML() {
   return `<section class="card" aria-label="Progress"><div class="row"><h3 style="margin:0">Working on it</h3><span class="spacer"></span><span class="muted small">${steps.length ? `${fmt(steps[steps.length - 1].elapsed_s, 3)} s` : ''}</span></div>
     <ol class="steps">${steps.length ? steps.map((s, i) => `<li class="${i === steps.length - 1 ? 'current' : 'done'}"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('') : '<li class="current"><span>Starting…</span></li>'}</ol></section>`;
 }
+// After the answer arrives, keep the steps as a collapsed summary above it.
+function stepsSummaryHTML(steps, failed = false) {
+  if (!steps?.length) return '';
+  const total = fmt(steps[steps.length - 1].elapsed_s, 3);
+  const label = failed ? `Stopped after ${total} s` : `Answered in ${total} s`;
+  return `<details class="card steps-summary"><summary><span>${failed ? '⚠' : '✓'} ${esc(label)}</span><span class="muted small">${steps.length} step${steps.length === 1 ? '' : 's'}</span></summary>
+    <ol class="steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('')}</ol></details>`;
+}
 function updateProgress() { const el = main.querySelector('#ask-results'); if (el && route() === 'ask' && state.ask.loading) el.innerHTML = progressHTML(); }
 function citeHTML(support, byId) {
   const src = byId[support.chunk_id] || {};
@@ -200,8 +208,13 @@ function sourcesSummary(results) {
 function askResults() {
   const a = state.ask;
   if (a.loading) return a.mode === 'answer' ? progressHTML() : '<p class="loading">Reading the evidence and drafting next steps…</p>';
-  if (a.error) return `<div class="error" role="alert">${esc(a.error)}</div>`;
+  if (a.error) return stepsSummaryHTML(a.progress, true) + `<div class="error" role="alert">${esc(a.error)}</div>`;
   if (!a.result) return '';
+  if (a.result.kind === 'answer' && a.progress.length) return stepsSummaryHTML(a.progress) + askResultBody();
+  return askResultBody();
+}
+function askResultBody() {
+  const a = state.ask;
   const results = a.result.results || [];
   const byId = Object.fromEntries(results.map(r => [r.chunk_id, r]));
   if (a.result.kind === 'answer') {
