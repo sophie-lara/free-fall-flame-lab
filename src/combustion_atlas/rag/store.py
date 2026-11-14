@@ -75,11 +75,22 @@ class DocumentStore:
                 FOREIGN KEY (model_key) REFERENCES vector_namespaces(model_key),
                 FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id)
             );
+            CREATE TABLE IF NOT EXISTS visual_artifacts (
+                artifact_id TEXT PRIMARY KEY,
+                fingerprint TEXT NOT NULL,
+                payload TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS visual_chunks (
+                chunk_id TEXT PRIMARY KEY,
+                artifact_id TEXT NOT NULL
+            );
             """
         )
 
     def replace(self, pages: list[PageRecord], chunks: list[ChunkRecord]) -> None:
         with self.connection:
+            self.connection.execute("DELETE FROM visual_chunks")
+            self.connection.execute("DELETE FROM visual_artifacts")
             self.connection.execute("DELETE FROM chunks_fts")
             self.connection.execute("DELETE FROM vectors")
             self.connection.execute("DELETE FROM vector_namespaces")
@@ -144,7 +155,136 @@ class DocumentStore:
             """,
             (query, investigation_id, investigation_id, top_k),
         ).fetchall()
-        return [dict(row) for row in rows]
+        return self._attach_visuals([dict(row) for row in rows])
+
+    def _attach_visuals(self, results: list[dict[str, object]]) -> list[dict[str, object]]:
+        import json
+
+        for item in results:
+            row = self.connection.execute(
+                "SELECT a.payload FROM visual_chunks v JOIN visual_artifacts a "
+                "ON a.artifact_id=v.artifact_id WHERE v.chunk_id=?",
+                (item["chunk_id"],),
+            ).fetchone()
+            if row:
+                artifact = json.loads(row[0])
+                item["visual"] = {
+                    key: artifact[key]
+                    for key in (
+                        "artifact_id",
+                        "kind",
+                        "label",
+                        "caption",
+                        "method",
+                        "review_status",
+                        "model",
+                    )
+                }
+                item["crop_url"] = "/api/visuals/" + artifact["artifact_id"]
+        return results
+
+    def upsert_visual(self, artifact: object) -> bool:
+        from .chunk import chunk_page
+        from .visual_models import VisualArtifact
+
+        if not isinstance(artifact, VisualArtifact):
+            raise TypeError("Expected a validated VisualArtifact")
+        source = self.connection.execute(
+            "SELECT sha256, filename FROM pages WHERE source_id=? AND physical_page=?",
+            (artifact.source_id, artifact.physical_page),
+        ).fetchone()
+        if (
+            source is None
+            or source["sha256"] != artifact.source_sha256
+            or (source["filename"] != artifact.filename)
+        ):
+            raise ValueError("Visual artifact does not match an indexed source page")
+        if artifact.review_status == "rejected":
+            raise ValueError("Rejected artifacts cannot be indexed")
+        if artifact.kind == "table" and artifact.table is None:
+            raise ValueError("Table imports require structured cells")
+        fingerprint = artifact.fingerprint()
+        existing = self.connection.execute(
+            "SELECT fingerprint FROM visual_artifacts WHERE artifact_id=?",
+            (artifact.artifact_id,),
+        ).fetchone()
+        if existing and existing[0] == fingerprint:
+            return False
+        page = PageRecord(
+            source_id=artifact.source_id,
+            investigation_id=artifact.investigation_id,
+            filename=artifact.filename,
+            source_url=artifact.source_url,
+            sha256=artifact.source_sha256,
+            physical_page=artifact.physical_page,
+            text=artifact.retrieval_text(),
+        )
+        chunks = chunk_page(page)
+        with self.connection:
+            prior = [
+                r[0]
+                for r in self.connection.execute(
+                    "SELECT chunk_id FROM visual_chunks WHERE artifact_id=?",
+                    (artifact.artifact_id,),
+                )
+            ]
+            for chunk_id in prior:
+                for table in ("vectors", "chunks_fts", "chunks", "visual_chunks"):
+                    self.connection.execute(f"DELETE FROM {table} WHERE chunk_id=?", (chunk_id,))
+            self.connection.execute(
+                "INSERT OR REPLACE INTO visual_artifacts VALUES (?, ?, ?)",
+                (artifact.artifact_id, fingerprint, artifact.model_dump_json()),
+            )
+            for chunk in chunks:
+                chunk.chunk_id = f"{artifact.artifact_id}:v{fingerprint[:12]}:c{chunk.chunk_index}"
+                self.connection.execute(
+                    "INSERT INTO chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        chunk.chunk_id,
+                        chunk.source_id,
+                        chunk.investigation_id,
+                        chunk.filename,
+                        chunk.source_url,
+                        chunk.sha256,
+                        chunk.physical_page,
+                        chunk.chunk_index,
+                        chunk.char_start,
+                        chunk.char_end,
+                        chunk.text,
+                    ),
+                )
+                self.connection.execute(
+                    "INSERT INTO chunks_fts VALUES (?, ?)", (chunk.chunk_id, chunk.text)
+                )
+                self.connection.execute(
+                    "INSERT INTO visual_chunks VALUES (?, ?)",
+                    (chunk.chunk_id, artifact.artifact_id),
+                )
+        return True
+
+    def append_vectors(
+        self, *, model_key: str, model: str, dimensions: int, vectors: dict[str, list[float]]
+    ) -> None:
+        """Add only new visual vectors; existing text vectors remain untouched."""
+        ids = {r[0] for r in self.connection.execute("SELECT chunk_id FROM chunks")}
+        if not set(vectors) <= ids or any(len(v) != dimensions for v in vectors.values()):
+            raise ValueError("Vectors must match existing chunk IDs and namespace dimensions")
+        with self.connection:
+            self.connection.execute(
+                "INSERT INTO vector_namespaces VALUES (?, 'openai', ?, NULL, ?, 1, NULL) "
+                "ON CONFLICT(model_key) DO NOTHING",
+                (model_key, model, dimensions),
+            )
+            found = self.connection.execute(
+                "SELECT dimensions FROM vector_namespaces WHERE model_key=?",
+                (model_key,),
+            ).fetchone()
+            if found[0] != dimensions:
+                raise ValueError("Namespace dimensions differ")
+            self.connection.executemany(
+                "INSERT OR REPLACE INTO vectors VALUES (?, ?, ?)",
+                [(model_key, key, encode_vector(value)) for key, value in vectors.items()],
+            )
 
     def list_chunks(self) -> list[ChunkRecord]:
         rows = self.connection.execute(
@@ -228,4 +368,4 @@ class DocumentStore:
             result["score"] = cosine_similarity(query_vector, stored)
             ranked.append(result)
         ranked.sort(key=lambda item: (-float(item["score"]), str(item["chunk_id"])))
-        return ranked[:top_k]
+        return self._attach_visuals(ranked[:top_k])

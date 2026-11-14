@@ -84,6 +84,8 @@ class OpenAIAnswerProvider:
                 "Keep units, qualifications, and experimental scope intact. Return "
                 "insufficient_evidence with no claims when the question is not supported. "
                 "Do not substitute an answer about different materials or conditions. "
+                "Visual descriptions are unreviewed interpretations: identify them as such, "
+                "and never present inferred plot values as measured experimental data. "
                 "Missing evidence means missing from this indexed collection, not never studied. "
                 "Limitations must describe retrieval or answer scope only. Any scientific "
                 "qualification or conflicting finding must be a cited claim, "

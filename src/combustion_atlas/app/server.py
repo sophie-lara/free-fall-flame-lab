@@ -423,6 +423,24 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     path.read_bytes(),
                     mimetypes.guess_type(path.name)[0] or "application/octet-stream",
                 )
+        elif parsed.path.startswith("/api/visuals/"):
+            from combustion_atlas.rag.visual_models import VisualArtifact
+            from combustion_atlas.rag.visuals import crop_file
+
+            artifact_id = parsed.path.removeprefix("/api/visuals/")
+            if not atlas.database.is_file():
+                self._json({"error": "Visual unavailable"}, HTTPStatus.NOT_FOUND)
+                return
+            with DocumentStore(atlas.database) as store:
+                row = store.connection.execute(
+                    "SELECT payload FROM visual_artifacts WHERE artifact_id=?",
+                    (artifact_id,),
+                ).fetchone()
+            if row is None:
+                self._json({"error": "Visual unavailable"}, HTTPStatus.NOT_FOUND)
+            else:
+                artifact = VisualArtifact.model_validate_json(row[0])
+                self._content(crop_file(atlas.root, artifact).read_bytes(), "image/png")
         else:
             self._serve_static(parsed.path)
 
