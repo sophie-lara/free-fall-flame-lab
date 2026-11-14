@@ -9,8 +9,9 @@ dist/
 build/
 *.egg-info/
 
+
 # Local configuration and operating-system files
-.env
+.env*
 .DS_Store
 
 # Source captures and generated research artifacts
