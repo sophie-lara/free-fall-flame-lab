@@ -1,0 +1,613 @@
+{
+  "contract": "mapping-proposal-v1",
+  "source": {
+    "schema_version": "1.0",
+    "cells": [
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "PI",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "Olson",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Test #",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "O3b",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Date",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "6/13/2014",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "GMT",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "164",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Sample #",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "205M",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Fuel Sample Material",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "1/4\" clear rod",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Flow restrictor",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "2",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Fan display",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "",
+        "state": "blank"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Air display",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "5  3  2  1  low",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Radiometer gain   (1000   250   50   10)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "1000   250",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Total Frames Shot",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "306",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Calibrated  initial O2 % by vol ",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "18",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Calibrated final O2 % by vol",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "17.7",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Initial CO2 % by vol",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "0.28",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Final CO2 % by vol",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "0.53",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Initial CO (ppm)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "22",
+        "state": "present"
+      },
+      {
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "filename": "PSI-25_Experimental table_BASS-II.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+        "kind": "csv",
+        "csv_record": 51,
+        "csv_column": "Final CO (ppm)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "116",
+        "state": "present"
+      }
+    ],
+    "context": []
+  },
+  "proposal": {
+    "schema_version": "mapping-proposal-v1",
+    "profile": "bass_ii",
+    "fields": [
+      {
+        "canonical_field": "principal_investigator",
+        "source_indexes": [
+          0
+        ],
+        "value": "Olson",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "test_id",
+        "source_indexes": [
+          1
+        ],
+        "value": "O3b",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "date",
+        "source_indexes": [
+          2
+        ],
+        "value": "6/13/2014",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "gmt",
+        "source_indexes": [
+          3
+        ],
+        "value": "164",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "sample_id",
+        "source_indexes": [
+          4
+        ],
+        "value": "205M",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "material_description",
+        "source_indexes": [
+          5
+        ],
+        "value": "1/4\" clear rod",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "geometry",
+        "source_indexes": [
+          5
+        ],
+        "value": "rod",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "proposed",
+        "note": "Shape is stated in the source description."
+      },
+      {
+        "canonical_field": "flow_restrictor",
+        "source_indexes": [
+          6
+        ],
+        "value": "2",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "fan_display",
+        "source_indexes": [
+          7
+        ],
+        "value": null,
+        "unit": null,
+        "qualifier": null,
+        "missingness": "source_blank",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "air_display",
+        "source_indexes": [
+          8
+        ],
+        "value": "5  3  2  1  low",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "radiometer_gain",
+        "source_indexes": [
+          9
+        ],
+        "value": "1000   250",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "frames_shot",
+        "source_indexes": [
+          10
+        ],
+        "value": "306",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "initial_oxygen",
+        "source_indexes": [
+          11
+        ],
+        "value": "18",
+        "unit": "% by vol",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "final_oxygen",
+        "source_indexes": [
+          12
+        ],
+        "value": "17.7",
+        "unit": "% by vol",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "initial_co2",
+        "source_indexes": [
+          13
+        ],
+        "value": "0.28",
+        "unit": "% by vol",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "final_co2",
+        "source_indexes": [
+          14
+        ],
+        "value": "0.53",
+        "unit": "% by vol",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "initial_co",
+        "source_indexes": [
+          15
+        ],
+        "value": "22",
+        "unit": "ppm",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "final_co",
+        "source_indexes": [
+          16
+        ],
+        "value": "116",
+        "unit": "ppm",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      }
+    ]
+  },
+  "validation_issues": [
+    "instrument_settings_require_interpretation"
+  ],
+  "response_id": "resp_03af3436bb6041fe016af8d6d1aec487d1affadc66faa810f8",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 3904,
+    "input_tokens_details": {
+      "cache_write_tokens": 3901,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 3901
+      }
+    },
+    "output_tokens": 1126,
+    "output_tokens_details": {
+      "reasoning_tokens": 353
+    },
+    "total_tokens": 5030
+  },
+  "status": "unreviewed",
+  "record": {
+    "investigation_id": "PSI-25",
+    "test_id": "O3b",
+    "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+    "record_number": 51,
+    "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+    "split": "unreviewed"
+  },
+  "source_mappings": [],
+  "run_metadata": {
+    "plan_sha256": "7a193eb9be658cf84f9070264301c2e829c765be504b2b255abc6bf9b6f805eb"
+  },
+  "deterministic_material_fields": {
+    "material": null,
+    "geometry": null,
+    "dimensions": {}
+  },
+  "unreferenced_source_cells": [],
+  "source_issues": [],
+  "request_sha256": "6c7561bc5450f993323115c7f986b204292fa4d6da574c38726a801380f2ebfc"
+}

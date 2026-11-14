@@ -1,0 +1,203 @@
+# CSV ingestion review
+
+Completed: 123 of 123
+Rows with actionable flags: 61
+
+All outputs are unreviewed. A row without flags is not an approval.
+BASS instrument/control settings require interpretation even if no row-level issue is listed.
+
+## Rows with flags
+
+- PSI-25 / B11 ([result](row-0001/01.json))
+  - fields[6]:model_reported_uncertainty
+  - fields[6]:unverified_width_interpretation
+  - missing_extractable_field:geometry
+- PSI-25 / B13 ([result](row-0003/01.json))
+  - fields[8]:unmapped_source_field
+- PSI-25 / B15 ([result](row-0005/01.json))
+  - fields[6]:unverified_width_interpretation
+  - missing_extractable_field:geometry
+- PSI-25 / B16 ([result](row-0006/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / B19 ([result](row-0009/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / B20 ([result](row-0010/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / M1 ([result](row-0017/01.json))
+  - fields[8]:model_reported_uncertainty
+  - fields[8]:unverified_width_interpretation
+  - fields[9]:model_reported_uncertainty
+- PSI-25 / M14 ([result](row-0030/01.json))
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / M15 ([result](row-0031/01.json))
+  - fields[8]:model_reported_uncertainty
+  - fields[8]:unverified_width_interpretation
+- PSI-25 / M19 ([result](row-0035/01.json))
+  - fields[5]:model_reported_uncertainty
+- PSI-25 / O1 ([result](row-0037/01.json))
+  - fields[6]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+- PSI-25 / O2 ([result](row-0038/01.json))
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / O3a ([result](row-0039/01.json))
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / O4 ([result](row-0041/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / O5b ([result](row-0043/01.json))
+  - fields[8]:model_reported_uncertainty
+  - fields[8]:mapping_uncertain
+  - fields[8]:unverified_width_interpretation
+- PSI-25 / O6 ([result](row-0044/01.json))
+  - fields[6]:model_reported_uncertainty
+- PSI-25 / O7 ([result](row-0045/01.json))
+  - fields[6]:model_reported_uncertainty
+- PSI-25 / O8a ([result](row-0046/01.json))
+  - fields[5]:model_reported_uncertainty
+- PSI-25 / O8b ([result](row-0047/01.json))
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:mapping_uncertain
+- PSI-25 / O10 ([result](row-0049/01.json))
+  - fields[5]:model_reported_uncertainty
+- PSI-25 / O12 ([result](row-0051/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[6]:model_reported_uncertainty
+  - fields[16]:source_marker_mismatch
+  - fields[17]:source_marker_mismatch
+- PSI-25 / O13b ([result](row-0053/01.json))
+  - fields[8]:unmapped_source_field
+  - fields[19]:model_reported_uncertainty
+- PSI-25 / O14 ([result](row-0054/01.json))
+  - fields[6]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+- PSI-25 / O15a ([result](row-0055/01.json))
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:mapping_uncertain
+- PSI-25 / O15b ([result](row-0056/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / O16 ([result](row-0057/01.json))
+  - fields[6]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+- PSI-25 / O20 ([result](row-0061/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[6]:model_reported_uncertainty
+- PSI-25 / O21 ([result](row-0062/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / O22 ([result](row-0063/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / P1 ([result](row-0064/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / P2 ([result](row-0065/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / P3a ([result](row-0066/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:mapping_uncertain
+  - fields[8]:unmapped_source_field
+- PSI-25 / P3b ([result](row-0067/01.json))
+  - fields[6]:model_reported_uncertainty
+- PSI-25 / P6 ([result](row-0070/01.json))
+  - fields[5]:model_reported_uncertainty
+- PSI-25 / P8 ([result](row-0071/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / P9 ([result](row-0072/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / P13a ([result](row-0075/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / P13b ([result](row-0076/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:unverified_width_interpretation
+- PSI-25 / P16 ([result](row-0079/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / P17 ([result](row-0080/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / P19 ([result](row-0082/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+- PSI-25 / P22a ([result](row-0086/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+- PSI-25 / P24 ([result](row-0089/01.json))
+  - fields[6]:model_reported_uncertainty
+- PSI-25 / P25 ([result](row-0090/01.json))
+  - fields[5]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+  - fields[7]:mapping_uncertain
+- PSI-25 / T2 ([result](row-0092/01.json))
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / T3 ([result](row-0093/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / T4 ([result](row-0094/01.json))
+  - fields[6]:model_reported_uncertainty
+- PSI-25 / T5 ([result](row-0095/01.json))
+  - fields[6]:model_reported_uncertainty
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / T6 ([result](row-0096/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / T7 ([result](row-0097/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / T10 ([result](row-0099/01.json))
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:mapping_uncertain
+- PSI-25 / T12 ([result](row-0101/01.json))
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / T16 ([result](row-0105/01.json))
+  - fields[7]:unmapped_source_field
+- PSI-25 / T24 ([result](row-0113/01.json))
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / T26 ([result](row-0115/01.json))
+  - fields[7]:model_reported_uncertainty
+- PSI-25 / T28a ([result](row-0117/01.json))
+  - fields[7]:unmapped_source_field
+  - fields[7]:model_reported_uncertainty
+  - fields[7]:mapping_uncertain
+- PSI-25 / T28b ([result](row-0118/01.json))
+  - fields[6]:model_reported_uncertainty
+  - fields[7]:unmapped_source_field
+- PSI-99 / SAFFIRE-II-2-3 ([result](row-0120/01.json))
+  - fields[11]:ambiguous_source_gravity_header
+  - fields[12]:ambiguous_source_gravity_header
+- PSI-99 / SAFFIRE-II-2-5 ([result](row-0121/01.json))
+  - fields[2]:ambiguous_leading_zero
+  - fields[11]:ambiguous_source_gravity_header
+  - fields[12]:mapping_uncertain
+  - fields[12]:ambiguous_source_gravity_header
+  - fields[12]:unit_conflicts_with_field_name
+- PSI-99 / SAFFIRE-II-2-8 ([result](row-0122/01.json))
+  - fields[2]:source_marker_mismatch
+  - fields[11]:ambiguous_source_gravity_header
+  - fields[12]:ambiguous_source_gravity_header
+  - fields[12]:source_marker_mismatch
+- PSI-99 / SAFFIRE-II-2-9 ([result](row-0123/01.json))
+  - fields[11]:ambiguous_source_gravity_header
+  - fields[12]:ambiguous_source_gravity_header
+  - fields[12]:source_marker_mismatch
+
+## Suggested audit of rows without flags
+
+Deterministic selection; check values and mappings against source.
+
+- PSI-25 / M18 ([result](row-0034/01.json))
+- PSI-25 / P21a ([result](row-0084/01.json))
+- PSI-25 / T18 ([result](row-0107/01.json))
+- PSI-25 / F4 ([result](row-0016/01.json))
+- PSI-25 / T1 ([result](row-0091/01.json))

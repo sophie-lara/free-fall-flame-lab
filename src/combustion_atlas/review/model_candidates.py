@@ -281,6 +281,11 @@ def main() -> None:
         type=Path,
         help="Import only flagged rows and the audit sample from a full run",
     )
+    parser.add_argument(
+        "--all-rows",
+        action="store_true",
+        help="With --review-index, import every verified row (flags still recorded)",
+    )
     args = parser.parse_args()
     root = args.workspace.resolve()
     if args.review_index:
@@ -302,7 +307,7 @@ def main() -> None:
             raise ValueError("Review index is incomplete or does not match the run plan")
         paths = []
         for entry in index["records"]:
-            if not (entry["review_flagged"] or entry["audit_sample"]):
+            if not (args.all_rows or entry["review_flagged"] or entry["audit_sample"]):
                 continue
             path = (result_root / entry["result_path"]).resolve()
             if (
@@ -316,13 +321,28 @@ def main() -> None:
             raise ValueError("Duplicate results in review index")
         args.results = result_root
     else:
+        if args.all_rows:
+            raise ValueError("--all-rows requires --review-index")
         paths = sorted(args.results.glob("[0-9][0-9].json"))
         paths += sorted(args.results.glob("row-*/01.json"))
     if not paths:
         raise ValueError("No result files")
-    adapted = [convert(root, path) for path in paths]
-    for item, path in zip(adapted, paths, strict=True):
+    adapted = []
+    skipped = []
+    for path in paths:
+        try:
+            item = convert(root, path)
+        except ValueError as error:
+            # Only --all-rows tolerates rows needing manual resolution; they are listed,
+            # never silently dropped.
+            if not args.all_rows or "manual resolution" not in str(error):
+                raise
+            skipped.append(
+                {"file": path.relative_to(args.results).as_posix(), "reason": str(error)}
+            )
+            continue
         item["result_file"] = path.relative_to(args.results).as_posix()
+        adapted.append(item)
     keys = [
         (
             item["candidate"]["identity"]["investigation_id"],
@@ -356,6 +376,7 @@ def main() -> None:
                     }
                     for item in adapted
                 ],
+                **({"skipped_rows": skipped} if skipped else {}),
             },
             stream,
             ensure_ascii=False,
@@ -363,6 +384,8 @@ def main() -> None:
         )
         stream.write("\n")
     print(f"Prepared {len(adapted)} unreviewed candidates")
+    for row in skipped:
+        print(f"Skipped (needs manual resolution): {row['file']}: {row['reason']}")
 
 
 if __name__ == "__main__":

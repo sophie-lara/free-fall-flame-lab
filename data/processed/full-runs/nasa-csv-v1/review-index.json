@@ -1,0 +1,2035 @@
+{
+  "schema_version": "full-run-review-index-v1",
+  "plan_sha256": "7a193eb9be658cf84f9070264301c2e829c765be504b2b255abc6bf9b6f805eb",
+  "completed": 123,
+  "records": [
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B11",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 12,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0001/01.json",
+      "result_sha256": "f31c33fff578aa2a3b5a8bff7eda49efd803efa84e4424182dd44537a8ce6487",
+      "issues": [
+        "fields[6]:model_reported_uncertainty",
+        "fields[6]:unverified_width_interpretation",
+        "missing_extractable_field:geometry"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B12",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 13,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0002/01.json",
+      "result_sha256": "ebdee3525f808820cf4928157af8874289b312b5b1451045339343be641e5d69",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B13",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 14,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0003/01.json",
+      "result_sha256": "498f395570aa30ffd97debb7d9ab045240babacb987ee9b26efe6ed16f2f8b59",
+      "issues": [
+        "fields[8]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B14",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 15,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0004/01.json",
+      "result_sha256": "19c304d6e43b907bda7458d0fcc048b3586d921bd1aa1f36a4bab2ab7085c582",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B15",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 16,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0005/01.json",
+      "result_sha256": "88170b9b17eb8ab3d9c925f553bbfba8a88e8c89ce503bd67ee9e9d7f6dd608f",
+      "issues": [
+        "fields[6]:unverified_width_interpretation",
+        "missing_extractable_field:geometry"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B16",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 17,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0006/01.json",
+      "result_sha256": "a08a0ef7689c5e40996664d8ff32491c2ca8e098da85306195970c44f01dee16",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B17",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 18,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0007/01.json",
+      "result_sha256": "e020919ef0f1c8c11cc826c8d82ff715b4e12f5703b6befba18ae315f844e5e0",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B18",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 19,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0008/01.json",
+      "result_sha256": "e2969051b5096503e9fc79aa7b5d6367da0644c4d0826b6583e763263c1cc921",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B19",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 20,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0009/01.json",
+      "result_sha256": "3975cfd599fb46032f60f6d2fc2a65f3c75080c7580aa83df10270a34342a306",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B20",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 21,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0010/01.json",
+      "result_sha256": "90b0f6d99208181b7a00d0b77b254e53bae024dbbf44bc2cb2a354b5af54b428",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B21",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 22,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0011/01.json",
+      "result_sha256": "37b2d08f01091b40f1b092d07871ec39507d57d8c5b0cb061cd46ad910ffbb49",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "B22",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 23,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0012/01.json",
+      "result_sha256": "10eff9e7683e35bad2d08b812c4f5740a04e5f611fd4acf3f65674ea6fa27a6d",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "F1",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 24,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0013/01.json",
+      "result_sha256": "73a4c4670a810793eb11e546bf9ce6f3fc14625c49cc44736d59093d57a7c7b2",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "F2",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 25,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0014/01.json",
+      "result_sha256": "4a4d34ea6549184acfb5ea425dc4b193edb061fad3405224052d15a4117c9992",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "F3",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 26,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0015/01.json",
+      "result_sha256": "927aac473b5f4872c9bad9a733abba3c4061cb50c44125442e4ff4f63e53c264",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "F4",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 27,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0016/01.json",
+      "result_sha256": "f5297584950b062271524b1b8469ba5f443ddff9184eb8d50b6625cf171c77b7",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": true
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M1",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 28,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0017/01.json",
+      "result_sha256": "e4bc3a09371bec743d340281044fb1988261b6110b6dff17e2e40a8c19444a1b",
+      "issues": [
+        "fields[8]:model_reported_uncertainty",
+        "fields[8]:unverified_width_interpretation",
+        "fields[9]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M2",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 29,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0018/01.json",
+      "result_sha256": "cb8007feee9af0c70b7df26941b475a34c206133e7fb085dc3821782d2eb3b8b",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M3",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 30,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0019/01.json",
+      "result_sha256": "37679595d105ca11f23849b20e6e598d1b1c06c11861c3631b9a9ac1cfd1f302",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M4",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 31,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0020/01.json",
+      "result_sha256": "d068c34817e7979a5588f47b4130f26cc55f960b4b4d4b0793ce04d103edb02f",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M5",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 32,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0021/01.json",
+      "result_sha256": "3c3c72b7fc8509195aa01585cd47d1229e822d2891eda9e3714048ada96bda98",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M6",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 33,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0022/01.json",
+      "result_sha256": "ba621f4a35223381b4114897fe5f2ef1c4186f640cdfe384c08657fe88b79b09",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M7",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 34,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0023/01.json",
+      "result_sha256": "bf186c7a6b1dc47eae112e1c9cd3342b69633ff19ed3692ca3310a08a74942a9",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M8",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 35,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0024/01.json",
+      "result_sha256": "480c2a586cf9615d5d4a0cd8b54622416704c056f4a9d93729285db7cba3a79e",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M9",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 36,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0025/01.json",
+      "result_sha256": "d9580cde0c8879e5d03d51375ba1092b738d3fb2743108474020bbfcc645c08f",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M10",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 37,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0026/01.json",
+      "result_sha256": "b214641316f27e751f929db5af587607113cc80839e55ca86e6c920b315d3541",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M11",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 38,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0027/01.json",
+      "result_sha256": "36f6b53e846e601f15cc88feccb0742f9f22a1d5be3f5f2adf55efd95020c69d",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M12",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 39,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0028/01.json",
+      "result_sha256": "457b885993d3bd11fc5dea439de62e3662e48bf447817feb1ed19f77575a4c22",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M13",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 40,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0029/01.json",
+      "result_sha256": "e7e14161630902411961476ed0801246aa7d9fd873ee4b789a8aa6f1043884c4",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M14",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 41,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0030/01.json",
+      "result_sha256": "344e72f5c6f2028cc58ccb69f107602e7962e0b06e6e37c89d59c9405cd3b73a",
+      "issues": [
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M15",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 42,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0031/01.json",
+      "result_sha256": "ba3a3ecdc30d1c85de3463cbadfefe00b54b3ff8188f48794c6cfebf4de7a2e2",
+      "issues": [
+        "fields[8]:model_reported_uncertainty",
+        "fields[8]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M16",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 43,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0032/01.json",
+      "result_sha256": "7afe94b50f1f485895e4d2a33679333fbbc6242a87005b5dc6b08a4aa51971db",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M17",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 44,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0033/01.json",
+      "result_sha256": "40f33449ca0001acd950490d8be97e0fc0cf765b28d1379aaea368fddabec0d2",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M18",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 45,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0034/01.json",
+      "result_sha256": "54891d1ce06993c98c452e1f8f5bec81ef6f44ca6cef07a3a29a4d0d838255d8",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": true
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M19",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 46,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0035/01.json",
+      "result_sha256": "bc49275559f7a6b138666a957f1653fa121ecf3b348e46c9176234a61d827278",
+      "issues": [
+        "fields[5]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "M20",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 47,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0036/01.json",
+      "result_sha256": "4f9bd04880dc9a2a6f6699ad36b47decaf8328d545a5b695f96e4cb845b64321",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O1",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 48,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0037/01.json",
+      "result_sha256": "4c2aa70d3e8c4d2813b7818e6ffcdaa82e8ea89de03b62b0160aca4456ad0ce5",
+      "issues": [
+        "fields[6]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O2",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 49,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0038/01.json",
+      "result_sha256": "191ea400c1da3034943680e43650d07d15e464b758f475ab99dc65cc63956692",
+      "issues": [
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O3a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 50,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0039/01.json",
+      "result_sha256": "12c7592917308b94835225a14c7e2f4e6a2f3d1024f13528085af650a3ba9195",
+      "issues": [
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O3b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 51,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0040/01.json",
+      "result_sha256": "9aa86a99b64c1d12f4d8ba7573395b09c78b53cb1ac646d9cb9efc95fe68f5e6",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O4",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 52,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0041/01.json",
+      "result_sha256": "47d2954b765d6be29a0257ade6f7902c8167c72b645716f17767caa6dfb46201",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O5a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 53,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0042/01.json",
+      "result_sha256": "0423c91656b891fcd539f62e6210b7db893e3cf6fd1014f832f632bc9dbdb38e",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O5b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 54,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0043/01.json",
+      "result_sha256": "72c0ad0ed8314c0ccdf0d6a6f9378aba95539c4992039bdc5fab6ef9aa484740",
+      "issues": [
+        "fields[8]:model_reported_uncertainty",
+        "fields[8]:mapping_uncertain",
+        "fields[8]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O6",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 55,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0044/01.json",
+      "result_sha256": "d4fdbe005b54e129be453e9ee70776e8b4c5ea6f2255d27165a5de6618c3ef6a",
+      "issues": [
+        "fields[6]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O7",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 56,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0045/01.json",
+      "result_sha256": "aeb1e591de4a571ac47be7663925236e11784826479c15aeabc32e9cb6ca8593",
+      "issues": [
+        "fields[6]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O8a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 57,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0046/01.json",
+      "result_sha256": "9f5169e6e3e33687e181b7ba3ebf8b791ae84dc378a7b85c8e28fddcc474d778",
+      "issues": [
+        "fields[5]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O8b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 58,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0047/01.json",
+      "result_sha256": "d80ae3100f215bb9fd29f8386a494890f2bdba995cba140e18681b1ec8a0433e",
+      "issues": [
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:mapping_uncertain"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O9",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 59,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0048/01.json",
+      "result_sha256": "d3bccdaeac987c576a70b756bbc7c6945c8aa76dca9b8c962687a383047311b3",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O10",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 60,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0049/01.json",
+      "result_sha256": "33891eb4762cc6361bb62eec7207c93151e26ad8e6c3a93f2c2fadac92c241a1",
+      "issues": [
+        "fields[5]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O11",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 61,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0050/01.json",
+      "result_sha256": "298ec84b934dc8ca20dde9f25356918811b3d4dd6de6d45f3388b2243b96f377",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O12",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 62,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0051/01.json",
+      "result_sha256": "52380b0c14dfbd2bdb14987ebf1e71e61763aef130df00f0162308a3501a3dc3",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[6]:model_reported_uncertainty",
+        "fields[16]:source_marker_mismatch",
+        "fields[17]:source_marker_mismatch"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O13a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 63,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0052/01.json",
+      "result_sha256": "4129db1ae3e3f0e680c1d3b97be4bc5f2197f4702748dd724eefbd817a97b6d4",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O13b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 64,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0053/01.json",
+      "result_sha256": "2b5a8b898abbcad6a81e254750abf0032b7eac63552a0deba9551599d414434e",
+      "issues": [
+        "fields[8]:unmapped_source_field",
+        "fields[19]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O14",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 65,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0054/01.json",
+      "result_sha256": "4949d4a44fce00c1b9a9375c127de3cc738da7b011d73bf0891282ca71d5cbab",
+      "issues": [
+        "fields[6]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O15a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 66,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0055/01.json",
+      "result_sha256": "589e7c8ba75a8ff3319ee2e63a00da46423af725cee1a7a02946f5fc6f889bf4",
+      "issues": [
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:mapping_uncertain"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O15b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 67,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0056/01.json",
+      "result_sha256": "5800ea1791cc40364dcca1a6565564b3937a95a00bb9487395f3c8f442a73ce0",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O16",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 68,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0057/01.json",
+      "result_sha256": "c9c1731ec7c5e3dfa689221c72a978394122505cb27bc58b7b2bf8dd26227570",
+      "issues": [
+        "fields[6]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O17",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 69,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0058/01.json",
+      "result_sha256": "aeca9721b277807fa4eaa98af61d60ded6e51f70252abd111076d4f9bfe12144",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O18",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 70,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0059/01.json",
+      "result_sha256": "a06286bcc14b3f30dc92aa258aa6577d5f821239dbe48d4ad013df9b4c090ecf",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O19",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 71,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0060/01.json",
+      "result_sha256": "2a30b32bea41a920cc7abaab35d5d11a5d19381ed3e7bd2435af6b731da5fcce",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O20",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 72,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0061/01.json",
+      "result_sha256": "01e5da5460152bbeab98965f030c3d6fbd9a0206099c862c2bcd0ee2eb3ecb9b",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[6]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O21",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 73,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0062/01.json",
+      "result_sha256": "3dd47487fad0bd77501308003f1a2b9ae97586eb0bf33ad969d0bd31faa0856f",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "O22",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 74,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0063/01.json",
+      "result_sha256": "8fe515b8dfe305c21e1a5fef3f50296461bc2112c90bb36d5a156b0cf655bcdc",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P1",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 75,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0064/01.json",
+      "result_sha256": "be1f3277447a8aa23497ee3b5fb957aa6af4efcd44b40d246a48190ee212d98b",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P2",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 76,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0065/01.json",
+      "result_sha256": "f4b436a23f5ae3fff6eec52e3c9d7d01dde9bea36cef204e7f4eab779901312d",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P3a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 77,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0066/01.json",
+      "result_sha256": "ddb968af687c51d47e66b1d3690680605ef418543bd3ba80ef52550607490e94",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:mapping_uncertain",
+        "fields[8]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P3b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 78,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0067/01.json",
+      "result_sha256": "aba44acc48900e343f21139e3ff99632fdf1445e33827cc307fbfdd838724be9",
+      "issues": [
+        "fields[6]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P4",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 79,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0068/01.json",
+      "result_sha256": "719a3b7c22ab72ac9861c183be5e516258b205495d9950c26d4a2a0e1eec2b72",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P5",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 80,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0069/01.json",
+      "result_sha256": "faf42697ee18a87d99587eed97c28be17a1f99c1673f5ee88d05bb4349051b85",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P6",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 81,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0070/01.json",
+      "result_sha256": "a577d7be5f10dba9c59fc14cbe00ea4a7a74394f32cadda3e4b6f06687c48b5e",
+      "issues": [
+        "fields[5]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P8",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 82,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0071/01.json",
+      "result_sha256": "6906e2a4a30dbb407bb3c1523f53d2f3ff903d89b88608bd7e9c2375b952cb7f",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P9",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 83,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0072/01.json",
+      "result_sha256": "aadbafc4d6d58b53d3807707cdb8c0124d07ce496502633623274d80004d6a3a",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P10",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 84,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0073/01.json",
+      "result_sha256": "dc485c22da024b4eaaae8571cd67f564a722c2f65baddf5db0c4e948c733f82e",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P12",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 85,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0074/01.json",
+      "result_sha256": "899ce4e044bc41ccfdde676fa6d0286794762f23df616e699ae3cdff08999a88",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P13a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 86,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0075/01.json",
+      "result_sha256": "3177a6165fd677ff5ccf6b4ea72c62a3438b7f39f3406a6350f85b66f62c0ed0",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P13b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 87,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0076/01.json",
+      "result_sha256": "970507ec43fcb74bf81e9dacc0adf08c0938c25085385a2940a3504c982f3033",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:unverified_width_interpretation"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P14",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 88,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0077/01.json",
+      "result_sha256": "cd07ce1d9599a5cee2246350747b40affe0c98b47ba2acd1e62abb5bf6d2c8a3",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P15",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 89,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0078/01.json",
+      "result_sha256": "31ac3e5509a0b5ee2d452b045b183572d02f55ce6bc69c379a23048ac434e228",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P16",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 90,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0079/01.json",
+      "result_sha256": "3314ead5553ffbc3c5d7d329f213a897d24a0f53ef7b284da97c0199328e8b1a",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P17",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 91,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0080/01.json",
+      "result_sha256": "58f963ea73af242ce6a0578f482f230cd453fce798d3ba07c1c3d88c4b8e5dca",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P18",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 92,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0081/01.json",
+      "result_sha256": "ff256cc815672bce8e4cfeaf430d5404c4499a6c6189a55c861af4cd8b4adce6",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P19",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 93,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0082/01.json",
+      "result_sha256": "00a86dced4e4ed8162077b5ee09edf552372d3e017681fd6e889b6d70a6098f6",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P20",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 94,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0083/01.json",
+      "result_sha256": "977516682fba44bfa4848fa797073be0ee93d967ad0270b2d88813f05deab9cb",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P21a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 95,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0084/01.json",
+      "result_sha256": "7093f2c095d5a5f5381dc1136afd8fa5cad016b554e256c9108f7a98433a73d8",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": true
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P21b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 96,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0085/01.json",
+      "result_sha256": "5e288e0447647dafd71d862dda4980dcf19cef35a4e23d3cd9397b83c683ab6a",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P22a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 97,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0086/01.json",
+      "result_sha256": "a9dc3cef981a51cf671013bece0aa32b520126d3cf78d3a10ac83082a231c610",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P22b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 98,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0087/01.json",
+      "result_sha256": "172df1e084f76f8522036554cd2b18a98833cf0d9b7363ec504a12dbe4783b37",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P23",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 99,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0088/01.json",
+      "result_sha256": "153bdb6f9df1a2771c9502d56db553eb877cf131173a861ddde25f1aff8a00a7",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P24",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 100,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0089/01.json",
+      "result_sha256": "a44bdc7fb057db109d689c673c1703d81247fb119da1eb5b0d3a2c7484add44b",
+      "issues": [
+        "fields[6]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "P25",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 101,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0090/01.json",
+      "result_sha256": "939f1bdf5a177ca75cb4b8c529ff2a12a978bcef6e504c60db59f5adc9d9e0b7",
+      "issues": [
+        "fields[5]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field",
+        "fields[7]:mapping_uncertain"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T1",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 102,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0091/01.json",
+      "result_sha256": "9b5034ef51f0cad9b100a07cffadba209db3fae4ed2f308b459430e50329d29d",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": true
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T2",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 103,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0092/01.json",
+      "result_sha256": "086b4ef4ca70fd487bae3b93cb27d5e2ab34a2785feaa86cb5ba621bbe6b1c06",
+      "issues": [
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T3",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 104,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0093/01.json",
+      "result_sha256": "4a5b4334d227e8170941fda5174308552934a644d31f2aec9fb012c7e4b34df2",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T4",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 105,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0094/01.json",
+      "result_sha256": "dcc8454d8f28c0797c08fc2744b0d49d55856cd650957b9c2e1963e1bdc37fea",
+      "issues": [
+        "fields[6]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T5",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 106,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0095/01.json",
+      "result_sha256": "76e76c8e9a8a4abda88d3596017fead1b8650ac803d6c1796bea9513deba97ca",
+      "issues": [
+        "fields[6]:model_reported_uncertainty",
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T6",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 107,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0096/01.json",
+      "result_sha256": "59aa02778aec8deecec496810548c3fbb99706a9b89b9a3be4d8ab45689c0c02",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T7",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 108,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0097/01.json",
+      "result_sha256": "d87d039f2d7aef94a5d80cfc88342f1b427333cd1bba05e5343de8e305070bb6",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T9",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 109,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0098/01.json",
+      "result_sha256": "4c537aa4376ddf508cf5d60b4b994f24c0afac10299cc3f354b3018d0155e890",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T10",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 110,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0099/01.json",
+      "result_sha256": "1c253683a56a81c6f5bb4c5c4b54ff91cf6aa2b5051e5ff5a96c6fd5129b190d",
+      "issues": [
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:mapping_uncertain"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T11",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 111,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0100/01.json",
+      "result_sha256": "768c18415bfe12c7db478ed64421034a96b9db41331933c7fba0395c5efa1bcd",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T12",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 112,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0101/01.json",
+      "result_sha256": "bfa5207e5360fe17c16e11d1d00ed5c51d59c1d4273e196a7f2fb560c0b8e2f3",
+      "issues": [
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T13",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 113,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0102/01.json",
+      "result_sha256": "7d2cde1a40ff088f9a4f98e4e71a7941e60b1342338758c473c2e9e4c8f5d0ac",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T14",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 114,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0103/01.json",
+      "result_sha256": "502db9e1f7ce0e71b316d8aea085c2998dd6305ca66d3d9b1e82be91c18c7e9d",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T15",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 115,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0104/01.json",
+      "result_sha256": "96008cb4864a4a8e24565b791a545b183c2f6e14d563384e7c2c872016abe94e",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T16",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 116,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0105/01.json",
+      "result_sha256": "be4f4d2535d428a47bca1304c54b131e3aa9c3f6129cf5ebb95dc07f9765b5ce",
+      "issues": [
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T17",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 117,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0106/01.json",
+      "result_sha256": "8b57882566edce114fe8f858a4c8a69586916d25836227b87f3f6f29c1fc1e0f",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T18",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 118,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0107/01.json",
+      "result_sha256": "61efee4a48d942397d667952024d745ac235a250be68644a6601811ed96c5cb6",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": true
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T19",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 119,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0108/01.json",
+      "result_sha256": "af69f04aadcd2288418bdadf8bd2e8afc08402737ae6fef0e62924be3130a9d6",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T20",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 120,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0109/01.json",
+      "result_sha256": "2949cd028a0fb75fe66500e6aa0545b97574a022b2b0b9b70d4001188f5f82fa",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T21",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 121,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0110/01.json",
+      "result_sha256": "64c9c96695c6e0a90885b252d05f9f38f66317d4739d801c7bcd0bf1f851ce5b",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T22",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 122,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0111/01.json",
+      "result_sha256": "e9057541765c6539ff1296251e976d42faf2a77bc240d3c2e9361271e7fb813b",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T23",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 123,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0112/01.json",
+      "result_sha256": "46f372ca5ad44e2478f3f9ac0589ea0fa992e949f6188bfcd2f16fba34af2995",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T24",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 124,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0113/01.json",
+      "result_sha256": "bddf6b6b177ce5bddd76e583fd8734caf82c7bac7718b635dc22fb30967031af",
+      "issues": [
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T25",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 125,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0114/01.json",
+      "result_sha256": "abc93f18a9589940a330c76a223ea68a3f9958a0db175b15e204818e170b87c1",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T26",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 126,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0115/01.json",
+      "result_sha256": "1ef6ecef1094e7c7f9ff495e4a1beb8f4fdad89532eb7f3efe7149b2ee6febdb",
+      "issues": [
+        "fields[7]:model_reported_uncertainty"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T27",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 127,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0116/01.json",
+      "result_sha256": "085e86c005cc2e4361911930fffad7f813349d8857e73cbf13748e3212232e65",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T28a",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 128,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0117/01.json",
+      "result_sha256": "976864429b335daa57002054697c76fd30f95d832511e37871e654918cc54464",
+      "issues": [
+        "fields[7]:unmapped_source_field",
+        "fields[7]:model_reported_uncertainty",
+        "fields[7]:mapping_uncertain"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T28b",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 129,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0118/01.json",
+      "result_sha256": "e35616f71e24c3fb5a221ed1713406777627921f4faeb8633e503d3a3540edad",
+      "issues": [
+        "fields[6]:model_reported_uncertainty",
+        "fields[7]:unmapped_source_field"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-25",
+        "test_id": "T29",
+        "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+        "record_number": 130,
+        "source_file": "data/raw/preserved-review/PSI-25_Experimental table_BASS-II.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0119/01.json",
+      "result_sha256": "6c87843a114a1b0efc6240ce102e2854112b41e402eb8507fd109a9dafc8f7ca",
+      "issues": [],
+      "review_flagged": false,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-99",
+        "test_id": "SAFFIRE-II-2-3",
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "record_number": 4,
+        "source_file": "data/raw/preserved-review/PSI-99_Experimental table_SAFFIRE-2.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0120/01.json",
+      "result_sha256": "286a009471d6d1ecb9f6ecb5d3e45127e110d9c0c7fbb7faa79c8d9431e8c78d",
+      "issues": [
+        "fields[11]:ambiguous_source_gravity_header",
+        "fields[12]:ambiguous_source_gravity_header"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-99",
+        "test_id": "SAFFIRE-II-2-5",
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "record_number": 6,
+        "source_file": "data/raw/preserved-review/PSI-99_Experimental table_SAFFIRE-2.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0121/01.json",
+      "result_sha256": "28557c45f30f7a1da5c072b993461a95682005d1deea23900cbc3b86b4845936",
+      "issues": [
+        "fields[2]:ambiguous_leading_zero",
+        "fields[11]:ambiguous_source_gravity_header",
+        "fields[12]:mapping_uncertain",
+        "fields[12]:ambiguous_source_gravity_header",
+        "fields[12]:unit_conflicts_with_field_name"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-99",
+        "test_id": "SAFFIRE-II-2-8",
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "record_number": 9,
+        "source_file": "data/raw/preserved-review/PSI-99_Experimental table_SAFFIRE-2.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0122/01.json",
+      "result_sha256": "1355bc849f3d22288933d3ce4f632c0da2b77e5f09035f5f0da035763c113cdc",
+      "issues": [
+        "fields[2]:source_marker_mismatch",
+        "fields[11]:ambiguous_source_gravity_header",
+        "fields[12]:ambiguous_source_gravity_header",
+        "fields[12]:source_marker_mismatch"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    },
+    {
+      "record": {
+        "investigation_id": "PSI-99",
+        "test_id": "SAFFIRE-II-2-9",
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "record_number": 10,
+        "source_file": "data/raw/preserved-review/PSI-99_Experimental table_SAFFIRE-2.csv",
+        "split": "unreviewed"
+      },
+      "result_path": "row-0123/01.json",
+      "result_sha256": "93bde61e6d1c3bf3fc95810761e23e66f34b3b727c0068a13acef80a546d6f12",
+      "issues": [
+        "fields[11]:ambiguous_source_gravity_header",
+        "fields[12]:ambiguous_source_gravity_header",
+        "fields[12]:source_marker_mismatch"
+      ],
+      "review_flagged": true,
+      "audit_sample": false
+    }
+  ]
+}
