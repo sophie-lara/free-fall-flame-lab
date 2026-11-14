@@ -20,52 +20,90 @@ FLEX_FIELDS = {
 }
 
 
-def flex_mapping(batch: SourceBatch, record: dict[str, Any]) -> tuple[list[dict[str, Any]],
-                                                                       list[ReviewIssue]]:
+def flex_mapping(
+    batch: SourceBatch, record: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[ReviewIssue]]:
     if record.get("investigation_id") != "PSI-69" or record.get("source_sha256") != FLEX_SHA:
         return [], []
     mapped: list[dict[str, Any]] = []
     issues: list[ReviewIssue] = []
     for index, cell in enumerate(batch.cells):
-        if (cell.source_sha256 != FLEX_SHA or cell.physical_page != 76 or
-                cell.artifact_id != "FLEX-table-13-capture"):
+        if (
+            cell.source_sha256 != FLEX_SHA
+            or cell.physical_page != 76
+            or cell.artifact_id != "FLEX-table-13-capture"
+        ):
             raise ValueError("FLEX mapping requires the reviewed Table 13 source")
         canonical = FLEX_FIELDS.get(cell.source_label or "")
         if canonical is None:
             continue
         tentative = canonical in {"droplet_diameter", "burning_rate_constant"}
-        mapped.append({"canonical_field": canonical, "source_label": cell.source_label,
-                       "source_text": cell.text, "source_unit": cell.unit,
-                       "cell_index": index, "mapping_status": "proposed" if tentative
-                       else "source_label", "definition_physical_pages": [64, 76]
-                       if tentative else [76], "source_sha256": FLEX_SHA})
+        mapped.append(
+            {
+                "canonical_field": canonical,
+                "source_label": cell.source_label,
+                "source_text": cell.text,
+                "source_unit": cell.unit,
+                "cell_index": index,
+                "mapping_status": "proposed" if tentative else "source_label",
+                "definition_physical_pages": [64, 76] if tentative else [76],
+                "source_sha256": FLEX_SHA,
+            }
+        )
         if tentative:
-            issues.append(ReviewIssue(field=canonical, code="unverified_field_mapping",
-                message="Proposed interpretation is source-scoped; verify precise table meaning.",
-                source_cells=[cell]))
+            issues.append(
+                ReviewIssue(
+                    field=canonical,
+                    code="unverified_field_mapping",
+                    message=(
+                        "Proposed interpretation is source-scoped; verify precise table meaning."
+                    ),
+                    source_cells=[cell],
+                )
+            )
     return mapped, issues
 
 
 def reviewed_source_issues(batch: SourceBatch, record: dict[str, Any]) -> list[ReviewIssue]:
     """Retain previously reviewed open questions only for their exact source cells."""
     rules = {
-        (BASS_SHA, "B2"): ("Calibrated final O2 % by vol", "1.6", "final_oxygen",
-                           "Final oxygen interpretation remains under review."),
-        (BASS_SHA, "B4"): ("Initial CO (ppm)", "-1", "initial_co",
-                           "Negative initial CO interpretation remains under review."),
-        (SAFFIRE_SHA, "SAFFIRE-II-2-4"): ("Samle Thickness", "037 mm", "sample_thickness",
-                                           "Source literal 037 mm remains ambiguous."),
+        (BASS_SHA, "B2"): (
+            "Calibrated final O2 % by vol",
+            "1.6",
+            "final_oxygen",
+            "Final oxygen interpretation remains under review.",
+        ),
+        (BASS_SHA, "B4"): (
+            "Initial CO (ppm)",
+            "-1",
+            "initial_co",
+            "Negative initial CO interpretation remains under review.",
+        ),
+        (SAFFIRE_SHA, "SAFFIRE-II-2-4"): (
+            "Samle Thickness",
+            "037 mm",
+            "sample_thickness",
+            "Source literal 037 mm remains ambiguous.",
+        ),
     }
     rule = rules.get((str(record.get("source_sha256")), str(record.get("test_id"))))
     if rule is None:
         return []
     column, value, field, message = rule
-    matches = [cell for cell in batch.cells if cell.source_sha256 == record["source_sha256"]
-               and (cell.csv_column or "").strip() == column and (cell.text or "").strip() == value]
+    matches = [
+        cell
+        for cell in batch.cells
+        if cell.source_sha256 == record["source_sha256"]
+        and (cell.csv_column or "").strip() == column
+        and (cell.text or "").strip() == value
+    ]
     if len(matches) != 1:
         raise ValueError("Reviewed question no longer matches the source cell")
-    return [ReviewIssue(field=field, code="reviewed_source_ambiguity", message=message,
-                        source_cells=matches)]
+    return [
+        ReviewIssue(
+            field=field, code="reviewed_source_ambiguity", message=message, source_cells=matches
+        )
+    ]
 
 
 def coverage_issues(
@@ -77,10 +115,16 @@ def coverage_issues(
     for index, cell in enumerate(batch.cells):
         if index in linked:
             continue
-        if ((cell.csv_column or "").strip().casefold() == "test #" and
-                (cell.text or "").strip() == record.get("test_id")):
+        if (cell.csv_column or "").strip().casefold() == "test #" and (
+            cell.text or ""
+        ).strip() == record.get("test_id"):
             continue
-        issues.append(ReviewIssue(field=cell.csv_column or cell.source_label or str(index),
-            code="unmapped_source_cell", message="No proposed field references this source cell.",
-            source_cells=[cell]))
+        issues.append(
+            ReviewIssue(
+                field=cell.csv_column or cell.source_label or str(index),
+                code="unmapped_source_cell",
+                message="No proposed field references this source cell.",
+                source_cells=[cell],
+            )
+        )
     return issues

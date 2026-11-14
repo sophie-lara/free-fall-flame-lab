@@ -28,11 +28,16 @@ def reassess(path: Path) -> dict[str, Any]:
             raise ValueError("Unsupported holdout investigation")
         profile = "bass_ii" if investigation == "PSI-25" else "saffire_ii"
     issues = validate_mapping(proposal, profile, source) + material_coverage(
-        proposal, result.get("deterministic_material_fields", {}))
-    return {"original_result": path.name, "original_sha256": hashlib.sha256(raw).hexdigest(),
-            "record": result["record"], "validation_issues": issues,
-            "source_issues": result["source_issues"],
-            "unreferenced_source_cells": result["unreferenced_source_cells"]}
+        proposal, result.get("deterministic_material_fields", {})
+    )
+    return {
+        "original_result": path.name,
+        "original_sha256": hashlib.sha256(raw).hexdigest(),
+        "record": result["record"],
+        "validation_issues": issues,
+        "source_issues": result["source_issues"],
+        "unreferenced_source_cells": result["unreferenced_source_cells"],
+    }
 
 
 def main() -> None:

@@ -10,7 +10,9 @@ from .llm_handoff import SourceBatch
 from .mapping_contract import Profile, mapping_request
 
 REGRESSION: dict[str, Profile] = {
-    "B1": "bass_ii", "FLEX-T13-Ar": "flex_table_13", "SAFFIRE-II-2-2": "saffire_ii",
+    "B1": "bass_ii",
+    "FLEX-T13-Ar": "flex_table_13",
+    "SAFFIRE-II-2-2": "saffire_ii",
 }
 
 
@@ -30,13 +32,17 @@ def main() -> None:
             raise ValueError("Duplicate regression identity")
         seen.add(test_id)
         source = SourceBatch.model_validate(result["source"])
-        previews.append({"test_id": test_id, "source_result": path.name,
-                         "request": mapping_request(REGRESSION[test_id], source)})
+        previews.append(
+            {
+                "test_id": test_id,
+                "source_result": path.name,
+                "request": mapping_request(REGRESSION[test_id], source),
+            }
+        )
     if seen != set(REGRESSION):
         raise ValueError("Missing regression input")
     with args.output.open("x", encoding="utf-8") as stream:
-        json.dump({"provider_calls": 0, "requests": previews}, stream,
-                  ensure_ascii=False, indent=2)
+        json.dump({"provider_calls": 0, "requests": previews}, stream, ensure_ascii=False, indent=2)
         stream.write("\n")
 
 

@@ -39,9 +39,16 @@ INSTRUCTIONS = (
 
 
 def request_payload(batch: SourceBatch) -> str:
-    return json.dumps({"cells": [{"index": i, **cell.model_dump(mode="json")}
-                                 for i, cell in enumerate(batch.cells)],
-                       "context": batch.context}, ensure_ascii=False, indent=2)
+    return json.dumps(
+        {
+            "cells": [
+                {"index": i, **cell.model_dump(mode="json")} for i, cell in enumerate(batch.cells)
+            ],
+            "context": batch.context,
+        },
+        ensure_ascii=False,
+        indent=2,
+    )
 
 
 def load_table(manifest: Path, artifact_id: str, workspace: Path) -> VisualArtifact:
@@ -55,8 +62,10 @@ def load_table(manifest: Path, artifact_id: str, workspace: Path) -> VisualArtif
     artifact = matches[0]
     root = (workspace / "data/processed/visuals").resolve()
     path = (workspace / artifact.crop_path).resolve()
-    if (not path.is_relative_to(root)
-            or hashlib.sha256(path.read_bytes()).hexdigest() != artifact.crop_sha256):
+    if (
+        not path.is_relative_to(root)
+        or hashlib.sha256(path.read_bytes()).hexdigest() != artifact.crop_sha256
+    ):
         raise ValueError("Crop is outside the visual directory or its checksum differs")
     return artifact
 
@@ -101,30 +110,48 @@ def main() -> None:
             page_text = document.pages[page - 1].extract_text() or ""
             batch.context.append(f"Physical PDF page {page}:\n{page_text}")
     payload = request_payload(batch)
-    print(json.dumps({"dry_run": not args.allow_provider_calls, "planned_calls": 1,
-                      "model": args.model, "source_sha256": batch.cells[0].source_sha256,
-                      "cell_count": len(batch.cells), "input_characters": len(payload),
-                      "max_output_tokens": args.max_output_tokens,
-                      "prompt_version": PROMPT_VERSION}))
+    print(
+        json.dumps(
+            {
+                "dry_run": not args.allow_provider_calls,
+                "planned_calls": 1,
+                "model": args.model,
+                "source_sha256": batch.cells[0].source_sha256,
+                "cell_count": len(batch.cells),
+                "input_characters": len(payload),
+                "max_output_tokens": args.max_output_tokens,
+                "prompt_version": PROMPT_VERSION,
+            }
+        )
+    )
     if not args.allow_provider_calls:
         return
     response = OpenAI(timeout=60.0, max_retries=0).responses.parse(
-        model=args.model, store=False, max_output_tokens=args.max_output_tokens,
-        instructions=INSTRUCTIONS, input=payload, text_format=Proposal,
+        model=args.model,
+        store=False,
+        max_output_tokens=args.max_output_tokens,
+        instructions=INSTRUCTIONS,
+        input=payload,
+        text_format=Proposal,
     )
     proposal = response.output_parsed
     if not isinstance(proposal, Proposal):
         raise ValueError("No complete structured proposal was returned")
     issues = check_proposal(batch, proposal)
     usage = response.usage
-    result = {"schema_version": "1.0", "prompt_version": PROMPT_VERSION,
-              "prompt_sha256": hashlib.sha256(INSTRUCTIONS.encode()).hexdigest(),
-              "model_requested": args.model, "model_returned": response.model,
-              "response_id": response.id, "source": batch.model_dump(mode="json"),
-              "proposal": proposal.model_dump(mode="json"),
-              "issues": [issue.model_dump(mode="json") for issue in issues],
-              "usage": usage.model_dump(mode="json") if usage else None,
-              "status": "unreviewed"}
+    result = {
+        "schema_version": "1.0",
+        "prompt_version": PROMPT_VERSION,
+        "prompt_sha256": hashlib.sha256(INSTRUCTIONS.encode()).hexdigest(),
+        "model_requested": args.model,
+        "model_returned": response.model,
+        "response_id": response.id,
+        "source": batch.model_dump(mode="json"),
+        "proposal": proposal.model_dump(mode="json"),
+        "issues": [issue.model_dump(mode="json") for issue in issues],
+        "usage": usage.model_dump(mode="json") if usage else None,
+        "status": "unreviewed",
+    }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x", encoding="utf-8") as stream:
         json.dump(result, stream, indent=2, ensure_ascii=False)

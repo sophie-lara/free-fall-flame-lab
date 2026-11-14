@@ -20,12 +20,20 @@ def test_holdout_requests_exclude_review_notes_and_check_snapshots(
     bass.write_text("Test #,value\nB6,1\nB7,2\n", encoding="utf-8")
     saffire.write_text("Sample Number,value\n2-6,3\n2-7,4\n", encoding="utf-8")
     selection = []
-    for investigation, path, ids in [("PSI-25", bass, ("B6", "B7")),
-                                     ("PSI-99", saffire, ("2-6", "2-7"))]:
+    for investigation, path, ids in [
+        ("PSI-25", bass, ("B6", "B7")),
+        ("PSI-99", saffire, ("2-6", "2-7")),
+    ]:
         for number, test_id in enumerate(ids, 2):
-            selection.append({"investigation_id": investigation, "source_identity": test_id,
-                "source_file": path.relative_to(tmp_path).as_posix(), "record_number": number,
-                "source_sha256": sha256_file(path)})
+            selection.append(
+                {
+                    "investigation_id": investigation,
+                    "source_identity": test_id,
+                    "source_file": path.relative_to(tmp_path).as_posix(),
+                    "record_number": number,
+                    "source_sha256": sha256_file(path),
+                }
+            )
     (processed / "holdout-selection-v1.json").write_text(json.dumps({"rows": selection}))
     snapshot = {"private_review": "DO NOT SEND THIS REVIEW"}
     (processed / "holdout-reviews-v1.json").write_text(json.dumps(snapshot))

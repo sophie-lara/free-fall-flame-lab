@@ -14,15 +14,48 @@ from .pilot_mapping import FLEX_SHA
 
 Profile = Literal["bass_ii", "flex_table_13", "saffire_ii"]
 CanonicalField = Literal[
-    "principal_investigator", "test_id", "sample_id", "date", "gmt",
-    "material_description", "material", "geometry", "thickness", "width", "length",
-    "flow_restrictor", "fan_display", "air_display", "radiometer_gain", "frames_shot",
-    "initial_oxygen", "final_oxygen", "initial_co2", "final_co2", "initial_co", "final_co",
-    "ambient_diluent_gas", "fuel", "oxygen_mole_fraction", "droplet_diameter",
-    "burning_rate_constant", "fuel_vapor_residence_time", "flame_temperature",
-    "airflow", "oxygen_percent", "ignition_power", "ignition_time", "burn_time",
-    "flow_direction", "burn_length_unspecified_gravity", "spread_length_unspecified_gravity",
-    "burn_length_1g", "spread_rate_1g", "camera_1", "camera_2", "unmapped",
+    "principal_investigator",
+    "test_id",
+    "sample_id",
+    "date",
+    "gmt",
+    "material_description",
+    "material",
+    "geometry",
+    "thickness",
+    "width",
+    "length",
+    "flow_restrictor",
+    "fan_display",
+    "air_display",
+    "radiometer_gain",
+    "frames_shot",
+    "initial_oxygen",
+    "final_oxygen",
+    "initial_co2",
+    "final_co2",
+    "initial_co",
+    "final_co",
+    "ambient_diluent_gas",
+    "fuel",
+    "oxygen_mole_fraction",
+    "droplet_diameter",
+    "burning_rate_constant",
+    "fuel_vapor_residence_time",
+    "flame_temperature",
+    "airflow",
+    "oxygen_percent",
+    "ignition_power",
+    "ignition_time",
+    "burn_time",
+    "flow_direction",
+    "burn_length_unspecified_gravity",
+    "spread_length_unspecified_gravity",
+    "burn_length_1g",
+    "spread_rate_1g",
+    "camera_1",
+    "camera_2",
+    "unmapped",
 ]
 
 
@@ -36,8 +69,9 @@ class MappedField(ContractModel):
     value: str | float | None
     unit: str | None
     qualifier: str | None
-    missingness: Literal["reported", "source_marker", "source_blank", "unreadable",
-                         "mapping_uncertain", "inferred"]
+    missingness: Literal[
+        "reported", "source_marker", "source_blank", "unreadable", "mapping_uncertain", "inferred"
+    ]
     mapping_status: Literal["direct", "proposed", "unmapped"]
     note: str | None
 
@@ -48,23 +82,71 @@ class MappedRow(ContractModel):
     fields: list[MappedField]
 
 
-FLEX = frozenset({"ambient_diluent_gas", "fuel", "oxygen_mole_fraction", "droplet_diameter",
-                  "burning_rate_constant", "fuel_vapor_residence_time", "flame_temperature"})
-BASS = frozenset({"principal_investigator", "test_id", "sample_id", "date", "gmt",
-    "material_description", "material", "geometry", "thickness", "width", "flow_restrictor",
-    "fan_display", "air_display", "radiometer_gain", "frames_shot", "initial_oxygen",
-    "final_oxygen", "initial_co2", "final_co2", "initial_co", "final_co"})
-SAFFIRE = frozenset({"sample_id", "material", "thickness", "length", "width", "airflow",
-    "oxygen_percent", "ignition_power", "ignition_time", "burn_time", "flow_direction",
-    "burn_length_unspecified_gravity", "spread_length_unspecified_gravity", "burn_length_1g",
-    "spread_rate_1g", "camera_1", "camera_2"})
+FLEX = frozenset(
+    {
+        "ambient_diluent_gas",
+        "fuel",
+        "oxygen_mole_fraction",
+        "droplet_diameter",
+        "burning_rate_constant",
+        "fuel_vapor_residence_time",
+        "flame_temperature",
+    }
+)
+BASS = frozenset(
+    {
+        "principal_investigator",
+        "test_id",
+        "sample_id",
+        "date",
+        "gmt",
+        "material_description",
+        "material",
+        "geometry",
+        "thickness",
+        "width",
+        "flow_restrictor",
+        "fan_display",
+        "air_display",
+        "radiometer_gain",
+        "frames_shot",
+        "initial_oxygen",
+        "final_oxygen",
+        "initial_co2",
+        "final_co2",
+        "initial_co",
+        "final_co",
+    }
+)
+SAFFIRE = frozenset(
+    {
+        "sample_id",
+        "material",
+        "thickness",
+        "length",
+        "width",
+        "airflow",
+        "oxygen_percent",
+        "ignition_power",
+        "ignition_time",
+        "burn_time",
+        "flow_direction",
+        "burn_length_unspecified_gravity",
+        "spread_length_unspecified_gravity",
+        "burn_length_1g",
+        "spread_rate_1g",
+        "camera_1",
+        "camera_2",
+    }
+)
 ALLOWED = {"bass_ii": BASS, "flex_table_13": FLEX, "saffire_ii": SAFFIRE}
 
 
 def source_marker(text: str | None) -> bool:
     """Recognize a marker with an optional qualifier without assigning its meaning."""
-    return text is not None and bool(re.fullmatch(
-        r"\s*(?:n/a|na|none|null)(?:\s*\([^()]+\))?\s*", text, re.IGNORECASE))
+    return text is not None and bool(
+        re.fullmatch(r"\s*(?:n/a|na|none|null)(?:\s*\([^()]+\))?\s*", text, re.IGNORECASE)
+    )
 
 
 def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> list[str]:
@@ -72,9 +154,11 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
     issues = []
     if row.profile != profile:
         issues.append("profile_mismatch")
-    if profile == "bass_ii" and any(field.canonical_field in {
-        "flow_restrictor", "fan_display", "air_display", "radiometer_gain"
-    } for field in row.fields):
+    if profile == "bass_ii" and any(
+        field.canonical_field
+        in {"flow_restrictor", "fan_display", "air_display", "radiometer_gain"}
+        for field in row.fields
+    ):
         issues.append("instrument_settings_require_interpretation")
     for n, field in enumerate(row.fields):
         prefix = f"fields[{n}]"
@@ -89,7 +173,9 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
             issues.append(f"{prefix}:unmapped_source_field")
         if field.note and re.search(
             r"\b(?:uncertain|ambiguous|unlabeled|unlabelled|unknown|unclear|possible|"
-            r"not specified|not explicitly|does not|cannot)\b", field.note, re.IGNORECASE
+            r"not specified|not explicitly|does not|cannot)\b",
+            field.note,
+            re.IGNORECASE,
         ):
             issues.append(f"{prefix}:model_reported_uncertainty")
         if field.missingness == "inferred":
@@ -105,9 +191,7 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
             issues.append(f"{prefix}:unreadable_mismatch")
         if all(source_marker(c.text) for c in cells) and field.missingness != "source_marker":
             issues.append(f"{prefix}:source_marker_mismatch")
-        if field.missingness == "source_marker" and any(
-            not source_marker(c.text) for c in cells
-        ):
+        if field.missingness == "source_marker" and any(not source_marker(c.text) for c in cells):
             issues.append(f"{prefix}:source_marker_mismatch")
         if field.missingness == "source_blank" and any(c.state != "blank" for c in cells):
             issues.append(f"{prefix}:source_blank_mismatch")
@@ -115,47 +199,72 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
             issues.append(f"{prefix}:unreadable_mismatch")
         if field.missingness in {"source_marker", "source_blank", "unreadable"}:
             if field.value is not None and not (
-                field.missingness == "source_marker" and isinstance(field.value, str)
+                field.missingness == "source_marker"
+                and isinstance(field.value, str)
                 and all(c.text == field.value for c in cells)
             ):
                 issues.append(f"{prefix}:unsupported_value_for_missing_source")
-        if profile == "saffire_ii" and field.canonical_field == "thickness" and any(
-            re.match(r"^\s*0\d+\s*(?:mm|cm|micron|um)\b", c.text or "", re.IGNORECASE)
-            for c in cells
+        if (
+            profile == "saffire_ii"
+            and field.canonical_field == "thickness"
+            and any(
+                re.match(r"^\s*0\d+\s*(?:mm|cm|micron|um)\b", c.text or "", re.IGNORECASE)
+                for c in cells
+            )
         ):
             issues.append(f"{prefix}:ambiguous_leading_zero")
-        if (profile == "bass_ii" and field.canonical_field == "width" and all(
-                not re.search(r"\b(?:wide|width)\b", c.text or "", re.IGNORECASE) for c in cells)):
+        if (
+            profile == "bass_ii"
+            and field.canonical_field == "width"
+            and all(
+                not re.search(r"\b(?:wide|width)\b", c.text or "", re.IGNORECASE) for c in cells
+            )
+        ):
             issues.append(f"{prefix}:unverified_width_interpretation")
         if field.canonical_field == "spread_length_unspecified_gravity" and (
             (field.unit or "").strip().casefold() in {"mm/s", "cm/s", "m/s"}
         ):
             issues.append(f"{prefix}:unit_conflicts_with_field_name")
-        if profile == "saffire_ii" and field.canonical_field in {
-            "material", "thickness", "length", "burn_length_unspecified_gravity"
-        } and any(re.search(r"\b\d+(?:\.\d+)?\b.*(?:\band\b|&).*\b\d", c.text or "",
-                            re.IGNORECASE) for c in cells):
+        if (
+            profile == "saffire_ii"
+            and field.canonical_field
+            in {"material", "thickness", "length", "burn_length_unspecified_gravity"}
+            and any(
+                re.search(r"\b\d+(?:\.\d+)?\b.*(?:\band\b|&).*\b\d", c.text or "", re.IGNORECASE)
+                for c in cells
+            )
+        ):
             issues.append(f"{prefix}:compound_source_requires_review")
         if field.missingness == "source_marker" and any("(" in (c.text or "") for c in cells):
             issues.append(f"{prefix}:qualified_marker_context")
         if len(cells) == 1 and field.missingness == "reported" and field.value is not None:
             source_number = re.fullmatch(
                 r"\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*(?:mm/s|cm/s|mm|cm|ppm|%|s|w)?\s*",
-                cells[0].text or "", re.IGNORECASE)
+                cells[0].text or "",
+                re.IGNORECASE,
+            )
             try:
                 proposed_number = float(field.value)
             except (TypeError, ValueError):
                 proposed_number = None
-            if (source_number and proposed_number is not None and math.isfinite(proposed_number)
-                and not math.isclose(float(source_number.group(1)), proposed_number,
-                                     rel_tol=1e-9, abs_tol=1e-12)):
+            if (
+                source_number
+                and proposed_number is not None
+                and math.isfinite(proposed_number)
+                and not math.isclose(
+                    float(source_number.group(1)), proposed_number, rel_tol=1e-9, abs_tol=1e-12
+                )
+            ):
                 issues.append(f"{prefix}:numeric_value_differs_from_source")
         if profile == "flex_table_13" and field.canonical_field in {
-            "droplet_diameter", "burning_rate_constant"
+            "droplet_diameter",
+            "burning_rate_constant",
         }:
             expected = "d (mm)" if field.canonical_field == "droplet_diameter" else "k (mm²/s)"
-            if not all(c.source_sha256 == FLEX_SHA and c.physical_page == 76
-                       and c.source_label == expected for c in cells):
+            if not all(
+                c.source_sha256 == FLEX_SHA and c.physical_page == 76 and c.source_label == expected
+                for c in cells
+            ):
                 issues.append(f"{prefix}:unverified_flex_source")
             if field.mapping_status != "proposed":
                 issues.append(f"{prefix}:flex_mapping_must_remain_proposed")
@@ -192,8 +301,12 @@ def mapping_request(profile: Profile, source: SourceBatch) -> dict[str, object]:
             "use proposed status; d is not necessarily initial diameter. The FLEX table "
             "is a background study, not an individual flight run."
         ),
-        "source": {"cells": [{"index": i, **c.model_dump(mode="json")}
-                             for i, c in enumerate(source.cells)], "context": source.context},
+        "source": {
+            "cells": [
+                {"index": i, **c.model_dump(mode="json")} for i, c in enumerate(source.cells)
+            ],
+            "context": source.context,
+        },
         "response_json_schema": MappedRow.model_json_schema(),
     }
 
@@ -208,17 +321,30 @@ def propose_mapping(
     """Explicit single-call provider interface; caller owns budget, persistence and retries."""
     request = mapping_request(profile, source)
     response = client.responses.parse(
-        model=model, store=False, max_output_tokens=2500,
+        model=model,
+        store=False,
+        max_output_tokens=2500,
         instructions=str(request["instructions"]),
-        input=json.dumps({"profile": profile, "allowed_fields": request["allowed_fields"],
-                          "source": request["source"]}, ensure_ascii=False),
+        input=json.dumps(
+            {
+                "profile": profile,
+                "allowed_fields": request["allowed_fields"],
+                "source": request["source"],
+            },
+            ensure_ascii=False,
+        ),
         text_format=MappedRow,
     )
     row = response.output_parsed
     if not isinstance(row, MappedRow) or response.usage is None:
         raise ValueError("Incomplete structured mapping response or usage")
-    return {"contract": "mapping-proposal-v1", "source": source.model_dump(mode="json"),
-            "proposal": row.model_dump(mode="json"),
-            "validation_issues": validate_mapping(row, profile, source),
-            "response_id": response.id, "model": response.model,
-            "usage": response.usage.model_dump(mode="json"), "status": "unreviewed"}
+    return {
+        "contract": "mapping-proposal-v1",
+        "source": source.model_dump(mode="json"),
+        "proposal": row.model_dump(mode="json"),
+        "validation_issues": validate_mapping(row, profile, source),
+        "response_id": response.id,
+        "model": response.model,
+        "usage": response.usage.model_dump(mode="json"),
+        "status": "unreviewed",
+    }

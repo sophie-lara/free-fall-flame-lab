@@ -19,17 +19,29 @@ def reassess(path: Path) -> dict[str, object]:
     batch = SourceBatch.model_validate(result["source"])
     proposal = Proposal.model_validate(result["proposal"])
     mapped, mapping_issues = flex_mapping(batch, record)
-    issues = (check_proposal(batch, proposal) + mapping_issues +
-              reviewed_source_issues(batch, record) + coverage_issues(batch, proposal, record))
+    issues = (
+        check_proposal(batch, proposal)
+        + mapping_issues
+        + reviewed_source_issues(batch, record)
+        + coverage_issues(batch, proposal, record)
+    )
     identity = identity_issue(record, proposal)
     if identity:
-        issues.append(ReviewIssue(field="identity", code=identity,
-                                  message="Model identity requires verification."))
-    return {"original_result": path.name, "original_result_sha256": hashlib.sha256(raw).hexdigest(),
-            "record": record, "source_mappings": mapped,
-            "deterministic_material_fields": deterministic_bass_fields(
-                batch, record["investigation_id"]),
-            "issues": [issue.model_dump(mode="json") for issue in issues]}
+        issues.append(
+            ReviewIssue(
+                field="identity", code=identity, message="Model identity requires verification."
+            )
+        )
+    return {
+        "original_result": path.name,
+        "original_result_sha256": hashlib.sha256(raw).hexdigest(),
+        "record": record,
+        "source_mappings": mapped,
+        "deterministic_material_fields": deterministic_bass_fields(
+            batch, record["investigation_id"]
+        ),
+        "issues": [issue.model_dump(mode="json") for issue in issues],
+    }
 
 
 def main() -> None:
@@ -42,8 +54,12 @@ def main() -> None:
         raise ValueError("Expected eleven complete pilot responses")
     values = [reassess(path) for path in paths]
     with args.output.open("x", encoding="utf-8") as stream:
-        json.dump({"schema_version": "pilot-reassessment-v1", "records": values}, stream,
-                  ensure_ascii=False, indent=2)
+        json.dump(
+            {"schema_version": "pilot-reassessment-v1", "records": values},
+            stream,
+            ensure_ascii=False,
+            indent=2,
+        )
         stream.write("\n")
     print(json.dumps({"reassessed": len(values), "provider_calls": 0}))
 

@@ -13,83 +13,163 @@ from combustion_atlas.ingestion.pilot_mapping import FLEX_SHA
 
 
 def flex_source() -> SourceBatch:
-    return SourceBatch(cells=[SourceCellRef(source_sha256=FLEX_SHA, filename="source.pdf",
-        kind="pdf_table", physical_page=76, artifact_id="FLEX-table-13-capture", table_row=0,
-        table_column=0, source_label="k (mm²/s)", text="0.55", state="present", unit="mm²/s")])
+    return SourceBatch(
+        cells=[
+            SourceCellRef(
+                source_sha256=FLEX_SHA,
+                filename="source.pdf",
+                kind="pdf_table",
+                physical_page=76,
+                artifact_id="FLEX-table-13-capture",
+                table_row=0,
+                table_column=0,
+                source_label="k (mm²/s)",
+                text="0.55",
+                state="present",
+                unit="mm²/s",
+            )
+        ]
+    )
 
 
 def mapped_field(**changes) -> MappedField:
-    data = {"canonical_field": "burning_rate_constant", "source_indexes": [0], "value": 0.55,
-            "unit": "mm²/s", "qualifier": None, "missingness": "reported",
-            "mapping_status": "proposed", "note": None}
+    data = {
+        "canonical_field": "burning_rate_constant",
+        "source_indexes": [0],
+        "value": 0.55,
+        "unit": "mm²/s",
+        "qualifier": None,
+        "missingness": "reported",
+        "mapping_status": "proposed",
+        "note": None,
+    }
     data.update(changes)
     return MappedField.model_validate(data)
 
 
 def test_controlled_profile_and_source_evidence() -> None:
     source = flex_source()
-    row = MappedRow(schema_version="mapping-proposal-v1", profile="flex_table_13",
-                    fields=[mapped_field()])
+    row = MappedRow(
+        schema_version="mapping-proposal-v1", profile="flex_table_13", fields=[mapped_field()]
+    )
     assert not validate_mapping(row, "flex_table_13", source)
     row.fields = [mapped_field(mapping_status="direct", source_indexes=[9])]
     assert "fields[0]:invalid_source_reference" in validate_mapping(row, "flex_table_13", source)
     row.fields = [mapped_field(mapping_status="direct")]
     assert "fields[0]:flex_mapping_must_remain_proposed" in validate_mapping(
-        row, "flex_table_13", source)
+        row, "flex_table_13", source
+    )
     row.fields = [mapped_field(canonical_field="camera_1")]
     assert "fields[0]:field_outside_profile" in validate_mapping(row, "flex_table_13", source)
 
 
 def test_source_marker_cannot_become_a_measurement() -> None:
-    source = SourceBatch(cells=[SourceCellRef(source_sha256="a" * 64, filename="a.csv",
-        kind="csv", csv_record=2, csv_column="x", text="n/a", state="present")])
+    source = SourceBatch(
+        cells=[
+            SourceCellRef(
+                source_sha256="a" * 64,
+                filename="a.csv",
+                kind="csv",
+                csv_record=2,
+                csv_column="x",
+                text="n/a",
+                state="present",
+            )
+        ]
+    )
     field = mapped_field(canonical_field="camera_1", missingness="source_marker", value=1.0)
     row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[field])
     assert "fields[0]:unsupported_value_for_missing_source" in validate_mapping(
-        row, "saffire_ii", source)
+        row, "saffire_ii", source
+    )
     field.value = "n/a"
     assert not validate_mapping(row, "saffire_ii", source)
 
 
 def test_unclear_gravity_header_requires_review() -> None:
-    source = SourceBatch(cells=[SourceCellRef(source_sha256="a" * 64, filename="a.csv",
-        kind="csv", csv_record=2, csv_column="?-g Burn Length", text="~ 0", state="present")])
-    field = mapped_field(canonical_field="burn_length_unspecified_gravity", value=0.0,
-                         unit=None, qualifier="~", mapping_status="direct")
+    source = SourceBatch(
+        cells=[
+            SourceCellRef(
+                source_sha256="a" * 64,
+                filename="a.csv",
+                kind="csv",
+                csv_record=2,
+                csv_column="?-g Burn Length",
+                text="~ 0",
+                state="present",
+            )
+        ]
+    )
+    field = mapped_field(
+        canonical_field="burn_length_unspecified_gravity",
+        value=0.0,
+        unit=None,
+        qualifier="~",
+        mapping_status="direct",
+    )
     row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[field])
     assert "fields[0]:ambiguous_source_gravity_header" in validate_mapping(
-        row, "saffire_ii", source)
+        row, "saffire_ii", source
+    )
 
 
 def test_coverage_flags_extractable_dimensions_and_geometry() -> None:
     row = MappedRow(schema_version="mapping-proposal-v1", profile="bass_ii", fields=[])
-    found = {"material": None, "geometry": "film",
-             "dimensions": {"thickness_um": {"value": 100}, "width_cm": {"value": 2}}}
-    assert material_coverage(row, found) == ["missing_extractable_field:geometry",
-        "missing_extractable_field:thickness", "missing_extractable_field:width"]
+    found = {
+        "material": None,
+        "geometry": "film",
+        "dimensions": {"thickness_um": {"value": 100}, "width_cm": {"value": 2}},
+    }
+    assert material_coverage(row, found) == [
+        "missing_extractable_field:geometry",
+        "missing_extractable_field:thickness",
+        "missing_extractable_field:width",
+    ]
 
 
 def test_review_unlabeled_width_leading_zero_and_qualified_marker() -> None:
     def cell(column: str, text: str) -> SourceBatch:
-        return SourceBatch(cells=[SourceCellRef(source_sha256="a" * 64, filename="a.csv",
-            kind="csv", csv_record=2, csv_column=column, text=text, state="present")])
+        return SourceBatch(
+            cells=[
+                SourceCellRef(
+                    source_sha256="a" * 64,
+                    filename="a.csv",
+                    kind="csv",
+                    csv_record=2,
+                    csv_column=column,
+                    text=text,
+                    state="present",
+                )
+            ]
+        )
+
     width = mapped_field(canonical_field="width", value=2.0, unit="cm")
     row = MappedRow(schema_version="mapping-proposal-v1", profile="bass_ii", fields=[width])
     assert "fields[0]:unverified_width_interpretation" in validate_mapping(
-        row, "bass_ii", cell("Fuel Sample Material", "2 cm 0.1 mm PMMA film"))
+        row, "bass_ii", cell("Fuel Sample Material", "2 cm 0.1 mm PMMA film")
+    )
     width_source = cell("Fuel Sample Material", "100 micron film 2 cm wide")
     assert "fields[0]:unverified_width_interpretation" not in validate_mapping(
-        row, "bass_ii", width_source)
-    thickness = mapped_field(canonical_field="thickness", value="037", unit="mm",
-                             mapping_status="direct")
+        row, "bass_ii", width_source
+    )
+    thickness = mapped_field(
+        canonical_field="thickness", value="037", unit="mm", mapping_status="direct"
+    )
     row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[thickness])
     assert "fields[0]:ambiguous_leading_zero" in validate_mapping(
-        row, "saffire_ii", cell("Samle Thickness", "037 mm"))
+        row, "saffire_ii", cell("Samle Thickness", "037 mm")
+    )
     thickness.value = 0.37
     assert "fields[0]:numeric_value_differs_from_source" in validate_mapping(
-        row, "saffire_ii", cell("Samle Thickness", "037 mm"))
-    marker = mapped_field(canonical_field="spread_rate_1g", value="n/a (Nomex)", unit=None,
-                          missingness="source_marker", mapping_status="direct")
+        row, "saffire_ii", cell("Samle Thickness", "037 mm")
+    )
+    marker = mapped_field(
+        canonical_field="spread_rate_1g",
+        value="n/a (Nomex)",
+        unit=None,
+        missingness="source_marker",
+        mapping_status="direct",
+    )
     row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[marker])
     issues = validate_mapping(row, "saffire_ii", cell("1-g Spread Rate", "n/a (Nomex)"))
     assert "fields[0]:qualified_marker_context" in issues
@@ -98,16 +178,20 @@ def test_review_unlabeled_width_leading_zero_and_qualified_marker() -> None:
 
 def test_provider_interface_uses_schema_and_does_not_send_review_notes() -> None:
     source = flex_source()
-    row = MappedRow(schema_version="mapping-proposal-v1", profile="flex_table_13",
-                    fields=[mapped_field()])
+    row = MappedRow(
+        schema_version="mapping-proposal-v1", profile="flex_table_13", fields=[mapped_field()]
+    )
     usage = SimpleNamespace(model_dump=lambda **_: {"input_tokens": 1, "output_tokens": 1})
     response = SimpleNamespace(output_parsed=row, usage=usage, model="fake", id="fake")
     calls = []
+
     def parse(**kwargs):
         calls.append(kwargs)
         return response
-    result = propose_mapping(SimpleNamespace(responses=SimpleNamespace(parse=parse)),
-                             "fake", "flex_table_13", source)
+
+    result = propose_mapping(
+        SimpleNamespace(responses=SimpleNamespace(parse=parse)), "fake", "flex_table_13", source
+    )
     assert calls[0]["text_format"] is MappedRow
     assert "review_history" not in calls[0]["input"]
     assert result["validation_issues"] == []
