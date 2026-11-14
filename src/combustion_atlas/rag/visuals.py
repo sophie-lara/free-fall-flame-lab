@@ -179,7 +179,8 @@ def describe_figure(
         raise ValueError("The figure worker never transcribes complex tables")
     path = crop_file(workspace, artifact)
     encoded = base64.b64encode(path.read_bytes()).decode("ascii")
-    api = client or OpenAI(timeout=60.0, max_retries=0)
+    # SDK retries cover transient 5xx, 429 and connection errors with backoff.
+    api = client or OpenAI(timeout=120.0, max_retries=2)
     response = api.responses.parse(
         model=model,
         store=False,
@@ -344,9 +345,18 @@ def main() -> int:
         if args.allow_provider_calls:
             if not config.openai_api_key_present:
                 raise ValueError("Configure the OpenAI API key locally")
+            failures = []
             for item in batch:
-                by_id[item.artifact_id] = describe_figure(item, root, args.model)
+                try:
+                    by_id[item.artifact_id] = describe_figure(item, root, args.model)
+                except (OpenAIError, ValueError) as exc:
+                    # Keep going; failed figures stay pending and are retried on rerun.
+                    failures.append({"artifact_id": item.artifact_id, "error": type(exc).__name__})
+                    continue
                 write_artifacts(args.output, list(by_id.values()))
+            print(json.dumps({"described": len(batch) - len(failures), "failed": failures}))
+            if failures:
+                return 1
     elif args.command == "validate":
         from .tables import validate_manifest
 
