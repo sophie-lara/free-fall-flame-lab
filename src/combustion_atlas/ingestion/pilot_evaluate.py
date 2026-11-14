@@ -20,22 +20,39 @@ def main() -> None:
         identity = result["record"]
         if identity["split"] != "holdout":
             continue
-        matches = [r for r in references if r["investigation_id"] == identity["investigation_id"]
-                   and r["test_id"] == identity["test_id"]
-                   and r["source_sha256"] == identity["source_sha256"]]
+        matches = [
+            r
+            for r in references
+            if r["investigation_id"] == identity["investigation_id"]
+            and r["test_id"] == identity["test_id"]
+            and r["source_sha256"] == identity["source_sha256"]
+        ]
         if len(matches) != 1:
             raise ValueError("Held-out reference is missing or source does not match")
         reference = matches[0]
-        packet.append({"result_file": path.name, "proposal": result["proposal"],
-            "issues": result["issues"], "review_action": reference["review_action"],
-            "reviewed_candidate": reference["reviewed_candidate"],
-            "unresolved_questions": reference["unresolved_questions"],
-            "review_history": reference["review_history"]})
+        packet.append(
+            {
+                "result_file": path.name,
+                "proposal": result["proposal"],
+                "issues": result["issues"],
+                "review_action": reference["review_action"],
+                "reviewed_candidate": reference["reviewed_candidate"],
+                "unresolved_questions": reference["unresolved_questions"],
+                "review_history": reference["review_history"],
+            }
+        )
     if len(packet) != 3:
         raise ValueError("Expected three held-out results; pilot may be incomplete")
     with args.output.open("x", encoding="utf-8") as stream:
-        json.dump({"note": "Manual comparison; unresolved questions remain unresolved.",
-                   "holdouts": packet}, stream, ensure_ascii=False, indent=2)
+        json.dump(
+            {
+                "note": "Manual comparison; unresolved questions remain unresolved.",
+                "holdouts": packet,
+            },
+            stream,
+            ensure_ascii=False,
+            indent=2,
+        )
         stream.write("\n")
 
 

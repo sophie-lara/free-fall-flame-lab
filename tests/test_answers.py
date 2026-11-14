@@ -54,8 +54,10 @@ def test_answer_provider_validates_output_and_abstains_without_calling() -> None
     assert provider.answer("What oxygen?", CONTEXT).status == "answered"
     assert client.responses.parse.call_args.kwargs["store"] is False
     client.responses.parse.return_value = SimpleNamespace(output_parsed=answer("invented"))
-    with pytest.raises(ValueError):
-        provider.answer("What oxygen?", CONTEXT)
+    # Both attempts fail: abstain with an explanation instead of erroring.
+    failed = provider.answer("What oxygen?", CONTEXT)
+    assert failed.status == "insufficient_evidence" and not failed.claims
+    assert "did not pass" in failed.limitations[0]
 
 
 def test_answer_repairs_invalid_citations_once_and_keeps_unicode_input() -> None:
@@ -98,3 +100,31 @@ def test_claim_numbers_must_come_from_its_own_quotes() -> None:
     grounded = computed.model_copy(deep=True)
     grounded.claims[0].text = "17 black and 3 clear rods were burnt."
     validate_support(grounded, context)
+
+
+def test_after_failed_repair_only_verified_claims_remain() -> None:
+    config = ProviderConfig(
+        "openai", "openai", "text-embedding-3-small", 1536, 64, "test-model", False
+    )
+    mixed = GroundedAnswer.model_validate(
+        {
+            "status": "answered",
+            "claims": [
+                {
+                    "text": "Samples used 22% oxygen.",
+                    "supports": [{"chunk_id": "p1", "quote": "Samples were tested at 22% oxygen."}],
+                },
+                {
+                    "text": "Samples were 50 µm thick.",
+                    "supports": [{"chunk_id": "p1", "quote": "Samples were tested"}],
+                },
+            ],
+            "limitations": [],
+        }
+    )
+    client = Mock()
+    client.responses.parse.return_value = SimpleNamespace(output_parsed=mixed)
+    result = OpenAIAnswerProvider(config, client=client).answer("What oxygen?", CONTEXT)
+    assert client.responses.parse.call_count == 2
+    assert [c.text for c in result.claims] == ["Samples used 22% oxygen."]
+    assert "1 generated claim removed" in result.limitations[-1]

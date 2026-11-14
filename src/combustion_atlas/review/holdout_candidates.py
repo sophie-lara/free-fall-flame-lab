@@ -14,17 +14,29 @@ from combustion_atlas.normalization.extractor import extract_bass_row
 from .evidence_schema import EvidenceCandidate
 
 CONDITIONS = {
-    "Material", "Samle Thickness ", "Sample Length ", "Sample Width (cm)",
-    "Air Flow (cm/s)", "Percent O2 (Note 1)", "Ignition Power (W)",
-    "Ignition Time (s)", "Flow Direction",
+    "Material",
+    "Samle Thickness ",
+    "Sample Length ",
+    "Sample Width (cm)",
+    "Air Flow (cm/s)",
+    "Percent O2 (Note 1)",
+    "Ignition Power (W)",
+    "Ignition Time (s)",
+    "Flow Direction",
 }
-OUTCOMES = {"Burn Time (s)", "?-g Burn Length", "?-g Spread Length",
-            "1-g Burn Length", "1-g Spread Rate"}
+OUTCOMES = {
+    "Burn Time (s)",
+    "?-g Burn Length",
+    "?-g Spread Length",
+    "1-g Burn Length",
+    "1-g Spread Rate",
+}
 
 
 def prepare(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
-    selection = json.loads((root / "data/processed/holdout-selection-v1.json").read_text(
-        encoding="utf-8"))["rows"]
+    selection = json.loads(
+        (root / "data/processed/holdout-selection-v1.json").read_text(encoding="utf-8")
+    )["rows"]
     bass = []
     saffire = []
     source: SourceIdentity | None = None
@@ -44,10 +56,17 @@ def prepare(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         if investigation == "PSI-25":
             if row.cells.get("Test #") != selected["source_identity"]:
                 raise ValueError("BASS identity mismatch")
-            bass.append(extract_bass_row(row, investigation_id=investigation, source_url=url,
-                                         source_sha256=table.sha256))
-            source = SourceIdentity(investigation_id=investigation, source_url=url,
-                                    local_path=selected["source_file"], sha256=table.sha256)
+            bass.append(
+                extract_bass_row(
+                    row, investigation_id=investigation, source_url=url, source_sha256=table.sha256
+                )
+            )
+            source = SourceIdentity(
+                investigation_id=investigation,
+                source_url=url,
+                local_path=selected["source_file"],
+                sha256=table.sha256,
+            )
         elif investigation == "PSI-99":
             if row.cells.get("Sample Number") != selected["source_identity"]:
                 raise ValueError("Saffire identity mismatch")
@@ -56,33 +75,65 @@ def prepare(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
             outcomes = []
             settings = {}
             for column, text in row.cells.items():
-                provenance = {"source_url": url, "file": path.name, "row": row.record_number,
-                    "column": column, "page": None, "table": None, "synthetic": False,
-                    "source_sha256": table.sha256}
+                provenance = {
+                    "source_url": url,
+                    "file": path.name,
+                    "row": row.record_number,
+                    "column": column,
+                    "page": None,
+                    "table": None,
+                    "synthetic": False,
+                    "source_sha256": table.sha256,
+                }
                 cell = {"original_value": text, "original_unit": None, "provenance": provenance}
                 raw.append(cell)
                 if column in CONDITIONS or column in OUTCOMES:
-                    qualifier = ("source_blank" if text == "" else "source_marker"
-                                 if text and text.strip().casefold() in {"none", "n/a", "null"}
-                                 else None)
-                    entry = {**cell, "value": text if text else None, "unit": None,
-                             "qualifier": qualifier,
-                             "uncertainty": None}
+                    qualifier = (
+                        "source_blank"
+                        if text == ""
+                        else "source_marker"
+                        if text and text.strip().casefold() in {"none", "n/a", "null"}
+                        else None
+                    )
+                    entry = {
+                        **cell,
+                        "value": text if text else None,
+                        "unit": None,
+                        "qualifier": qualifier,
+                        "uncertainty": None,
+                    }
                     if column in CONDITIONS:
                         conditions[column] = entry
                     else:
                         outcomes.append({**entry, "outcome_type": column})
                 elif column.startswith("Camera"):
                     settings[column] = cell
-            candidate = EvidenceCandidate.model_validate({"identity": {"investigation_id":
-                investigation, "test_id": f"SAFFIRE-II-{selected['source_identity']}",
-                "sample_id": selected["source_identity"]}, "conditions": conditions,
-                "outcomes": outcomes, "instrument_settings": settings, "extra_metadata": {},
-                "raw_cells": raw, "extraction_confidence": None,
-                "validation_status": "review_required", "human_review_status": "unreviewed",
-                "issues": [{"code": "source_review", "field": "record", "severity": "review",
+            candidate = EvidenceCandidate.model_validate(
+                {
+                    "identity": {
+                        "investigation_id": investigation,
+                        "test_id": f"SAFFIRE-II-{selected['source_identity']}",
+                        "sample_id": selected["source_identity"],
+                    },
+                    "conditions": conditions,
+                    "outcomes": outcomes,
+                    "instrument_settings": settings,
+                    "extra_metadata": {},
+                    "raw_cells": raw,
+                    "extraction_confidence": None,
+                    "validation_status": "review_required",
+                    "human_review_status": "unreviewed",
+                    "issues": [
+                        {
+                            "code": "source_review",
+                            "field": "record",
+                            "severity": "review",
                             "message": "Source strings await transcription and interpretation "
-                                       "review."}]})
+                            "review.",
+                        }
+                    ],
+                }
+            )
             saffire.append(candidate.model_dump(mode="json"))
         else:
             raise ValueError("Unexpected investigation")
@@ -95,8 +146,10 @@ def prepare(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
 def main() -> None:
     root = Path.cwd().resolve()
     native, evidence = prepare(root)
-    targets = [(root / "data/review/additional-candidates/holdout-bass.json", native),
-               (root / "data/review/holdout-evidence.json", evidence)]
+    targets = [
+        (root / "data/review/additional-candidates/holdout-bass.json", native),
+        (root / "data/review/holdout-evidence.json", evidence),
+    ]
     if any(path.exists() for path, _ in targets):
         raise FileExistsError("Holdout candidate output already exists; preserve review bindings")
     for path, value in targets:

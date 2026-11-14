@@ -19,8 +19,11 @@ def test_plan_covers_series_and_preserves_saffire_notes(tmp_path: Path, monkeypa
         "Sample Number,Material\n2-1,PMMA\nF1C1,video\nNote 1 Derived from measurements,\n",
         encoding="utf-8",
     )
-    reviewed = SimpleNamespace(investigation_id="PSI-25", test_id="B1",
-        provenance=[SimpleNamespace(source_sha256=sha256_file(bass))])
+    reviewed = SimpleNamespace(
+        investigation_id="PSI-25",
+        test_id="B1",
+        provenance=[SimpleNamespace(source_sha256=sha256_file(bass))],
+    )
     monkeypatch.setattr(
         full_csv_run,
         "Workspace",
@@ -61,10 +64,17 @@ def test_execution_resumes_completed_and_stops_uncertain(tmp_path: Path, monkeyp
     def fake_run(root, plan, output, **kwargs):
         calls.append(output.name)
         output.mkdir()
-        (output / "01.json").write_text(json.dumps({"record": {
-            "investigation_id": "PSI-25", "test_id": "B1"},
-            "validation_issues": [], "source_issues": [], "unreferenced_source_cells": []}),
-            encoding="utf-8")
+        (output / "01.json").write_text(
+            json.dumps(
+                {
+                    "record": {"investigation_id": "PSI-25", "test_id": "B1"},
+                    "validation_issues": [],
+                    "source_issues": [],
+                    "unreferenced_source_cells": [],
+                }
+            ),
+            encoding="utf-8",
+        )
 
     monkeypatch.setattr(full_csv_run, "run", fake_run)
     plan = {"budget_usd": "2.00", "reservation_usd": "0.02", "records": [{}, {}]}
@@ -96,8 +106,16 @@ def test_full_orchestrator_uses_mapping_runner_with_fake_provider(
     source.write_text("Test #,Fuel Sample Material\nB8,PMMA film\n", encoding="utf-8")
     requests = prepare(tmp_path, source, "PSI-25", [2])
     monkeypatch.setattr(full_csv_run, "rebuild", lambda *_: requests)
-    field = MappedField(canonical_field="test_id", source_indexes=[0], value="B8", unit=None,
-                        qualifier=None, missingness="reported", mapping_status="direct", note=None)
+    field = MappedField(
+        canonical_field="test_id",
+        source_indexes=[0],
+        value="B8",
+        unit=None,
+        qualifier=None,
+        missingness="reported",
+        mapping_status="direct",
+        note=None,
+    )
     row = MappedRow(schema_version="mapping-proposal-v1", profile="bass_ii", fields=[field])
     usage = SimpleNamespace(model_dump=lambda **_: {"input_tokens": 10, "output_tokens": 10})
     response = SimpleNamespace(output_parsed=row, usage=usage, model="fake", id="fake-id")

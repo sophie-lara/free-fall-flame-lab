@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars (ignored by git) and fill in.
+# Do NOT put the OpenAI key here: export TF_VAR_openai_api_key instead.
+
+subscription_id     = "00000000-0000-0000-0000-000000000000"
+location            = "westeurope"
+resource_group_name = "combustion-atlas"
+app_name            = "your-unique-app-name"
+# app_service_sku   = "B1"
+
+# embedding_model = "text-embedding-3-small"
+# answer_model    = "gpt-6-luna"
+
+admin_emails = ["admin@example.com"]
+
+# Existing users in your tenant
+allowed_user_principal_names = ["someone@yourtenant.onmicrosoft.com"]
+
+# External people to invite as guests
+guest_emails = ["guest@example.com"]
+
+# github_owner      = "your-github-user"
+# github_repository = "your-repo"
+# github_branch     = "main"
+# deploy_approvers  = "your-github-user"

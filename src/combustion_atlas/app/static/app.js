@@ -1,6 +1,6 @@
 const main = document.querySelector('#main');
 const state = { overview: null, records: [], mappings: [], notes: [], sources: [], record: 'B1', tab: 'conditions', sourceFilter: '', sourceStatus: '', question: '', investigation: '', results: null, searching: false };
-const names = { 'PSI-25': 'BASS-II', 'PSI-69': 'FLEX', 'PSI-98': 'Saffire I', 'PSI-99': 'Saffire II', 'PSI-100': 'Saffire III' };
+const names = { 'PSI-25': 'BASS-II', 'PSI-26': 'BASS', 'PSI-68': 'FLEX-2', 'PSI-101': 'SAME-R', 'PSI-102': 'SAME', 'PSI-69': 'FLEX', 'PSI-98': 'Saffire I', 'PSI-99': 'Saffire II', 'PSI-100': 'Saffire III' };
 state.reviewDrafts = {};
 state.filteredRecords = null;
 state.structuredFilters = {scope:'candidates'};
@@ -195,23 +195,23 @@ async function runSearch() {
   state.allowProviderCalls=main.querySelector('#provider-calls').checked;
   state.generateAnswer=main.querySelector('#generate-answer').checked;
   if (!state.question) return;
-  state.searching=true; renderSearch();
-  try { const payload=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:state.question, investigation:state.investigation || null, method:state.searchMethod, generate_answer:state.generateAnswer, allow_provider_calls:state.allowProviderCalls})});
+  state.searching=true; state.progress=[]; renderSearch();
+  try { const payload=await askStream({question:state.question, investigation:state.investigation || null, method:state.searchMethod, generate_answer:state.generateAnswer, allow_provider_calls:state.allowProviderCalls});
     state.results={question:payload.question,method:payload.method,answer:payload.answer,hits:payload.results.map(c=>({chunk:{...c,
       title:c.filename,page:c.physical_page,file_name:c.filename,investigation_ids:c.investigation_id?[c.investigation_id]:[],
       extraction_method:c.visual?'derived_visual_text':'pdf_native_text',warnings:c.visual?[`Derived ${c.visual.kind}: ${c.visual.method}; ${c.visual.review_status}. Verify against the original crop.`]:[]}}))}; }
   catch(err) { state.results={error:err.message}; }
-  state.searching=false; if(route()==='search') renderSearch();
+  state.searching=false; if(['ask','search'].includes(route())) renderSearch();
 }
 function renderSearchResults() {
   const el=document.querySelector('#search-results'); const result=state.results;
-  if(state.searching) { el.innerHTML='<div class="loading">Finding passages in your local corpus…</div>'; return; }
+  if(state.searching) { el.innerHTML=progressHTML(); return; }
   if(!result) { el.innerHTML=empty('A source is a good place to start.',`${count(state.overview.chunks)} passages from ${state.overview.documents} documents, with page-level citations.`); return; }
-  if(result.error) { el.innerHTML=`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
+  if(result.error) { el.innerHTML=stepsSummaryHTML(true)+`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
   if(!result.hits.length) { el.innerHTML=empty('No matching passages.','Try different terms or a broader investigation scope. This search provides no supported answer.'); return; }
   const answer=result.answer;
   const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(claim.text)}</p>${claim.supports.map(s=>`<blockquote>${esc(s.quote)}</blockquote><button class="btn link" data-support="${esc(s.chunk_id)}">View supporting passage →</button>`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}${answer.status==='answered'?'<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p>':'<p class="form-hint">No claim was supported by the retrieved passages. This means missing from the indexed collection, not unstudied.</p>'}</div></section>` : '';
-  el.innerHTML=answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
+  el.innerHTML=stepsSummaryHTML() + answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
     const c=hit.chunk; const source=state.sources.find(s=>s.source_id===c.source_id);
     const link=source?.available_locally ? `/api/documents/${encodeURIComponent(c.source_id)}#page=${c.page}` : safeURL(c.file_url || c.source_url);
     return `<article class="result-card"><div class="result-top"><span class="eyebrow" style="margin:0">PASSAGE ${String(i+1).padStart(2,'0')} · ${esc(c.investigation_ids.map(i=>names[i]||i).join(' / '))}</span>${tag(`Page ${c.page}`)}</div><h2>${esc(c.title)}</h2>${c.section?`<span class="muted" style="font-size:11px">Section hint: ${esc(c.section)}</span>`:''}<div class="excerpt">${esc(c.text)}</div><div class="result-footer"><span>${esc(source?.category || 'Document')} · ${esc(c.extraction_method==='pdf_native_text'?'Native PDF text':c.extraction_method==='derived_visual_text'?'Derived visual text (not source text)':'Plain text')}</span><a class="btn small" href="${link}" target="_blank" rel="noopener noreferrer">Open cited page ↗</a></div><details><summary>Source details and extraction notes</summary><p><a href="${safeURL(c.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a></p>Chunk: ${esc(c.chunk_id)}<br>SHA-256: ${esc(c.sha256)}${c.warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details></article>`;
@@ -255,6 +255,7 @@ async function start() {
     const [overview, experiments, sources] = await Promise.all([api('/api/overview'),api('/api/experiments'),api('/api/sources')]);
     state.ragStatus=await api('/api/rag-status');
     try { state.corpus=await api('/api/corpus'); } catch { state.corpus=null; }
+    try { const me=await api('/api/me'); const slot=document.querySelector('#ui-switch-slot'); if(slot){ slot.innerHTML=uiSwitchHTML(me,'workspace'); bindUiSwitch(slot); } } catch { /* switch is optional */ }
     state.searchMethod=state.ragStatus.semantic_ready?'hybrid':'keyword';
     state.generateAnswer=state.ragStatus.answer_ready;
     state.allowProviderCalls=state.ragStatus.semantic_ready || state.ragStatus.answer_ready;
@@ -412,4 +413,60 @@ function renderDirectionsResult() {
     `<p class="form-hint">${claims.length} cited items from ${d.result.results.length} retrieved passages.</p>`;
 }
 document.addEventListener('click', e => { const a = e.target.closest('[data-claim]'); if (!a) return; e.preventDefault(); document.querySelector(`#dir-claim-${a.dataset.claim}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+// ---- Streaming answers: progress events, then the result ----
+state.progress = [];
+function progressHTML() {
+  const steps = state.progress;
+  const last = steps[steps.length - 1];
+  return `<section class="panel progress-panel" aria-live="polite"><div class="panel-body"><h2>${esc(last ? last.message : 'Starting…')}</h2><ol class="progress-steps">${steps.map((s, i) => `<li class="${i === steps.length - 1 ? 'current' : 'done'}"><span>${esc(s.message)}</span><small>${Number(s.elapsed_s || 0).toFixed(1)} s</small></li>`).join('')}</ol></div></section>`;
+}
+// After the answer arrives, keep the steps as a collapsed summary above it.
+function stepsSummaryHTML(failed = false) {
+  const steps = state.progress || [];
+  if (!steps.length) return '';
+  const total = Number(steps[steps.length - 1].elapsed_s || 0).toFixed(1);
+  return `<details class="panel steps-summary"><summary><span>${failed ? '⚠ Stopped' : '✓ Answered'} in ${total} s</span><small>${steps.length} step${steps.length === 1 ? '' : 's'}</small></summary><ol class="progress-steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><small>${Number(s.elapsed_s || 0).toFixed(1)} s</small></li>`).join('')}</ol></details>`;
+}
+function showProgress(event) {
+  state.progress.push(event);
+  const el = document.querySelector('#search-results');
+  if (el && state.searching) el.innerHTML = progressHTML();
+}
+async function askStream(body) {
+  const response = await fetch('/api/ask/stream', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (response.status === 404 || !response.body) return api('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.error || 'The request could not be completed.'); }
+  const reader = response.body.getReader(), decoder = new TextDecoder();
+  let buffer = '', result = null;
+  const handle = line => {
+    if (!line.trim()) return;
+    const event = JSON.parse(line);
+    if (event.type === 'progress') showProgress(event);
+    else if (event.type === 'error') throw new Error(event.error);
+    else if (event.type === 'result') result = event;
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+    const lines = buffer.split('\n'); buffer = lines.pop();
+    lines.forEach(handle);
+    if (done) { handle(buffer); break; }
+  }
+  if (!result) throw new Error('The answer stream ended early. Please try again.');
+  return result;
+}
+
+// ---- Switch between the public UI and the review workspace ----
+function uiSwitchHTML(me, current) {
+  // Workspace mode: workspace at "/", public preview at "/public".
+  // Public mode (Azure): public at "/", workspace at "/workspace" (admins only).
+  if (!me || !me.is_admin) return '';
+  const urls = me.mode === 'public' ? { public: '/', workspace: '/workspace' } : { public: '/public', workspace: '/' };
+  const target = current === 'public' ? urls.workspace : urls.public;
+  const on = current === 'workspace';
+  return `<div class="ui-switch"><span class="ui-switch-label${on ? '' : ' active'}" aria-hidden="true">Public</span><button type="button" role="switch" aria-checked="${on}" aria-label="Review workspace view" data-ui-target="${target}" class="ui-switch-track"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${on ? ' active' : ''}" aria-hidden="true">Workspace</span></div>`;
+}
+function bindUiSwitch(root) {
+  root.querySelector('[data-ui-target]')?.addEventListener('click', e => { window.location.assign(e.currentTarget.dataset.uiTarget); });
+}
 start();

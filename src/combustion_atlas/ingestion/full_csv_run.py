@@ -213,12 +213,18 @@ def write_review_report(target: Path, plan: dict[str, Any]) -> None:
     rows = []
     for path in sorted(target.glob("row-*/01.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
-        issues = [item for item in data.get("validation_issues", [])
-                  if item != "instrument_settings_require_interpretation"]
-        issues.extend(f"{item['code']}: {item['message']}" for item in
-                      data.get("source_issues", []))
-        issues.extend(f"Unreferenced source cell: {item}" for item in
-                      data.get("unreferenced_source_cells", []))
+        issues = [
+            item
+            for item in data.get("validation_issues", [])
+            if item != "instrument_settings_require_interpretation"
+        ]
+        issues.extend(
+            f"{item['code']}: {item['message']}" for item in data.get("source_issues", [])
+        )
+        issues.extend(
+            f"Unreferenced source cell: {item}"
+            for item in data.get("unreferenced_source_cells", [])
+        )
         rows.append((data["record"], issues, path.relative_to(target).as_posix()))
     flagged = [row for row in rows if row[1]]
     unflagged = [row for row in rows if not row[1]]
@@ -229,28 +235,61 @@ def write_review_report(target: Path, plan: dict[str, Any]) -> None:
     entries = []
     for record, issues, result_path in rows:
         file = target / result_path
-        entries.append({"record": record, "result_path": result_path,
-                        "result_sha256": hashlib.sha256(file.read_bytes()).hexdigest(),
-                        "issues": issues, "review_flagged": bool(issues),
-                        "audit_sample": result_path in sampled_paths})
+        entries.append(
+            {
+                "record": record,
+                "result_path": result_path,
+                "result_sha256": hashlib.sha256(file.read_bytes()).hexdigest(),
+                "issues": issues,
+                "review_flagged": bool(issues),
+                "audit_sample": result_path in sampled_paths,
+            }
+        )
     index_path = target / "review-index.json.tmp"
-    index_path.write_text(json.dumps({"schema_version": "full-run-review-index-v1",
-        "plan_sha256": digest(plan), "completed": len(rows), "records": entries},
-        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    index_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "full-run-review-index-v1",
+                "plan_sha256": digest(plan),
+                "completed": len(rows),
+                "records": entries,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     index_path.replace(target / "review-index.json")
-    lines = ["# CSV ingestion review", "", f"Completed: {len(rows)} of {len(plan['records'])}",
-             f"Rows with actionable flags: {len(flagged)}", "",
-             "All outputs are unreviewed. A row without flags is not an approval.",
-             "BASS instrument/control settings require interpretation even if no row-level "
-             "issue is listed.", "", "## Rows with flags", ""]
+    lines = [
+        "# CSV ingestion review",
+        "",
+        f"Completed: {len(rows)} of {len(plan['records'])}",
+        f"Rows with actionable flags: {len(flagged)}",
+        "",
+        "All outputs are unreviewed. A row without flags is not an approval.",
+        "BASS instrument/control settings require interpretation even if no row-level "
+        "issue is listed.",
+        "",
+        "## Rows with flags",
+        "",
+    ]
     for record, issues, result_path in flagged:
-        lines.append(f"- {record['investigation_id']} / {record['test_id']} "
-                     f"([result]({result_path}))")
+        lines.append(
+            f"- {record['investigation_id']} / {record['test_id']} ([result]({result_path}))"
+        )
         lines.extend(f"  - {issue}" for issue in issues)
-    lines += ["", "## Suggested audit of rows without flags", "",
-              "Deterministic selection; check values and mappings against source.", ""]
-    lines.extend(f"- {record['investigation_id']} / {record['test_id']} ([result]({path}))"
-                 for record, _, path in sample)
+    lines += [
+        "",
+        "## Suggested audit of rows without flags",
+        "",
+        "Deterministic selection; check values and mappings against source.",
+        "",
+    ]
+    lines.extend(
+        f"- {record['investigation_id']} / {record['test_id']} ([result]({path}))"
+        for record, _, path in sample
+    )
     temporary = target / "review-report.md.tmp"
     temporary.write_text("\n".join(lines) + "\n", encoding="utf-8")
     temporary.replace(target / "review-report.md")
@@ -305,9 +344,12 @@ def execute(
             if not isinstance(number, int) or not 1 <= number <= len(requests):
                 raise ValueError("Invalid ledger record")
             if event["status"] == "reserved" and number not in pending and number not in completed:
-                if (event.get("record") != requests[number - 1][0] or
-                        event.get("reservation_usd") != str(requests[number - 1][3]) or
-                        number != len(completed) + 1 or pending):
+                if (
+                    event.get("record") != requests[number - 1][0]
+                    or event.get("reservation_usd") != str(requests[number - 1][3])
+                    or number != len(completed) + 1
+                    or pending
+                ):
                     raise ValueError("Ledger reservation does not match planned request")
                 pending[number] = event
             elif event["status"] == "complete" and number in pending and number not in completed:

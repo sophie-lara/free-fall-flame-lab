@@ -1,0 +1,86 @@
+data "azurerm_client_config" "current" {}
+data "azuread_client_config" "current" {}
+
+locals {
+  # Built from the variable, not the web app resource, to avoid a dependency
+  # cycle (the web app needs the sign-in app's client ID).
+  app_host  = "${var.app_name}.azurewebsites.net"
+  workspace = "/home/site/data"
+
+  # Default access role for apps without app roles.
+  default_app_role_id = "00000000-0000-0000-0000-000000000000"
+}
+
+# --- Hosting -------------------------------------------------------------
+
+resource "azurerm_resource_group" "main" {
+  name     = var.resource_group_name
+  location = var.location
+}
+
+resource "azurerm_service_plan" "main" {
+  name                = "${var.app_name}-plan"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  os_type             = "Linux"
+  sku_name            = var.app_service_sku
+  # SQLite on the shared disk is not safe across instances.
+  worker_count = 1
+}
+
+resource "azurerm_linux_web_app" "main" {
+  name                = var.app_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  service_plan_id     = azurerm_service_plan.main.id
+  https_only          = true
+
+  # Deploys and data uploads use Entra tokens (OIDC / az login), not publish passwords.
+  ftp_publish_basic_authentication_enabled       = false
+  webdeploy_publish_basic_authentication_enabled = false
+
+  site_config {
+    always_on           = true
+    ftps_state          = "Disabled"
+    minimum_tls_version = "1.2"
+    worker_count        = 1
+    app_command_line    = "python -m combustion_atlas.app --host 0.0.0.0 --port 8000 --workspace ${local.workspace}"
+
+    application_stack {
+      python_version = "3.12"
+    }
+  }
+
+  app_settings = {
+    OPENAI_API_KEY                           = var.openai_api_key
+    COMBUSTION_ATLAS_EMBEDDING_PROVIDER      = "openai"
+    COMBUSTION_ATLAS_EMBEDDING_MODEL         = var.embedding_model
+    COMBUSTION_ATLAS_ANSWER_PROVIDER         = "openai"
+    COMBUSTION_ATLAS_ANSWER_MODEL            = var.answer_model
+    COMBUSTION_ATLAS_ALLOWED_HOSTS           = local.app_host
+    COMBUSTION_ATLAS_UI                      = "public"
+    COMBUSTION_ATLAS_ADMINS                  = join(",", var.admin_emails)
+    COMBUSTION_ATLAS_WORKSPACE               = local.workspace
+    SCM_DO_BUILD_DURING_DEPLOYMENT           = "true"
+    MICROSOFT_PROVIDER_AUTHENTICATION_SECRET = azuread_application_password.signin.value
+  }
+
+  auth_settings_v2 {
+    auth_enabled           = true
+    require_authentication = true
+    require_https          = true
+    unauthenticated_action = "RedirectToLoginPage"
+    default_provider       = "azureactivedirectory"
+    excluded_paths         = ["/api/health"]
+
+    active_directory_v2 {
+      client_id                  = azuread_application.signin.client_id
+      tenant_auth_endpoint       = "https://login.microsoftonline.com/${data.azuread_client_config.current.tenant_id}/v2.0"
+      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+    }
+
+    login {
+      token_store_enabled = true
+    }
+  }
+}

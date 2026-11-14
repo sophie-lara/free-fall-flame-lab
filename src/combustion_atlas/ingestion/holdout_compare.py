@@ -29,21 +29,36 @@ def main() -> None:
         if key in seen or key not in refs:
             raise ValueError("Duplicate or unexpected holdout result")
         ref = refs[key]
-        if (result.get("run_metadata", {}).get("reference_sha256") != digest or
-                record["source_sha256"] != ref["source_sha256"] or
-                record["record_number"] != ref["record_number"]):
+        if (
+            result.get("run_metadata", {}).get("reference_sha256") != digest
+            or record["source_sha256"] != ref["source_sha256"]
+            or record["record_number"] != ref["record_number"]
+        ):
             raise ValueError("Holdout result and reviewed reference do not match")
         seen.add(key)
-        items.append({"result_file": path.name, "proposal": result["proposal"],
-                      "validation_issues": result["validation_issues"],
-                      "source_issues": result["source_issues"],
-                      "review_reference": ref})
+        items.append(
+            {
+                "result_file": path.name,
+                "proposal": result["proposal"],
+                "validation_issues": result["validation_issues"],
+                "source_issues": result["source_issues"],
+                "review_reference": ref,
+            }
+        )
     if seen != set(refs):
         raise ValueError("Holdout result set is incomplete")
     with args.output.open("x", encoding="utf-8") as stream:
-        json.dump({"schema_version": "holdout-comparison-v1", "reference_sha256": digest,
-                   "note": "Manual comparison; open research remains unresolved.",
-                   "records": items}, stream, ensure_ascii=False, indent=2)
+        json.dump(
+            {
+                "schema_version": "holdout-comparison-v1",
+                "reference_sha256": digest,
+                "note": "Manual comparison; open research remains unresolved.",
+                "records": items,
+            },
+            stream,
+            ensure_ascii=False,
+            indent=2,
+        )
         stream.write("\n")
 
 

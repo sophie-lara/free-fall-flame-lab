@@ -401,7 +401,12 @@ class AtlasHandler(BaseHTTPRequestHandler):
     workspace = Path.cwd()
     # Public hostnames accepted besides loopback, e.g. "atlas.azurewebsites.net".
     allowed_hosts: frozenset[str] = frozenset()
+    # "workspace" serves the internal review UI at "/"; "public" serves the public UI.
+    ui_mode: str = "workspace"
+    # Lower-case sign-in names (emails) allowed to administer a hosted deployment.
+    admins: frozenset[str] = frozenset()
     static_dir = Path(__file__).with_name("static")
+    public_dir = Path(__file__).with_name("public")
 
     @property
     def atlas(self) -> Workspace:
@@ -439,6 +444,43 @@ class AtlasHandler(BaseHTTPRequestHandler):
         schemes = ("http", "https") if host in self.allowed_hosts else ("http",)
         return origin in {f"{scheme}://{host}" for scheme in schemes}
 
+    def _identity(self) -> str | None:
+        """Signed-in user name on a hosted deployment, else None.
+
+        App Service Authentication injects X-MS-CLIENT-PRINCIPAL-NAME and strips any
+        client-supplied copy. The header is only trusted when hosted (allowed_hosts
+        configured); on plain loopback a client could forge it, so it is ignored.
+        """
+        if not self.allowed_hosts:
+            return None
+        name = (self.headers.get("X-MS-CLIENT-PRINCIPAL-NAME") or "").strip()
+        return name or None
+
+    def _is_admin(self) -> bool:
+        if not self.allowed_hosts:
+            return True  # loopback-only server: the local user owns the workspace
+        name = self._identity()
+        return name is not None and name.casefold() in self.admins
+
+    def _forbidden_unless_admin(self) -> bool:
+        """Send 403 and return True when the caller is not an administrator."""
+        if self._is_admin():
+            return False
+        self._json({"error": "Administrator access required"}, HTTPStatus.FORBIDDEN)
+        return True
+
+    def _analysis(self, name: str) -> Any:
+        """Import an analysis module lazily; None (after a 503) when it is not installed."""
+        import importlib
+
+        try:
+            return importlib.import_module(f"combustion_atlas.analysis.{name}")
+        except ModuleNotFoundError as exc:
+            if exc.name and exc.name.startswith("combustion_atlas.analysis"):
+                self._json({"error": "Analysis not available yet"}, HTTPStatus.SERVICE_UNAVAILABLE)
+                return None
+            raise
+
     def do_GET(self) -> None:  # noqa: N802
         if not self._allowed_host():
             self._json({"error": "Local requests required"}, HTTPStatus.FORBIDDEN)
@@ -458,6 +500,18 @@ class AtlasHandler(BaseHTTPRequestHandler):
         atlas = self.atlas
         if parsed.path == "/api/health":
             self._json({"status": "ok"})
+        elif parsed.path == "/api/me":
+            self._json(
+                {"name": self._identity(), "is_admin": self._is_admin(), "mode": self.ui_mode}
+            )
+        elif parsed.path == "/api/coverage":
+            module = self._analysis("coverage")
+            if module is not None:
+                self._json(module.coverage_payload(atlas))
+        elif parsed.path == "/api/predict/options":
+            module = self._analysis("prediction")
+            if module is not None:
+                self._json(module.prediction_options(atlas))
         elif parsed.path == "/api/overview":
             self._json(atlas.overview())
         elif parsed.path == "/api/corpus":
@@ -691,16 +745,51 @@ class AtlasHandler(BaseHTTPRequestHandler):
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         if path == "/api/upload":
-            self._upload(parsed_url.query)
+            if not self._forbidden_unless_admin():
+                self._upload(parsed_url.query)
             return
-        if path not in {"/api/reviews", "/api/review-notes", "/api/ask", "/api/directions"}:
+        if path == "/api/ask/stream":
+            # Same host/origin checks as /api/ask (above); NDJSON progress, then the result.
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if not 0 < length <= 32768 or self.headers.get_content_type() != "application/json":
+                    raise ValueError("A bounded JSON request is required")
+            except ValueError as exc:
+                self._json({"error": str(exc)[:500]}, HTTPStatus.BAD_REQUEST)
+                return
+            raw = self.rfile.read(length)
+            from combustion_atlas.app.streaming import stream_ask
+
+            stream_ask(self, self.atlas, raw)
+            return
+        if path not in {
+            "/api/reviews",
+            "/api/review-notes",
+            "/api/ask",
+            "/api/directions",
+            "/api/predict",
+        }:
             self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+            return
+        if (
+            path in {"/api/reviews", "/api/review-notes"}
+            and self.ui_mode == "public"
+            and self._forbidden_unless_admin()
+        ):
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
             if not 0 < length <= 32768 or self.headers.get_content_type() != "application/json":
-                raise ValueError("A bounded JSON review note is required")
+                raise ValueError("A bounded JSON request is required")
             raw = self.rfile.read(length)
+            if path == "/api/predict":
+                module = self._analysis("prediction")
+                if module is not None:
+                    body = json.loads(raw)
+                    if not isinstance(body, dict):
+                        raise ValueError("Send a JSON object with target and inputs")
+                    self._json(module.predict_payload(self.atlas, body))
+                return
             if path == "/api/ask":
                 self._json(ask_evidence(self.atlas, EvidenceRequest.model_validate_json(raw)))
                 return
@@ -754,19 +843,47 @@ class AtlasHandler(BaseHTTPRequestHandler):
             )
 
     def _serve_static(self, request_path: str) -> None:
-        names = {
-            "/": "index.html",
-            "/index.html": "index.html",
-            "/app.js": "app.js",
-            "/styles.css": "styles.css",
+        """Static assets for both UIs.
+
+        Public UI assets live under /p/ so they never collide with the workspace UI,
+        whose index.html references /app.js and /styles.css. In public mode "/" is the
+        public UI and the workspace UI moves to /workspace (administrators only); in
+        workspace mode "/" stays the workspace UI and the public UI previews at /public.
+        """
+        types = {
+            ".html": "text/html; charset=utf-8",
+            ".js": "text/javascript; charset=utf-8",
+            ".css": "text/css; charset=utf-8",
+            ".svg": "image/svg+xml",
         }
-        if request_path not in names:
+        public_assets = {
+            "/p/app.js": "app.js",
+            "/p/styles.css": "styles.css",
+            "/p/logo.svg": "logo.svg",
+        }
+        workspace_assets = {"/app.js": "app.js", "/styles.css": "styles.css"}
+        if self.ui_mode == "public":
+            public_pages = {"/", "/index.html"}
+            workspace_pages = {"/workspace", "/workspace/"}
+        else:
+            public_pages = {"/public", "/public/"}
+            workspace_pages = {"/", "/index.html"}
+        if request_path in public_pages:
+            target = self.public_dir / "index.html"
+        elif request_path in public_assets:
+            target = self.public_dir / public_assets[request_path]
+        elif request_path in workspace_pages or request_path in workspace_assets:
+            if self.ui_mode == "public" and self._forbidden_unless_admin():
+                return
+            name = workspace_assets.get(request_path, "index.html")
+            target = self.static_dir / name
+        else:
             self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
             return
-        target = self.static_dir / names[request_path]
-        self._content(
-            target.read_bytes(), mimetypes.guess_type(target.name)[0] or "application/octet-stream"
-        )
+        if not target.is_file():
+            self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+            return
+        self._content(target.read_bytes(), types.get(target.suffix, "application/octet-stream"))
 
 
 def serve(
@@ -775,8 +892,12 @@ def serve(
     port: int,
     host: str = "127.0.0.1",
     allowed_hosts: frozenset[str] = frozenset(),
+    ui_mode: str = "workspace",
+    admins: frozenset[str] = frozenset(),
 ) -> None:
     """Serve the interface. Defaults to loopback; hosted use must name its public hosts."""
+    if ui_mode not in {"workspace", "public"}:
+        raise ValueError("UI mode must be 'workspace' or 'public'")
     if not 1 <= port <= 65535:
         raise ValueError("Port must be between 1 and 65535")
     if host not in {"127.0.0.1", "localhost"} and not allowed_hosts:
@@ -784,7 +905,12 @@ def serve(
     handler = type(
         "WorkspaceHandler",
         (AtlasHandler,),
-        {"workspace": workspace.resolve(), "allowed_hosts": allowed_hosts},
+        {
+            "workspace": workspace.resolve(),
+            "allowed_hosts": allowed_hosts,
+            "ui_mode": ui_mode,
+            "admins": frozenset(a.casefold() for a in admins),
+        },
     )
     server = ThreadingHTTPServer((host, port), handler)
     print(f"Combustion Atlas: http://{host}:{port}", flush=True)
