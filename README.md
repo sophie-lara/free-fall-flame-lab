@@ -8,6 +8,11 @@ This repository contains an executable MVP scaffold for the evidence pipeline. T
 
 Project architecture, scientific review notes, and operating instructions are maintained in [`docs/`](docs/).
 
+The [review workspace guide](docs/review_ui.md) covers experiment field inspection,
+draft review notes, condition filters, cited keyword search, and source browsing.
+See the [design assessment](docs/design_assessment.md) for architecture alignment,
+verified implementation gaps, and the recommended execution order.
+
 ## Local setup
 
 The reference environment uses Python 3.12 and [uv](https://docs.astral.sh/uv/). Once uv is installed:
