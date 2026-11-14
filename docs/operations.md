@@ -13,7 +13,7 @@ The bootstrap installs the locked dependencies, creates `.env` from `.env.exampl
 For OpenAI document embeddings, configure:
 
 ```dotenv
-OPENAI_API_KEY=your-key
+OPENAI_API_KEY=
 COMBUSTION_ATLAS_EMBEDDING_PROVIDER=openai
 COMBUSTION_ATLAS_EMBEDDING_MODEL=text-embedding-3-small
 COMBUSTION_ATLAS_EMBEDDING_DIMENSIONS=1536
