@@ -85,6 +85,9 @@ def test_review_unlabeled_width_leading_zero_and_qualified_marker() -> None:
     row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[thickness])
     assert "fields[0]:ambiguous_leading_zero" in validate_mapping(
         row, "saffire_ii", cell("Samle Thickness", "037 mm"))
+    thickness.value = 0.37
+    assert "fields[0]:numeric_value_differs_from_source" in validate_mapping(
+        row, "saffire_ii", cell("Samle Thickness", "037 mm"))
     marker = mapped_field(canonical_field="spread_rate_1g", value="n/a (Nomex)", unit=None,
                           missingness="source_marker", mapping_status="direct")
     row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[marker])

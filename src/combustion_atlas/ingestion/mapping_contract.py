@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from typing import Any, Literal
 
@@ -71,6 +72,10 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
     issues = []
     if row.profile != profile:
         issues.append("profile_mismatch")
+    if profile == "bass_ii" and any(field.canonical_field in {
+        "flow_restrictor", "fan_display", "air_display", "radiometer_gain"
+    } for field in row.fields):
+        issues.append("instrument_settings_require_interpretation")
     for n, field in enumerate(row.fields):
         prefix = f"fields[{n}]"
         if field.canonical_field != "unmapped" and field.canonical_field not in ALLOWED[profile]:
@@ -80,6 +85,13 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
             continue
         if (field.canonical_field == "unmapped") != (field.mapping_status == "unmapped"):
             issues.append(f"{prefix}:unmapped_status_mismatch")
+        if field.canonical_field == "unmapped":
+            issues.append(f"{prefix}:unmapped_source_field")
+        if field.note and re.search(
+            r"\b(?:uncertain|ambiguous|unlabeled|unlabelled|unknown|unclear|possible|"
+            r"not specified|not explicitly|does not|cannot)\b", field.note, re.IGNORECASE
+        ):
+            issues.append(f"{prefix}:model_reported_uncertainty")
         if field.missingness == "inferred":
             issues.append(f"{prefix}:inferred_requires_review")
         if field.missingness == "mapping_uncertain":
@@ -126,6 +138,18 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
             issues.append(f"{prefix}:compound_source_requires_review")
         if field.missingness == "source_marker" and any("(" in (c.text or "") for c in cells):
             issues.append(f"{prefix}:qualified_marker_context")
+        if len(cells) == 1 and field.missingness == "reported" and field.value is not None:
+            source_number = re.fullmatch(
+                r"\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*(?:mm/s|cm/s|mm|cm|ppm|%|s|w)?\s*",
+                cells[0].text or "", re.IGNORECASE)
+            try:
+                proposed_number = float(field.value)
+            except (TypeError, ValueError):
+                proposed_number = None
+            if (source_number and proposed_number is not None and math.isfinite(proposed_number)
+                and not math.isclose(float(source_number.group(1)), proposed_number,
+                                     rel_tol=1e-9, abs_tol=1e-12)):
+                issues.append(f"{prefix}:numeric_value_differs_from_source")
         if profile == "flex_table_13" and field.canonical_field in {
             "droplet_diameter", "burning_rate_constant"
         }:
@@ -162,6 +186,8 @@ def mapping_request(profile: Profile, source: SourceBatch) -> dict[str, object]:
             "units, distinguish source markers from blanks, never invent or impute values. "
             "Use only the allowed canonical fields, or unmapped if uncertain. Link each "
             "field to source cell indexes. Separate source text from interpretation. "
+            "When source context supplies numbered notes, identify any relevant note in "
+            "the field note; preserve unresolved references and do not invent their meaning. "
             "Extract dimensions independently of material identity. For FLEX d and k, "
             "use proposed status; d is not necessarily initial diameter. The FLEX table "
             "is a background study, not an individual flight run."
