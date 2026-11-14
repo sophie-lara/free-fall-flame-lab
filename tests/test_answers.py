@@ -65,6 +65,7 @@ def test_answer_repairs_invalid_citations_once_and_keeps_unicode_input() -> None
     client = Mock()
     context = [{"chunk_id": "p1", "text": "BASS–II tested samples."}]
     valid = answer(quote="BASS–II tested samples.")
+    valid.claims[0].text = "BASS–II tested samples."
     client.responses.parse.side_effect = [
         SimpleNamespace(output_parsed=answer("unknown")),
         SimpleNamespace(output_parsed=valid),
@@ -73,3 +74,27 @@ def test_answer_repairs_invalid_citations_once_and_keeps_unicode_input() -> None
     assert provider.answer("Which experiment?", context) == valid
     assert client.responses.parse.call_count == 2
     assert "BASS–II" in client.responses.parse.call_args.kwargs["input"]
+
+
+def test_claim_numbers_must_come_from_its_own_quotes() -> None:
+    computed = GroundedAnswer.model_validate(
+        {
+            "status": "answered",
+            "claims": [
+                {
+                    "text": "20 rods were burnt: 17 black and 3 clear.",
+                    "supports": [
+                        {"chunk_id": "p1", "quote": "Black samples burnt 17"},
+                        {"chunk_id": "p1", "quote": "Clear samples burnt 3"},
+                    ],
+                }
+            ],
+            "limitations": [],
+        }
+    )
+    context = [{"chunk_id": "p1", "text": "Black samples burnt 17. Clear samples burnt 3."}]
+    with pytest.raises(ValueError, match="numbers not found in its quotes: 20"):
+        validate_support(computed, context)
+    grounded = computed.model_copy(deep=True)
+    grounded.claims[0].text = "17 black and 3 clear rods were burnt."
+    validate_support(grounded, context)

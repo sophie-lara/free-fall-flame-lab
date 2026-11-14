@@ -14,6 +14,28 @@ from .config import ProviderConfig
 from .openai_embeddings import OpenAIEmbeddingProvider
 
 
+def embed_missing(database: Path, config: ProviderConfig, *, execute: bool) -> int:
+    """Plan (default) or embed chunks lacking vectors in the configured namespace."""
+    model = config.embedding_model or "text-embedding-3-small"
+    dimensions = config.embedding_dimensions or OpenAIEmbeddingProvider._default_dimensions(model)
+    model_key = f"openai:{model}:{dimensions}"
+    with DocumentStore(database) as store:
+        chunks = store.chunks_missing_vectors(model_key)
+        plan = {"model_key": model_key, "missing_chunks": len(chunks), "dry_run": not execute}
+        if execute and chunks:
+            provider = OpenAIEmbeddingProvider(config)
+            vectors = provider.embed([chunk.text for chunk in chunks])
+            store.append_vectors(
+                model_key=provider.model_key,
+                model=provider.model,
+                dimensions=provider.dimensions,
+                vectors={c.chunk_id: v for c, v in zip(chunks, vectors, strict=True)},
+            )
+            plan["embedded_chunks"] = len(chunks)
+    print(json.dumps(plan, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Provider configuration")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -21,11 +43,18 @@ def main(argv: list[str] | None = None) -> int:
     embed = commands.add_parser("embed", help="Embed every document chunk")
     embed.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
     embed.add_argument("--allow-provider-calls", action="store_true")
+    embed.add_argument(
+        "--missing-only",
+        action="store_true",
+        help="Embed only chunks without a vector; existing vectors are kept",
+    )
     args = parser.parse_args(argv)
     config = ProviderConfig.from_environment()
     if args.command == "status":
         print(json.dumps(config.public_status(), indent=2))
         return 0
+    if args.missing_only:
+        return embed_missing(args.database, config, execute=args.allow_provider_calls)
     if not args.allow_provider_calls:
         parser.error("embed requires --allow-provider-calls")
     provider = OpenAIEmbeddingProvider(config)

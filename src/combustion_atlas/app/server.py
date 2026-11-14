@@ -12,7 +12,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Literal, cast
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from openai import OpenAIError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
@@ -415,7 +415,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 results = store.search(question, query.get("investigation"), k)
             self._json({"question": question, "results": results})
         elif parsed.path.startswith("/api/documents/"):
-            sid = parsed.path.removeprefix("/api/documents/")
+            sid = unquote(parsed.path.removeprefix("/api/documents/"))
             source = next((s for s in atlas.source_rows() if s["source_id"] == sid), None)
             path = atlas.document_path(source) if source else None
             if path is None:
@@ -425,11 +425,39 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     path.read_bytes(),
                     mimetypes.guess_type(path.name)[0] or "application/octet-stream",
                 )
+        elif parsed.path.startswith("/api/visuals/") and parsed.path.endswith("/cells"):
+            from combustion_atlas.rag.tables import resolve_cells
+            from combustion_atlas.rag.visual_models import VisualArtifact
+
+            artifact_id = unquote(parsed.path.removeprefix("/api/visuals/").removesuffix("/cells"))
+            row = None
+            if atlas.database.is_file():
+                with DocumentStore(atlas.database) as store:
+                    row = store.connection.execute(
+                        "SELECT payload FROM visual_artifacts WHERE artifact_id=?",
+                        (artifact_id,),
+                    ).fetchone()
+            artifact = VisualArtifact.model_validate_json(row[0]) if row else None
+            if artifact is None or artifact.table is None:
+                self._json({"error": "Structured table unavailable"}, HTTPStatus.NOT_FOUND)
+            else:
+                self._json(
+                    {
+                        "artifact_id": artifact.artifact_id,
+                        "label": artifact.label,
+                        "caption": artifact.caption,
+                        "review_status": artifact.review_status,
+                        "method": artifact.method,
+                        "physical_page": artifact.physical_page,
+                        "table": artifact.table.model_dump(mode="json"),
+                        "resolved_cells": resolve_cells(artifact.table),
+                    }
+                )
         elif parsed.path.startswith("/api/visuals/"):
             from combustion_atlas.rag.visual_models import VisualArtifact
             from combustion_atlas.rag.visuals import crop_file
 
-            artifact_id = parsed.path.removeprefix("/api/visuals/")
+            artifact_id = unquote(parsed.path.removeprefix("/api/visuals/"))
             if not atlas.database.is_file():
                 self._json({"error": "Visual unavailable"}, HTTPStatus.NOT_FOUND)
                 return

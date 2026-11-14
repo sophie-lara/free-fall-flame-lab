@@ -12,7 +12,7 @@ from combustion_atlas.io import write_json
 from combustion_atlas.providers import ProviderConfig
 from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
 
-from .build import build_index
+from .build import add_document, build_index
 from .search import retrieve
 from .store import DocumentStore
 
@@ -26,6 +26,20 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--source-url")
     build.add_argument("--processed-dir", type=Path, default=Path("data/processed/rag"))
     build.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
+    build.add_argument(
+        "--replace-existing",
+        action="store_true",
+        help="Discard the populated index, vectors and visual artifacts",
+    )
+    add = commands.add_parser("add", help="Add one PDF without replacing the index")
+    add.add_argument("pdf", type=Path)
+    add.add_argument("--investigation", required=True)
+    add.add_argument("--source-url", required=True)
+    add.add_argument("--processed-dir", type=Path, default=Path("data/processed/rag"))
+    add.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
+    remove = commands.add_parser("remove", help="Remove one source and its vectors/visuals")
+    remove.add_argument("source_id")
+    remove.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
     query = commands.add_parser("query")
     query.add_argument("question")
     query.add_argument("--investigation")
@@ -43,8 +57,23 @@ def main(argv: list[str] | None = None) -> int:
             source_url=args.source_url,
             processed_dir=args.processed_dir,
             database=args.database,
+            replace_existing=args.replace_existing,
         )
         print(json.dumps(report, indent=2))
+        return 0
+    if args.command == "add":
+        report = add_document(
+            args.pdf,
+            investigation_id=args.investigation,
+            source_url=args.source_url,
+            processed_dir=args.processed_dir,
+            database=args.database,
+        )
+        print(json.dumps(report, indent=2))
+        return 0
+    if args.command == "remove":
+        with DocumentStore(args.database) as store:
+            print(json.dumps(store.remove_document(args.source_id), indent=2))
         return 0
     with DocumentStore(args.database) as store:
         if (args.method != "keyword" or args.answer) and not args.allow_provider_calls:

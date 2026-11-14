@@ -197,6 +197,83 @@ def test_empty_workspace_has_no_invented_records(tmp_path: Path) -> None:
     assert workspace.source_rows() == [] and workspace.notes() == []
 
 
+def test_visual_crop_endpoint_is_hash_bound(
+    server: ThreadingHTTPServer, workspace: Workspace
+) -> None:
+    from PIL import Image
+
+    from combustion_atlas.rag.visual_models import (
+        PageRegion,
+        TableCell,
+        TableContent,
+        VisualArtifact,
+    )
+
+    crop = workspace.data / "processed/visuals/test.png"
+    crop.parent.mkdir(parents=True)
+    Image.new("RGB", (10, 10), "white").save(crop)
+    page = PageRecord(
+        source_id="b" * 16,
+        filename="visual.pdf",
+        sha256="b" * 64,
+        physical_page=1,
+        text="Test source page.",
+    )
+    artifact = VisualArtifact(
+        artifact_id="test:p1:figure:1",
+        kind="figure",
+        source_id=page.source_id,
+        source_sha256=page.sha256,
+        filename=page.filename,
+        physical_page=1,
+        label="1",
+        caption="Test diagram",
+        crop_path="data/processed/visuals/test.png",
+        crop_sha256=hashlib.sha256(crop.read_bytes()).hexdigest(),
+        region=PageRegion(page_width=100, page_height=100, x0=0, top=0, x1=100, bottom=100),
+    )
+    with DocumentStore(workspace.database) as store:
+        store.replace([page], chunk_page(page))
+        store.upsert_visual(artifact)
+    endpoint = "/api/visuals/" + artifact.artifact_id
+    assert request(server, endpoint)[1] == crop.read_bytes()
+    encoded = "/api/visuals/" + artifact.artifact_id.replace(":", "%3A")
+    assert request(server, encoded)[1] == crop.read_bytes()
+    assert request(server, "/api/visuals/unknown")[0] == 404
+    assert request(server, endpoint + "/cells")[0] == 404  # figures have no cells
+    table = TableContent(
+        rows=2,
+        columns=1,
+        cells=[
+            TableCell(row=0, column=0, role="header", text="Width (cm)", unit="cm"),
+            TableCell(row=1, column=0, text="2"),
+        ],
+    )
+    with DocumentStore(workspace.database) as store:
+        store.upsert_visual(
+            artifact.model_copy(
+                update={"artifact_id": "test:p1:table:1", "kind": "table", "table": table}
+            )
+        )
+    status, body = request(server, "/api/visuals/test%3Ap1%3Atable%3A1/cells")
+    cells = body["resolved_cells"]
+    assert status == 200
+    assert cells == [
+        {
+            "row": 1,
+            "column": 0,
+            "text": "2",
+            "state": "present",
+            "unit": "cm",
+            "uncertainty": None,
+            "column_headers": ["Width (cm)"],
+            "row_headers": [],
+        }
+    ]
+    crop.write_bytes(b"tampered")
+    assert request(server, endpoint)[0] == 400
+
+
 def test_preserved_candidates_and_notes_remain_exact(workspace: Workspace) -> None:
     root = workspace.data / "review/preserved-review"
     root.mkdir(parents=True)
