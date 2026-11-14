@@ -7,6 +7,7 @@ import base64
 import hashlib
 import json
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -20,9 +21,29 @@ from .store import DocumentStore
 from .visual_models import PageRegion, VisualArtifact
 
 PROMPT_VERSION = "figure-description-v2"
-# Numeric (5.1, 2.10a) and appendix (B.1, D.7) labels; a dash separates label from caption.
-CAPTION = re.compile(r"^Figure\s+((?:[A-Z]\.)?\d+(?:\.\d+)*[a-z]?)[.\s]*[—–:-]\s*")
+# "Figure"/"Fig." with numeric (5.1, 2.10a) or appendix (B.1) labels, followed by a dash
+# (NASA TM style "Figure 5.1.—") or "." / ":" (paper style "Fig. 1." / "Figure 1:").
+# Prose references ("Figure 4 shows ...") have no punctuation after the label and are skipped.
+CAPTION = re.compile(
+    r"^(?:Figure|Fig\.)\s*((?:[A-Z]\.)?\d+(?:\.\d+)*[a-z]?)(?:\.?\s*—|\.\s*–|\s*[.:-](?=\s|$))\s*"
+)
+DASH_CAPTION = re.compile(r"^(?:Figure|Fig\.)\s*(?:[A-Z]\.)?\d+(?:\.\d+)*[a-z]?(?:\.?\s*—|\.\s*–)")
 FOOTER = re.compile(r"^NASA/TM")
+
+
+def caption_matcher(document: Any) -> Callable[[str], re.Match[str] | None]:
+    """One caption style per document: if any dash-style caption exists (NASA TM), only
+    dash-style lines count, so wrapped prose such as "...see\nFigure 4.2. The..." is
+    not mistaken for a caption. Otherwise "Figure 1." / "Fig. 1:" styles are accepted.
+    """
+    dash = any(
+        DASH_CAPTION.match(line["text"])
+        for page in document.pages
+        for line in page.extract_text_lines()
+    )
+    if dash:
+        return lambda text: CAPTION.match(text) if DASH_CAPTION.match(text) else None
+    return CAPTION.match
 
 
 def caption_lines(lines: list[dict[str, Any]], start: int) -> list[str]:
@@ -90,12 +111,13 @@ def extract_figures(
     with pdfplumber.open(pdf) as document:
         if pages and max(pages) > len(document.pages):
             raise ValueError("Requested page is outside the PDF")
+        match_caption = caption_matcher(document)
         for number in sorted(set(pages)) if pages else range(1, len(document.pages) + 1):
             page = document.pages[number - 1]
             lines = page.extract_text_lines()
-            captions = [i for i, line in enumerate(lines) if CAPTION.match(line["text"])]
+            captions = [i for i, line in enumerate(lines) if match_caption(line["text"])]
             for index in captions:
-                match = CAPTION.match(lines[index]["text"])
+                match = match_caption(lines[index]["text"])
                 assert match is not None
                 label = match.group(1)
                 caption = caption_lines(lines, index)
