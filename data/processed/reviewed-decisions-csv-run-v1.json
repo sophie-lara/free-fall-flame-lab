@@ -1,0 +1,1979 @@
+{
+  "schema_version": "reviewed-decisions-v1",
+  "fixture_sha256": "4bced9dd2f554ed0062a1a595f58c8b6115474a35b24f851054e0c82f32ce956",
+  "draft": false,
+  "decisions": [
+    {
+      "investigation_id": "PSI-99",
+      "test_id": "SAFFIRE-II-2-3",
+      "candidate_fingerprint": "24b6b05ff4b0c962a8a906b01e6ef05821354373083a8fdeabc60bf60efcfbae",
+      "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+      "reviewed_fingerprint": "2f1d05749068438acddd2a7ebe2f7995df98176d01353233ab2b755230996d49",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D5: Accept, interpretation unresolved: gravity level of the '?-g' columns and the mm/s 'Spread Length' unit stay flagged.",
+      "applied_decisions": [
+        "D5"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-99_Experimental table_SAFFIRE-2.csv CSV record 4 · Test SAFFIRE-II-2-3 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-99"
+      ],
+      "unresolved_questions": [
+        "Gravity level of the Saffire-II '?-g' columns is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-99",
+      "test_id": "SAFFIRE-II-2-5",
+      "candidate_fingerprint": "8161872205988a2879c87a51c6cc344f9026d8dd08167127cb2f4bdc3036ba80",
+      "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+      "reviewed_fingerprint": "7b7fcae386d23c6a084b0326e0f4fa02f422412176967d177dd78fd57d02c8d7",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D5: Accept, interpretation unresolved: gravity level of the '?-g' columns and the mm/s 'Spread Length' unit stay flagged. | D7: 037 mm: keep as written with a note that it is likely 0.37 mm, inferred by us. 'See Fig. 5': pending, reviewer to check the figure.",
+      "applied_decisions": [
+        "D5",
+        "D7"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-99_Experimental table_SAFFIRE-2.csv CSV record 6 · Test SAFFIRE-II-2-5 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-99"
+      ],
+      "unresolved_questions": [
+        "Gravity level of the Saffire-II '?-g' columns is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-99",
+      "test_id": "SAFFIRE-II-2-8",
+      "candidate_fingerprint": "b45d58ab25afbbc06e133af07aa59c1e217b6769e8f0139b64eed175a25493a1",
+      "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+      "reviewed_fingerprint": "df8e3c79901334fbcd1064879121f8f21bafe6815aa48d749274114a099cd268",
+      "action": "needs_research",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D5: Accept, interpretation unresolved: gravity level of the '?-g' columns and the mm/s 'Spread Length' unit stay flagged. | D7: 037 mm: keep as written with a note that it is likely 0.37 mm, inferred by us. 'See Fig. 5': pending, reviewer to check the figure.",
+      "applied_decisions": [
+        "D5",
+        "D7"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-99_Experimental table_SAFFIRE-2.csv CSV record 9 · Test SAFFIRE-II-2-8 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-99"
+      ],
+      "unresolved_questions": [
+        "Gravity level of the Saffire-II '?-g' columns is unresolved.",
+        "Thickness pending: check 'See Fig. 5' in the source paper."
+      ]
+    },
+    {
+      "investigation_id": "PSI-99",
+      "test_id": "SAFFIRE-II-2-9",
+      "candidate_fingerprint": "c413d9963cbce0181ebb4649d63962a0b834e79842f63f39231050d253cd96ab",
+      "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+      "reviewed_fingerprint": "9b3320d397b4896aa56f88b11207f047bf49f349e8f08d4e61f46764fdbd2c50",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D5: Accept, interpretation unresolved: gravity level of the '?-g' columns and the mm/s 'Spread Length' unit stay flagged.",
+      "applied_decisions": [
+        "D5"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-99_Experimental table_SAFFIRE-2.csv CSV record 10 · Test SAFFIRE-II-2-9 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-99"
+      ],
+      "unresolved_questions": [
+        "Gravity level of the Saffire-II '?-g' columns is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "B11",
+      "candidate_fingerprint": "d4efbb5e93a8b70038091b7afaf9856f3c5db6e2e8bd5293a32f28b155ae97fa",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "85a190ad49ed33641b0b0ffd4b7dc0af3fad151363911631599e31d7f43feeb0",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D1: Clear from context that the cm value is the width and the mm/micron value the thickness. Accept as proposed, keeping a visible note that the assignment was assumed from context. | D8: Accept: keep geometry 'film' added by the importer, with a note that the parser (not the model) supplied it from the literal word in the cell.",
+      "applied_decisions": [
+        "D1",
+        "D8"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 12 · Test B11 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "B13",
+      "candidate_fingerprint": "d6c3154a3440ac628169fee1e299ee29e24b7f9a88d9a78be251c828ccb85984",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "950b63c05ed200d9ec42e164f2c5b9f4ba18bd0f5e9bf3d8ba67ec56026e6429",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 14 · Test B13 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "B15",
+      "candidate_fingerprint": "1e011f657ee91684496b3740416149fc4541213353f1952fbf6b25dfaa90c167",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "077e50be3845844185844cf43cf2b7622ff259f15bf5080533bd389f78db85f2",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D1: Clear from context that the cm value is the width and the mm/micron value the thickness. Accept as proposed, keeping a visible note that the assignment was assumed from context. | D8: Accept: keep geometry 'film' added by the importer, with a note that the parser (not the model) supplied it from the literal word in the cell.",
+      "applied_decisions": [
+        "D1",
+        "D8"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 16 · Test B15 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "B16",
+      "candidate_fingerprint": "14e10cb0fbb66569a889c65c5cd41a8bff0d0c9370a33b00c9bff4253e41dcee",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "f9a5482489c7128dcde52e99d260d97c9e8419014ae69b0db04776c578802322",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 17 · Test B16 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "B19",
+      "candidate_fingerprint": "f3eee6b2a21a8bf6ef64418bbac8ba0f664035da67f1a2cb5df1013f6a0f53c7",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "4492459176dbab1776ce7764796413266bd2030d2639939c886fc79e28c3510c",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 20 · Test B19 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "B20",
+      "candidate_fingerprint": "5c4fa7cd0edd11fc2f595739d47990894654ec765ab83f7b2ecb6855d8f32e3f",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "aadb574947244d92586ca1b518d928b086eedca79605979dceb8c2c5d9b59efd",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 21 · Test B20 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "M1",
+      "candidate_fingerprint": "a518a99c035116e1dd7447aa6f5fa545e491d27a6fccb2ff0bc14cfe3e4ad4a7",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "b9067056b431f006e7bac8dfebe409d7131c8640f8ec0f3376f1d2515a531147",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 28 · Test M1 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "M14",
+      "candidate_fingerprint": "9e1633d66264a0240c7649e7ee4fa6b9b0da6ebcf6e4c961183209a0eabf9b32",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "20c9b8e37f4c6ccd7625f873c68abd8fec852ba7704a046fc5e4e2afb071e189",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 41 · Test M14 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "M15",
+      "candidate_fingerprint": "7ea0baad14dd44b363ad73afefbc9de94f76a593c9a47214d76b727e8feae9dc",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "dde5a02f06145342415ca89ef2cacf72634234b7e2879d126f8d93a1e3f312f9",
+      "action": "accept",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D1: Clear from context that the cm value is the width and the mm/micron value the thickness. Accept as proposed, keeping a visible note that the assignment was assumed from context.",
+      "applied_decisions": [
+        "D1"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 42 · Test M15 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "M19",
+      "candidate_fingerprint": "5123f5de99629601c1b28881bf0676edd97615d97b4d20cedcb7868776620f98",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "fc7276fa7ab242c6354e91d35a2ef451a1b58debe1662c218004de44880494e3",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D4: Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "applied_decisions": [
+        "D4"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 46 · Test M19 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O1",
+      "candidate_fingerprint": "2131e1ac3882d56e3d2c5a988cb6ab774568a4b3f27b5fa66301f92edfd33b2d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "511f7dd05a4b65a086f1a441c0fc422170061e301cce5e8fa1a70f2848895ce2",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 48 · Test O1 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O2",
+      "candidate_fingerprint": "3394b30ba48d54cff279c074b3d515c8c14598a08d8f47a090783ebbbbfa1ba1",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "d7ec764c0643a04a129a456eab07151ce297ed7ba0995611483d01fce54c0306",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 49 · Test O2 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O3a",
+      "candidate_fingerprint": "4f31a17fee6cda145f7c46fb499fa748f4a88b051afb62ea6181bf97e5b3acc1",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "15b23364a24122dd6373d855d5d726d67fc5be0a43c639db067c92851b434dc3",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 50 · Test O3a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O3b",
+      "candidate_fingerprint": "ec8a0f5ae0a37878d3cd9004a39c52ca648d8bbaa1e5ea65822423b604e3b6f6",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "f207f2cf56be5df0b50695390f5145205f6504f5ddad0518a0dd61180e5c32c9",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 51 · Test O3b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O4",
+      "candidate_fingerprint": "26ae7d8f24bc7a760f4a0dc8c3582369e711df65246b325ebf21cff21a852f7f",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "03f0faed43cc10a141ea34734301aaad13d949d23f34c48849c89b79d54af19a",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 52 · Test O4 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O5a",
+      "candidate_fingerprint": "928d6e4254c696c93225abba47206ba99b42606e0b4e365dc35b4407be050da6",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "23461cf6e78680912579a1d860376b5cfd755d9e7538065d6629fbb51bea1e15",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 53 · Test O5a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O5b",
+      "candidate_fingerprint": "a1045c3681564d0706ded24ebf8d21551a992bb2000aa86041694f99ea0b1775",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "23b6f57a528fe3fbae23e5b5c145ff0bd01ecf436487ab8af1942b1f1d9c8650",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 54 · Test O5b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O6",
+      "candidate_fingerprint": "52d9520657afd83b8a336d829da05a729e433421920a2f1d779914907e5e0703",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "ec47b918fa4271623be78a826bfddfb40906bf88c6aee0df0df5a3b4d7863014",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 55 · Test O6 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O7",
+      "candidate_fingerprint": "a78738941766865edf9c18785c5ae6f18baf5759055fe926e5abbd5920720547",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "872aa7ca11617a350cd7ac583b7d48c86dde17740af707d592e9800b7e568b13",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 56 · Test O7 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O8a",
+      "candidate_fingerprint": "59a48dca63c709ee28efbeed6a5e9643af7d1bde249a42fac3a042f2cea1c6b0",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "317748757f4c84cb051719a7a8c35b90abd634cb136e1a77e60f3e8a68b2ec08",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 57 · Test O8a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O8b",
+      "candidate_fingerprint": "55f7002d900165f57c7227ba42721d4b52f7046082a0b5e438e2e85d7bb4014b",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "62c26607b80708a6381254331ea1e12258b21fa2fd226e55e05efacce741ed57",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 58 · Test O8b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O9",
+      "candidate_fingerprint": "352fb1a9dec4ba1755b24f26d3224a4c25aaa2a0180df9c030c3d85b3fa46d37",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "56e9e9574f1396c3f69deeb7341a5a3ebdaaa38e5d7b1536ba351ae86c83e979",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 59 · Test O9 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O10",
+      "candidate_fingerprint": "a529dbb2baecaa1f2ddc4cb0796a49847a6645b361a8d38dae6d43dfb3063d0a",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "9d536317a489247d53437e9c7da36b2fa3253d198be5ce9cae746f5c4c554f2c",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 60 · Test O10 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O11",
+      "candidate_fingerprint": "b12e9be81bae591fa003111319e34dff8ae54ebf8fa7816253a665baf8b9ce38",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "628f0feed14a37e24a577440111065bbf91e52489ea6a028b323cec58adfb89c",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 61 · Test O11 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O12",
+      "candidate_fingerprint": "2a41cd1b76f57b09e5ebd934cd94a5281023425c088cb3fe0a737f0a4861eef8",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "b161f3af3d3689e986fd637007196d3e3d4a75605a9f251e0cde7c46ade5b69b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated). | D6: Keep 'OR' (and 'over') as written. Note that it likely signifies over/out of range, without assuming it.",
+      "applied_decisions": [
+        "D3",
+        "D6"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 62 · Test O12 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O13a",
+      "candidate_fingerprint": "2905fd0964f01b7fee880280e3265946f4fae3dc1eb9c13b4fc465f69d32dff5",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "08dff4118cb165386449636c1babdd152ccb5df50329ce143f100789e18f6b3e",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 63 · Test O13a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O13b",
+      "candidate_fingerprint": "d8f1433ed04eb7d541562e8869d06a5e84a35798f205bf7c3dc85f54cee95dab",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "1d4cb00710e4333144128dc267ed73c44232be82df6913810e1539564df601b2",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated). | D6: Keep 'OR' (and 'over') as written. Note that it likely signifies over/out of range, without assuming it.",
+      "applied_decisions": [
+        "D3",
+        "D6"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 64 · Test O13b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O14",
+      "candidate_fingerprint": "4c444fd0a3e2e733deece3ff2eee6eab54df5fbdcde1f1f3b70aecf9d8db7d39",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "ce2930868d4f7e71ab930e84d7e91b4aa694f46e5946063032b763ba923471db",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 65 · Test O14 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O15a",
+      "candidate_fingerprint": "37fd5763e18340d7269b6be18a8f7cdd18659b8087b4a2f5389541fd8201cc9a",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "a9f04afe6f162ea731c711635879a9e407b541681a6f42a65830ad68cfbbcb36",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 66 · Test O15a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O15b",
+      "candidate_fingerprint": "c17ddb185130f4d6183657586a6031d0dfc3395c0537f8e4a8ba0c3a3b661c5a",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "95a48699da4b4d71eb1896fb1514f52c6a8893c04191da091d32c5d63d0afff8",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 67 · Test O15b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O16",
+      "candidate_fingerprint": "6beee1a313d9617aa83be5ec2e3836170e5b14eb78a7ed8fb64a08d5c902f8c1",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "2d68f56971d8b53ec598ce61d7ca0cd216f3d3b79293657134e5b1d7e6121884",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 68 · Test O16 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O17",
+      "candidate_fingerprint": "deac443a451fa8948aed1318bd5375e0557773c89f3cf0df13ac1b7429d25b3d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "92ac13fb365ca7973b78db748a50e062d4edbc7a2ebd7b88422d9b2823ca37ec",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 69 · Test O17 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O18",
+      "candidate_fingerprint": "6fe348a167bef2f457d37639c5bc76dcc551a6bb47a5e8dea23204b86c4be885",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "214223284a583798d85a0ed8b4ea54b85a26b717b230e8e50bfb3748c74fffb3",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 70 · Test O18 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O19",
+      "candidate_fingerprint": "1612d70e286f164ff9048c07488167dc3d9fcaee313aed4e2f3d4fddf78e0edb",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "d2ac780266b1e781b102d1a3f1c89c4b620d4070b691ed38289ffe6687b79b5b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 71 · Test O19 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O20",
+      "candidate_fingerprint": "4095a30b0fcc4fc6c3ea9c16c3aa2cb39edbe4a03b95e93c1d8c201ad117d340",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "0c33e19db079cf0b3b8bfc07e33dfacdd27a876121b2af437b2c5ed7801564d1",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 72 · Test O20 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O21",
+      "candidate_fingerprint": "41c12caa0488cf9bf3ef6beb0c5df222aac119a83f9612ebb059d9b1b58cca8c",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "55bf4e857ff2d574e24fe92b6db6bc62677525e192f62af093a1ee1bca5b30c9",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 73 · Test O21 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "O22",
+      "candidate_fingerprint": "a0f69b0d280c176d664de72647106adb8ab6d3909d9014d99e0a24cf370071cb",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "5d0198ec2f9582808465efed6ddc94c6b60ec21c7a068678d30c1c7fad4baee8",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 74 · Test O22 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P1",
+      "candidate_fingerprint": "16cb4d6edc376784f60475cf85ad505b68948ce4788d9fccdde675b47c1da73d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "0a9ace000d39af2400fed49ebcb5b1f0e112f4f32846b5cc23af1cb09da8e084",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 75 · Test P1 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P2",
+      "candidate_fingerprint": "d38c18b2ce2dfbe4e7050fb0dbe421888df8e3d3517b51175be0477977d7e149",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "3ce763a0ed6454d32e022b6fa1d7e23166d74fb10e41d45d65058bcd820d9944",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 76 · Test P2 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P3a",
+      "candidate_fingerprint": "5bbd27ccfaf80238b9f97228e506bb81338e5b176b332fe3d969242aaebec445",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "54b4aeda1280e69aa14de420864b0788e4078beebfc74925b129b9ca88a38101",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 77 · Test P3a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P3b",
+      "candidate_fingerprint": "07ed546e5faf6caf2e50b5d5279d41370aeea671fd1517fb392a377828eedd08",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "e5a61660e86459cb53eb1ced4f353f5e53ecc9b65b631fbb63812ab7dedd1090",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 78 · Test P3b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P4",
+      "candidate_fingerprint": "46877c4c39192d6cf92aa30c3492416e5757538a945ffed8b773e2d4e332d8d5",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "59912ecbc25b1b77138469419ae1c640a9429b21e65410b7a9f957aa31411878",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 79 · Test P4 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P5",
+      "candidate_fingerprint": "69457355df26c9aff46219c4af84b68ddc927fdd08aed58bfb03fae7880ed78c",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "caac3fd5cca873899e9abfae9def230126408d928e45d9448a8a01beeddb6f31",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 80 · Test P5 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P6",
+      "candidate_fingerprint": "d793af581e92db3d873e4b3689aa54b41b63dc92379d0ad766b04ed94ffc41b6",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "007843fcd2f8bf6bddabeb32a6dda216437676debb9ae6533e2982f571aa2d4c",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 81 · Test P6 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P8",
+      "candidate_fingerprint": "4ff72d87f16b304c2b3a1cd315037cd17c788226be61d5f84e54c59ec90139fc",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "482abebf700cc5f6adf09e3d7026a61a6d298dbe127a8645e7ba168b55c4de8e",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 82 · Test P8 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P9",
+      "candidate_fingerprint": "8a899071d7a287bd6af05619c9cb146abe4a1c12735a1cda688648bac3148361",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "f46674cf3562fe410dc30de83cc4e0fcf0af45c6bc52c83314f2af166feed7a4",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 83 · Test P9 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P10",
+      "candidate_fingerprint": "8a1b215675d7371b7e6b8183e5bc1d3911eec112d37765e0c66e5ea19c7f5754",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "f51019602214bd3ce7ca923d281c654cbafd43dcfea0fcd332ea92cd6bfd929c",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 84 · Test P10 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P12",
+      "candidate_fingerprint": "7212c4bf6ead50aeb44532ebaf690782274c12a6030c85afb728398c84a1f5ae",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "181ee09171caecf525337d182508b71bec5ff8ee9d561002fa33daa961caeb18",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 85 · Test P12 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P13a",
+      "candidate_fingerprint": "42e17c46e508448ba51734b39ba79c2a34cdedfca3f4e57dcc1c7e47bae3680d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "a34f21b23ea4b4d5dc28e5e55597faee3d0ef468828b15cb2403d0f88a449ac6",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 86 · Test P13a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P13b",
+      "candidate_fingerprint": "726c2b1c3daaf373c152834aa2c84bf88a3043ef27b4aefa05c37385817c0ade",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "abde7dd3a207b0898f1269578f4690149b04e9068763794d3a8ccae846a92c30",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 87 · Test P13b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P14",
+      "candidate_fingerprint": "58003997a65047f5216f7c00ebe3a3dc0463aba26cea57de273c85f504a7d1a0",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "d235c7b132bd34ce84d77210605439904db9219e07bbaf608c1685f0a2721882",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 88 · Test P14 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P15",
+      "candidate_fingerprint": "690d81183a887b08afd5e31b01056b96347fb93df8b58ab47d8d594d3531f3d4",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "70d153e53e9c8840edc90ba69c799f32ef330f82a93d393235f1deb6477da250",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 89 · Test P15 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P16",
+      "candidate_fingerprint": "06de846a121f769ca85438b849a6a07840319e64d84734bcfb885d494c1cbafe",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "732158658b7b95975c07817b42764787d119017b0ccc554fa0675b9c9a9add48",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 90 · Test P16 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P17",
+      "candidate_fingerprint": "31321d2db901c84aad4592e9cd7d057e3336bcfdac3a43fd69caf452d8322c78",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "73f0eb63ecf11011ee32ff479389bf33f11f1dbecbe269ae76b9e42a78aa114d",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 91 · Test P17 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P18",
+      "candidate_fingerprint": "abda3ae333b789e36d4291c72d55a20b911bc724db533b0b4c2f087574434724",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "a68ed6b93860e7624e182bd7c72e775933f954f4cdf597f8425af26f0cafb568",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 92 · Test P18 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P19",
+      "candidate_fingerprint": "a7b86a9958f626d90da73f35e49500da7404334ab747eb26e6df46d0b2b1c37a",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "a840a9a00ff6535b271336f899d0b0f4d7d2fb610ab332fbdf011beba9da1b0e",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 93 · Test P19 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P20",
+      "candidate_fingerprint": "d59fc2eb28718d98c2331aa6349b33d8ae071be6b88de580ae5735c7bbef3cde",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "ea42354e405b3b360b625e1439ab2f347463eb92dc7b8637fd815239e283e8b8",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 94 · Test P20 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P21a",
+      "candidate_fingerprint": "32404f6fc9048765b1a608b42b91804de73e69b3a078e1304f4465ea6244ff34",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "8d892bc030f2f4a245543c325069b52906efe48080e38cdd3ddded6ec02cf5d3",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 95 · Test P21a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P21b",
+      "candidate_fingerprint": "797c7b318ee1ec3c23712bac7d8b2b328e50408e8eaea9a6118a0bfd494879fb",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "938716d9d7f05c1d91783d5b30b1c5ad56eaf2475dc022069c7e5261098fe63f",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 96 · Test P21b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P22a",
+      "candidate_fingerprint": "2500eb0044c0210bd605a1250efee8b9e38740132c6d4ca911ee9516bb01dc6d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "71087a0d807083bd38b45024152bf1fab2a3de32748a14473fe8358db54fcf9b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 97 · Test P22a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P22b",
+      "candidate_fingerprint": "789cf72034ac624de7282753c53123bb348ee8ea677abbb14fdb057642c35ff8",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "de5c7d201dd08b88de042e793675192826182a8f9af9c90e175f58970a66a6fd",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 98 · Test P22b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P23",
+      "candidate_fingerprint": "0b10a6f8f0c02678168f243014b1afa6a0f91b0444ecab839fe0470334c41d8a",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "638fe19a97fb6e3284a91693c22d5a335eb47bc6ba595888fdf7a9e2f146977b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 99 · Test P23 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Row not individually reviewed: D3 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P24",
+      "candidate_fingerprint": "37019756f66904c21e2f80e9327fcf57933b7cf5ff612abe6357c32033244bce",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "8762f2ea8b33b777aa5bb0e1136fb19c18e0d66a22d391d40bca7553112bc878",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 100 · Test P24 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "P25",
+      "candidate_fingerprint": "4bbccabd7a65845f1acb4d291a4bc0ee257bcf3a872d51fe220b2012b0e360cc",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "2ef6e93f54693f76944a134a0f4e6c65e15d4d80bf8995d9ac5ebd1fe27f267b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D3: Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "applied_decisions": [
+        "D3"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 101 · Test P25 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": []
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T1",
+      "candidate_fingerprint": "47f7e68803a8a3459de79fe48495df38e53989665b292703e9ca83d7ae357878",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "0ee88a3ef1ab68879eb7a28b2cec5fd1355aff03f133f3550d3d4e1a80e95fea",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 102 · Test T1 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T2",
+      "candidate_fingerprint": "f36e0ae1fbec639456d4abedd01458da79933f327565ca32eca1c50554068107",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "8f024e3079dbc941d4d9f5ab69b95838949a6815a3a3e55d0e2d013c1629fe13",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 103 · Test T2 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T3",
+      "candidate_fingerprint": "fbb06c290fcc9c0b7ce9e830b70b31eabb3e3f02cee889ea6ccdf87327af9d6f",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "283f9c36a818652165cd20427f0c8d323e2d480fd10cc318bd403baf8a1e32e5",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 104 · Test T3 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 4 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T4",
+      "candidate_fingerprint": "be2a1eace51ab283d97120f5e2f9f16075cfd4ec673c95985839950201fe07da",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "87f0a5b9fcfd8b35ebc64a8e8005589d3ca55a7b0a81c985530585cc5bcceeec",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 105 · Test T4 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T5",
+      "candidate_fingerprint": "6245c076a72b73ba05778979129092d31a59da6850b5e88dd2bd7f7beaa07428",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "3eb4eae5b3ac65649ac4e1a7ff2995469e0d430f1585eca719c5cc69f80dfdc7",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 106 · Test T5 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T6",
+      "candidate_fingerprint": "d7dcc0c52371910b602e8c15b44fcaa6ef508026ba94c2da758dfc0678483eb8",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "02b62159c674052dd98a823bfad826d30f5fec25733d31996b2c1b91a0b81351",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 107 · Test T6 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T7",
+      "candidate_fingerprint": "9737e36435ea6a3115a4b03ad4cc6e795893fe47858d6ce498f4c31ac591f164",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "7e3e1cc7f0fcfb80140deb324fdf9179e25dfcfb6460622b080a6bab2e4e6e74",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 108 · Test T7 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 4 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T9",
+      "candidate_fingerprint": "cf040ec4a943566a4c3c759cade5e6cb5482121693d722be406d2d973ba2f01c",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "8f405dc2f60c0c5af816e1d315565b9d75d8da21ce2982350edeb01b2e87dfe0",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 109 · Test T9 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T10",
+      "candidate_fingerprint": "554187534208759a6d2ec78426d7c39d3ea1cd38b798196a61dd513212006c42",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "8ab789063764fe900404e8a1a54871a79d8288998f32d277e1999bd916e3893b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 110 · Test T10 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T11",
+      "candidate_fingerprint": "9f51791adbd73b33064f9396b10657564dfae0936e3e4c806e9386bee5f70e7e",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "fd2d0c4a6b618c59aa877a10f45f93ae39684773c064792a69212c202f430059",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 111 · Test T11 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T12",
+      "candidate_fingerprint": "d8aec85087c5cab64d38337e994b1910d4f8af9aae9e403823cb49d0a9a54b31",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "cfeffe6845f446499e516a2921d3dd80ff0c650af5da0f43fe66ec4d24161096",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 112 · Test T12 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T13",
+      "candidate_fingerprint": "d35eb9c45ebfe75ce36fe458ec1b7df90fb1a0ee222e5c48742835dea5c811e8",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "441437b8ea53dd10cb0d515c246b0ed3c777cbdfbd70e4fe8ae782de6a8a06ca",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 113 · Test T13 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T14",
+      "candidate_fingerprint": "aba4120a10c63f8185dc75ef9d8dda512387cc0e0e89eff6533370fbf87eced4",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "6b83336315f7b0e51be5f10d265b024b4ee056e1fa5648395e7a7a4215308a6b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 114 · Test T14 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T15",
+      "candidate_fingerprint": "7f1606a0aa2444918452d321919f9ba4e29dd7076fb13a54fe91ae5dc7ba4c23",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "d212b6b993f12f0396e3407ed9b8524d29000fd1661cb738ed48569608f164ae",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 115 · Test T15 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T16",
+      "candidate_fingerprint": "d6de73cd0bec0a2876e7ebcf740d21116ad0eb17d0ea20e7276555f0fe487a14",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "ae20ed071d49dbd1bbc032731f8d800ac3f55108c70330c1b535d6894497931e",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 116 · Test T16 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T17",
+      "candidate_fingerprint": "83d5a2180bcdd567bf38f0760dc49a0c7420a3763f72505eb3ac557cd2680826",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "d29cf77903d2e6fbba9645b0b24381b2109300f255e1f2b58f32e7ec076b0d99",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 117 · Test T17 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T18",
+      "candidate_fingerprint": "44088dd1dbbcc561291b97ed749b47e5999e338f6547054248cd45212687237b",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "0bb0bae1f18390c663c0503624ddf738fbcb8ba3936af2f73efdb7044b3ea4bc",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 118 · Test T18 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T19",
+      "candidate_fingerprint": "9007a2918d914b85eb0e9f25990f4eaee31d42b20fc14e00136cf5b5cbbcf34f",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "9d4857322762b65ed318790b20f6fd1b40173829da98a5c833f6c6df6155ed2b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 119 · Test T19 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T20",
+      "candidate_fingerprint": "eae253fd89f80b94bf952c72bf9420adab7952fed61607541192648da4a85111",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "4b2f8c06cdc0073766e4d2b7a7202f9c661d62f621e56ee5a053ffce82f4d65c",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 120 · Test T20 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T21",
+      "candidate_fingerprint": "c54ef86af2ecb6c77da2417cac1116a52785a7800177c75db4ef5cdd22c45117",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "cb03d03d15470aae7e9abf53270001f674bc1cea2eea254d6cd09145b17ab075",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 121 · Test T21 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T22",
+      "candidate_fingerprint": "a6ac2f1f309925d7163c64a7c8c0dd4556c10fd215d529957f7be7e0fa16478c",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "55798066a87825d0a86f5cf0f571406fdf0bc3605539b661ae1fccd68b8550e0",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 122 · Test T22 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T23",
+      "candidate_fingerprint": "c40eecd5895e7f574e4d21d96b4af056febda3d0f994349e1df314728b54e744",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "7b74fbb778cc976618342f56e745eb9dc43ba98ecc3d26266accb55199bc610d",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 123 · Test T23 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T24",
+      "candidate_fingerprint": "d5709edccb74d4b379f9212b8a531d65126ca36bbd32d12b100bcf511bb9865a",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "0571c4615e5064d2d409eb191796f865cf6e4b64ec5440dcfce9115c9c446d2e",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 124 · Test T24 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T25",
+      "candidate_fingerprint": "07c3eec44ba5a689480df9825fbd233168e9b5b293a607aa3d89dbd12e7cbac7",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "cad9e409ac5a71a19903c047eb45f71f3d71bb5bbf2b2bb73621dccf98002dc5",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 125 · Test T25 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T26",
+      "candidate_fingerprint": "1a7cca25e55e4ccf0cf1026b7ee4ad4a4ef77cd9f200723ac295bb767d7cd3f0",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "13d80276e13eb65b8bab30848e22065cce32ec0c8f8fc6265ab3a7137727c84b",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 126 · Test T26 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 2 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T27",
+      "candidate_fingerprint": "01b529ca6a6e6162c41b052799ba30491d3f48c393a3aa33efc0d81409513d6d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "7bced42235741ab4675ab89289845134cff08d45a12d3bc65077cf68449c2494",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 127 · Test T27 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T28a",
+      "candidate_fingerprint": "a3807865fb6489e747800a84bf3cf2f91ec219841f165a36bb8997c5d722551d",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "fcd6c5a191dc069858a3d05796d4fa1cd95cbbda5cb2400a1d059a6233589eae",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 128 · Test T28a ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T28b",
+      "candidate_fingerprint": "9e5ba7da139cd4def9b7e72647e9211f1cba756f6b56e53edc603b7e2d9e73a0",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "e2d6876e69d592af97750795c49c62fbd89679ed08c71bfe16da9e83d2b2afe0",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": false,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 129 · Test T28b ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved."
+      ]
+    },
+    {
+      "investigation_id": "PSI-25",
+      "test_id": "T29",
+      "candidate_fingerprint": "c23e12ee9526578a09addc71d9034fb333d3e84c86b239f7a2e318a7d2b28b74",
+      "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
+      "reviewed_fingerprint": "b67f83c0898fe92a70e75a4d9927f08318d4c0bf3b0b2c3959630d2bc8a1df2f",
+      "action": "correct",
+      "reviewer": "Sophie",
+      "reviewed_at": "2026-11-14T17:18:00-06:00",
+      "rationale": "D2: Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "applied_decisions": [
+        "D2"
+      ],
+      "pattern_rule_only": true,
+      "supporting_references": [
+        "PSI-25_Experimental table_BASS-II.csv CSV record 130 · Test T29 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-25"
+      ],
+      "unresolved_questions": [
+        "Meaning of the unlabeled 1 cm dimension is unresolved.",
+        "Row not individually reviewed: D2 applied by pattern rule; other values unchecked."
+      ]
+    }
+  ]
+}

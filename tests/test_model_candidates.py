@@ -196,3 +196,17 @@ def test_index_import_selects_flags_and_audit_only(tmp_path: Path, monkeypatch) 
     model_candidates.main()
     saved = json.loads(output.read_text(encoding="utf-8"))
     assert [r["identity"]["test_id"] for r in saved["records"]] == ["row-0000", "row-0001"]
+
+    everything = tmp_path / "data/review/model-candidates/all.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [*sys.argv[:-1], str(everything), "--all-rows"],
+    )
+    model_candidates.main()
+    saved = json.loads(everything.read_text(encoding="utf-8"))
+    assert [r["identity"]["test_id"] for r in saved["records"]] == [
+        "row-0000",
+        "row-0001",
+        "row-0002",
+    ]

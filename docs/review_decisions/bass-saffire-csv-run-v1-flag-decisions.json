@@ -1,0 +1,201 @@
+{
+  "schema_version": "flag-decisions-v1",
+  "decision_document": "docs/review_decisions/bass-saffire-csv-run-v1-flag-decisions.md",
+  "run_dir": "data/processed/full-runs/nasa-csv-v1",
+  "review_index_sha256": "5d0eaa2bf978f9eca7e0a12e5dc211f3ddd7bf565bfcefa047aa399edb061e2e",
+  "candidates_file": "data/review/model-candidates/full-csv-review-all-v1.json",
+  "candidates_sha256": "a693a4c043e90c6d771511d6766ada6ab13d4e957fdacc3c1177e047a154cea9",
+  "reviewer": "Sophie",
+  "reviewed_at": "2026-11-14T17:18:00-06:00",
+  "decisions": {
+    "D1": {
+      "status": "decided",
+      "topic": "BASS material cell with two unlabeled dimensions",
+      "rationale": "Clear from context that the cm value is the width and the mm/micron value the thickness. Accept as proposed, keeping a visible note that the assignment was assumed from context.",
+      "tests": [
+        "PSI-25/B11",
+        "PSI-25/B15",
+        "PSI-25/M15"
+      ]
+    },
+    "D2": {
+      "status": "decided",
+      "topic": "BASS material cell with one unlabeled dimension",
+      "rationale": "Must not be thickness. The single dimension is unclear, so leave it unassigned: keep it as an additional field with a note giving the stated dimension and saying it is unclear what it corresponds to. Do not force it into any field.",
+      "tests": [
+        "PSI-25/T2",
+        "PSI-25/T3",
+        "PSI-25/T4",
+        "PSI-25/T5",
+        "PSI-25/T6",
+        "PSI-25/T7",
+        "PSI-25/T10",
+        "PSI-25/T12",
+        "PSI-25/T16",
+        "PSI-25/T24",
+        "PSI-25/T26",
+        "PSI-25/T28a",
+        "PSI-25/T28b"
+      ],
+      "pattern_tests": [
+        "PSI-25/T1",
+        "PSI-25/T9",
+        "PSI-25/T11",
+        "PSI-25/T13",
+        "PSI-25/T14",
+        "PSI-25/T15",
+        "PSI-25/T17",
+        "PSI-25/T18",
+        "PSI-25/T19",
+        "PSI-25/T20",
+        "PSI-25/T21",
+        "PSI-25/T22",
+        "PSI-25/T23",
+        "PSI-25/T25",
+        "PSI-25/T27",
+        "PSI-25/T29"
+      ]
+    },
+    "D3": {
+      "status": "decided",
+      "topic": "BASS rod samples with inch dimensions",
+      "rationale": "Do not infer PMMA where the source names no material. The rod dimension cannot be placed in the existing fields, so keep it as an additional field with a note on its ambiguity (probably diameter, not stated).",
+      "tests": [
+        "PSI-25/O1",
+        "PSI-25/O2",
+        "PSI-25/O3a",
+        "PSI-25/O4",
+        "PSI-25/O5b",
+        "PSI-25/O6",
+        "PSI-25/O7",
+        "PSI-25/O8a",
+        "PSI-25/O8b",
+        "PSI-25/O10",
+        "PSI-25/O12",
+        "PSI-25/O13b",
+        "PSI-25/O14",
+        "PSI-25/O15a",
+        "PSI-25/O15b",
+        "PSI-25/O16",
+        "PSI-25/O20",
+        "PSI-25/O21",
+        "PSI-25/O22",
+        "PSI-25/P1",
+        "PSI-25/P2",
+        "PSI-25/P3a",
+        "PSI-25/P3b",
+        "PSI-25/P6",
+        "PSI-25/P8",
+        "PSI-25/P9",
+        "PSI-25/P13a",
+        "PSI-25/P13b",
+        "PSI-25/P16",
+        "PSI-25/P17",
+        "PSI-25/P19",
+        "PSI-25/P22a",
+        "PSI-25/P24",
+        "PSI-25/P25"
+      ],
+      "pattern_tests": [
+        "PSI-25/O3b",
+        "PSI-25/O5a",
+        "PSI-25/O9",
+        "PSI-25/O11",
+        "PSI-25/O13a",
+        "PSI-25/O17",
+        "PSI-25/O18",
+        "PSI-25/O19",
+        "PSI-25/P4",
+        "PSI-25/P5",
+        "PSI-25/P10",
+        "PSI-25/P12",
+        "PSI-25/P14",
+        "PSI-25/P15",
+        "PSI-25/P18",
+        "PSI-25/P20",
+        "PSI-25/P21a",
+        "PSI-25/P21b",
+        "PSI-25/P22b",
+        "PSI-25/P23"
+      ]
+    },
+    "D4": {
+      "status": "decided",
+      "topic": "BASS material cell with labeled dimensions",
+      "rationale": "Accept the proposals. Where the cm value is unlabeled, the D1 context rule applies, with the same note.",
+      "tests": [
+        "PSI-25/B13",
+        "PSI-25/B16",
+        "PSI-25/B19",
+        "PSI-25/B20",
+        "PSI-25/M1",
+        "PSI-25/M14",
+        "PSI-25/M19"
+      ]
+    },
+    "D5": {
+      "status": "decided",
+      "topic": "Saffire-II '?-g' column headers",
+      "rationale": "Accept, interpretation unresolved: gravity level of the '?-g' columns and the mm/s 'Spread Length' unit stay flagged.",
+      "tests": [
+        "PSI-99/SAFFIRE-II-2-3",
+        "PSI-99/SAFFIRE-II-2-5",
+        "PSI-99/SAFFIRE-II-2-8",
+        "PSI-99/SAFFIRE-II-2-9"
+      ]
+    },
+    "D6": {
+      "status": "decided",
+      "topic": "BASS CO readings with marker OR",
+      "rationale": "Keep 'OR' (and 'over') as written. Note that it likely signifies over/out of range, without assuming it.",
+      "tests": [
+        "PSI-25/O12",
+        "PSI-25/O13b"
+      ]
+    },
+    "D7": {
+      "status": "decided",
+      "topic": "Saffire-II thickness cells",
+      "rationale": "037 mm: keep as written with a note that it is likely 0.37 mm, inferred by us. 'See Fig. 5': pending, reviewer to check the figure.",
+      "tests": [
+        "PSI-99/SAFFIRE-II-2-5",
+        "PSI-99/SAFFIRE-II-2-8"
+      ]
+    },
+    "D8": {
+      "status": "decided",
+      "topic": "Geometry 'film' added by the importer's rule-based parser (B11, B15)",
+      "rationale": "Accept: keep geometry 'film' added by the importer, with a note that the parser (not the model) supplied it from the literal word in the cell.",
+      "tests": [
+        "PSI-25/B11",
+        "PSI-25/B15"
+      ]
+    },
+    "A1": {
+      "status": "pending",
+      "topic": "Audit sample: unflagged rows, check cell by cell",
+      "rationale": "Awaiting reviewer audit.",
+      "tests": [],
+      "audit_tests": [
+        "PSI-25/F4",
+        "PSI-25/M18",
+        "PSI-25/P21a",
+        "PSI-25/T1",
+        "PSI-25/T18"
+      ]
+    },
+    "G1": {
+      "status": "pending",
+      "topic": "BASS instrument/control settings caveat",
+      "rationale": "Awaiting reviewer decision; caveat retained on every BASS row in the meantime.",
+      "tests": []
+    },
+    "D9": {
+      "status": "pending",
+      "topic": "M5 Fuel Sample Material says '2 cm thick' and '3 mm thick'",
+      "rationale": "Awaiting reviewer decision; M5 could not be imported because the model kept both values as thickness.",
+      "tests": []
+    }
+  },
+  "reviewed_at_note": "Reviewer gave the date (11/14/2026); the time of day is nominal."
+}

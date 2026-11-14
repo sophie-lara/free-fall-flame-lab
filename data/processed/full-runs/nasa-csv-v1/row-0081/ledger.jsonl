@@ -1,0 +1,2 @@
+{"request": 1, "status": "reserved", "reserved_usd": "0.0082384"}
+{"request": 1, "status": "complete", "usage": {"input_tokens": 3921, "input_tokens_details": {"cache_write_tokens": 3918, "cached_tokens": 0, "cache_write_tokens_details": {"ttl_12h_tokens": 0, "ttl_30m_tokens": 3918}}, "output_tokens": 1022, "output_tokens_details": {"reasoning_tokens": 222}, "total_tokens": 4943}}

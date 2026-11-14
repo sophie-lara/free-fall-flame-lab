@@ -1,0 +1,604 @@
+{
+  "contract": "mapping-proposal-v1",
+  "source": {
+    "schema_version": "1.0",
+    "cells": [
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Sample Number",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "2-9",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Material",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "",
+        "state": "blank"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Samle Thickness ",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "1 cm",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Sample Length ",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "29 cm",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Sample Width (cm)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "5 cm",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Air Flow (cm/s)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "20 cm/s",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Percent O2 (Note 1)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "22.0 to 21.9",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Ignition Power (W)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "97 W",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Ignition Time (s)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "30 s",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Burn Time (s)",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "900 s",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Flow Direction",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "Concurrent",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "?-g Burn Length",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "~ 10 cm (note 4)",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "?-g Spread Length",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "Note 4",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "1-g Burn Length",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "Complete",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "1-g Spread Rate",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "Acceleratory",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Camera 1",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "S9C1",
+        "state": "present"
+      },
+      {
+        "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+        "filename": "PSI-99_Experimental table_SAFFIRE-2.csv",
+        "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+        "kind": "csv",
+        "csv_record": 10,
+        "csv_column": "Camera 2",
+        "artifact_id": null,
+        "physical_page": null,
+        "table_row": null,
+        "table_column": null,
+        "role": null,
+        "row_span": null,
+        "column_span": null,
+        "unit": null,
+        "uncertainty": null,
+        "source_label": null,
+        "text": "n/a",
+        "state": "present"
+      }
+    ],
+    "context": [
+      "{\"source_record_number\": 13, \"source_sha256\": \"3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac\", \"original_cells\": {\"Sample Number\": \"Note 1 Derived from measured CO2 production and referenced to initial O2 concentration reported by ISS.\", \"Material\": \"\", \"Samle Thickness \": \"\", \"Sample Length \": \"\", \"Sample Width (cm)\": \"\", \"Air Flow (cm/s)\": \"\", \"Percent O2 (Note 1)\": \"\", \"Ignition Power (W)\": \"\", \"Ignition Time (s)\": \"\", \"Burn Time (s)\": \"\", \"Flow Direction\": \"\", \"?-g Burn Length\": \"\", \"?-g Spread Length\": \"\", \"1-g Burn Length\": \"\", \"1-g Spread Rate\": \"\", \"Camera 1\": \"\", \"Camera 2\": \"\"}}",
+      "{\"source_record_number\": 14, \"source_sha256\": \"3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac\", \"original_cells\": {\"Sample Number\": \"Note 2 The PMMA portion was completely consumed but the Nomex was not ignited.\", \"Material\": \"\", \"Samle Thickness \": \"\", \"Sample Length \": \"\", \"Sample Width (cm)\": \"\", \"Air Flow (cm/s)\": \"\", \"Percent O2 (Note 1)\": \"\", \"Ignition Power (W)\": \"\", \"Ignition Time (s)\": \"\", \"Burn Time (s)\": \"\", \"Flow Direction\": \"\", \"?-g Burn Length\": \"\", \"?-g Spread Length\": \"\", \"1-g Burn Length\": \"\", \"1-g Spread Rate\": \"\", \"Camera 1\": \"\", \"Camera 2\": \"\"}}",
+      "{\"source_record_number\": 15, \"source_sha256\": \"3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac\", \"original_cells\": {\"Sample Number\": \"Note 3 This is the length of fuel with significant visible damage.\", \"Material\": \"\", \"Samle Thickness \": \"\", \"Sample Length \": \"\", \"Sample Width (cm)\": \"\", \"Air Flow (cm/s)\": \"\", \"Percent O2 (Note 1)\": \"\", \"Ignition Power (W)\": \"\", \"Ignition Time (s)\": \"\", \"Burn Time (s)\": \"\", \"Flow Direction\": \"\", \"?-g Burn Length\": \"\", \"?-g Spread Length\": \"\", \"1-g Burn Length\": \"\", \"1-g Spread Rate\": \"\", \"Camera 1\": \"\", \"Camera 2\": \"\"}}",
+      "{\"source_record_number\": 16, \"source_sha256\": \"3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac\", \"original_cells\": {\"Sample Number\": \"Note 4 The flames remain anchored at the base of the sample which has a very slow regression rate (0.01 to 0.04 mm/s)\", \"Material\": \"\", \"Samle Thickness \": \"\", \"Sample Length \": \"\", \"Sample Width (cm)\": \"\", \"Air Flow (cm/s)\": \"\", \"Percent O2 (Note 1)\": \"\", \"Ignition Power (W)\": \"\", \"Ignition Time (s)\": \"\", \"Burn Time (s)\": \"\", \"Flow Direction\": \"\", \"?-g Burn Length\": \"\", \"?-g Spread Length\": \"\", \"1-g Burn Length\": \"\", \"1-g Spread Rate\": \"\", \"Camera 1\": \"\", \"Camera 2\": \"\"}}"
+    ]
+  },
+  "proposal": {
+    "schema_version": "mapping-proposal-v1",
+    "profile": "saffire_ii",
+    "fields": [
+      {
+        "canonical_field": "sample_id",
+        "source_indexes": [
+          0
+        ],
+        "value": "2-9",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "material",
+        "source_indexes": [
+          1
+        ],
+        "value": null,
+        "unit": null,
+        "qualifier": null,
+        "missingness": "source_blank",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "thickness",
+        "source_indexes": [
+          2
+        ],
+        "value": 1.0,
+        "unit": "cm",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"1 cm\"."
+      },
+      {
+        "canonical_field": "length",
+        "source_indexes": [
+          3
+        ],
+        "value": 29.0,
+        "unit": "cm",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"29 cm\"."
+      },
+      {
+        "canonical_field": "width",
+        "source_indexes": [
+          4
+        ],
+        "value": 5.0,
+        "unit": "cm",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"5 cm\"."
+      },
+      {
+        "canonical_field": "airflow",
+        "source_indexes": [
+          5
+        ],
+        "value": 20.0,
+        "unit": "cm/s",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"20 cm/s\"."
+      },
+      {
+        "canonical_field": "oxygen_percent",
+        "source_indexes": [
+          6
+        ],
+        "value": "22.0 to 21.9",
+        "unit": "%",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"22.0 to 21.9\". Header references Note 1: derived from measured CO2 production and referenced to initial O2 concentration reported by ISS."
+      },
+      {
+        "canonical_field": "ignition_power",
+        "source_indexes": [
+          7
+        ],
+        "value": 97.0,
+        "unit": "W",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"97 W\"."
+      },
+      {
+        "canonical_field": "ignition_time",
+        "source_indexes": [
+          8
+        ],
+        "value": 30.0,
+        "unit": "s",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"30 s\"."
+      },
+      {
+        "canonical_field": "burn_time",
+        "source_indexes": [
+          9
+        ],
+        "value": 900.0,
+        "unit": "s",
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"900 s\"."
+      },
+      {
+        "canonical_field": "flow_direction",
+        "source_indexes": [
+          10
+        ],
+        "value": "Concurrent",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "burn_length_unspecified_gravity",
+        "source_indexes": [
+          11
+        ],
+        "value": 10.0,
+        "unit": "cm",
+        "qualifier": "~",
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": "Source text: \"~ 10 cm (note 4)\". Note 4: flames remain anchored at the base of the sample, which has a very slow regression rate (0.01 to 0.04 mm/s)."
+      },
+      {
+        "canonical_field": "spread_length_unspecified_gravity",
+        "source_indexes": [
+          12
+        ],
+        "value": null,
+        "unit": null,
+        "qualifier": null,
+        "missingness": "source_marker",
+        "mapping_status": "direct",
+        "note": "Source text: \"Note 4\"; this cell contains a note reference but no spread-length value. Note 4: flames remain anchored at the base of the sample, which has a very slow regression rate (0.01 to 0.04 mm/s)."
+      },
+      {
+        "canonical_field": "burn_length_1g",
+        "source_indexes": [
+          13
+        ],
+        "value": "Complete",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "spread_rate_1g",
+        "source_indexes": [
+          14
+        ],
+        "value": "Acceleratory",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "camera_1",
+        "source_indexes": [
+          15
+        ],
+        "value": "S9C1",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "reported",
+        "mapping_status": "direct",
+        "note": null
+      },
+      {
+        "canonical_field": "camera_2",
+        "source_indexes": [
+          16
+        ],
+        "value": "n/a",
+        "unit": null,
+        "qualifier": null,
+        "missingness": "source_marker",
+        "mapping_status": "direct",
+        "note": null
+      }
+    ]
+  },
+  "validation_issues": [
+    "fields[11]:ambiguous_source_gravity_header",
+    "fields[12]:ambiguous_source_gravity_header",
+    "fields[12]:source_marker_mismatch"
+  ],
+  "response_id": "resp_01438ef800cdfd6f016af8e392d60c87d1b1c791b44cdc0916",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 4869,
+    "input_tokens_details": {
+      "cache_write_tokens": 4866,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 4866
+      }
+    },
+    "output_tokens": 1586,
+    "output_tokens_details": {
+      "reasoning_tokens": 689
+    },
+    "total_tokens": 6455
+  },
+  "status": "unreviewed",
+  "record": {
+    "investigation_id": "PSI-99",
+    "test_id": "SAFFIRE-II-2-9",
+    "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
+    "record_number": 10,
+    "source_file": "data/raw/preserved-review/PSI-99_Experimental table_SAFFIRE-2.csv",
+    "split": "unreviewed"
+  },
+  "source_mappings": [],
+  "run_metadata": {
+    "plan_sha256": "7a193eb9be658cf84f9070264301c2e829c765be504b2b255abc6bf9b6f805eb"
+  },
+  "deterministic_material_fields": {},
+  "unreferenced_source_cells": [],
+  "source_issues": [],
+  "request_sha256": "ac50e0460e2ff789dc5adf1b39257873ad7b9ade626536bb9114530f23bd0c9d"
+}
