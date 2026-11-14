@@ -23,6 +23,7 @@ import argparse
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,10 @@ from combustion_atlas.review.fixtures import fingerprint
 
 EVIDENCE = Path("data/processed/reviewed-evidence-v1.json")
 DECISIONS = Path("data/processed/reviewed-decisions-v1.json")
+PROCESSED = Path("data/processed")
+# Notes that make a value unsafe for filterable numbers (it stays on the card).
+EXCLUDING_NOTES = {"unresolved", "ambiguous", "pending", "inferred"}
+PLAIN_NUMBER = re.compile(r"^\d+(\.\d+)?$")
 ACTION_LABELS = {
     "accept": "accepted",
     "correct": "corrected",
@@ -49,7 +54,7 @@ CONDITION_MAP: dict[str, tuple[str, dict[str | None, float]]] = {
     "airflow": ("flow_cm_s", {"cm/s": 1, "mm/s": 0.1}),
     "airflow_cm_s": ("flow_cm_s", {"cm/s": 1, None: 1}),
     "thickness_um": ("thickness_mm", {"um": 0.001, "µm": 0.001, "micron": 0.001, None: 0.001}),
-    "thickness": ("thickness_mm", {"mm": 1, "cm": 10, "um": 0.001, "µm": 0.001}),
+    "thickness": ("thickness_mm", {"mm": 1, "cm": 10, "um": 0.001, "µm": 0.001, "micron": 0.001}),
     "droplet_diameter": ("droplet_diameter_mm", {"mm": 1}),
 }
 OUTCOME_MAP: dict[str, tuple[str, dict[str | None, float]]] = {
@@ -62,23 +67,32 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def load_reviewed(root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Verified reviewed records plus a report of everything rejected or unavailable."""
-    evidence_path, decisions_path = root / EVIDENCE, root / DECISIONS
-    report: dict[str, Any] = {"accepted": 0, "rejected": [], "warnings": []}
-    if not evidence_path.is_file() or not decisions_path.is_file():
-        report["warnings"].append(
-            "Reviewed evidence and decisions files are not available locally "
-            f"({EVIDENCE}, {DECISIONS})."
-        )
-        return [], report
+def evidence_pairs(root: Path) -> list[tuple[Path, Path]]:
+    """Every reviewed-evidence*.json with its matching reviewed-decisions*.json."""
+    pairs = []
+    for evidence in sorted((root / PROCESSED).glob("reviewed-evidence*.json")):
+        suffix = evidence.name.removeprefix("reviewed-evidence")
+        pairs.append((evidence, evidence.with_name(f"reviewed-decisions{suffix}")))
+    return pairs
+
+
+def _load_pair(
+    evidence_path: Path, decisions_path: Path, report: dict[str, Any]
+) -> list[dict[str, Any]]:
+    label = evidence_path.name
+    if not decisions_path.is_file():
+        report["rejected"].append({"record": label, "reason": "No matching decisions file."})
+        return []
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
     decisions = json.loads(decisions_path.read_text(encoding="utf-8"))
+    if evidence.get("draft") or decisions.get("draft"):
+        report["rejected"].append({"record": label, "reason": "File pair is marked draft."})
+        return []
     if decisions.get("fixture_sha256") != _sha256(evidence_path):
         report["rejected"].append(
-            {"record": "*", "reason": "Decisions file does not match the evidence file bytes."}
+            {"record": label, "reason": "Decisions file does not match the evidence file bytes."}
         )
-        return [], report
-    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        return []
     by_key = {
         (d["investigation_id"], d["test_id"], d["candidate_fingerprint"]): d
         for d in decisions.get("decisions", [])
@@ -104,19 +118,62 @@ def load_reviewed(root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
                     f"Reviewed candidate is not a valid EvidenceCandidate: {exc.errors()[0]['msg']}"
                 )
         if reason is not None:
-            report["rejected"].append({"record": name, "reason": reason})
+            report["rejected"].append({"record": name, "reason": reason, "file": label})
             continue
         assert decision is not None
+        pattern_only = bool(
+            (item.get("confirming_note") or {}).get("pattern_rule_only")
+            or decision.get("pattern_rule_only")
+        )
+        action = ACTION_LABELS.get(decision.get("action"), decision.get("action"))
         accepted.append(
             {
                 "evidence": item,
                 "candidate": candidate,
                 "decision": decision,
-                "review_action": ACTION_LABELS.get(decision.get("action"), decision.get("action")),
+                "pattern_rule_only": pattern_only,
+                "review_action": "not individually reviewed" if pattern_only else action,
+                "file": label,
             }
         )
-    report["accepted"] = len(accepted)
-    return accepted, report
+    return accepted
+
+
+def load_reviewed(root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Verified reviewed records from every file pair, plus a report of rejections."""
+    report: dict[str, Any] = {"accepted": 0, "rejected": [], "warnings": [], "files": []}
+    pairs = evidence_pairs(root)
+    if not pairs:
+        report["warnings"].append(
+            f"No reviewed evidence files found under {PROCESSED} (reviewed-evidence*.json)."
+        )
+        return [], report
+    records: list[dict[str, Any]] = []
+    for evidence_path, decisions_path in pairs:
+        loaded = _load_pair(evidence_path, decisions_path, report)
+        report["files"].append({"file": evidence_path.name, "accepted": len(loaded)})
+        records.extend(loaded)
+    keys = [
+        (r["candidate"].identity.investigation_id, r["candidate"].identity.test_id) for r in records
+    ]
+    duplicates = {k for k in keys if keys.count(k) > 1}
+    for key in sorted(duplicates):
+        report["rejected"].append(
+            {"record": "/".join(key), "reason": "Identity appears in more than one file."}
+        )
+    records = [r for r, k in zip(records, keys, strict=True) if k not in duplicates]
+    report["accepted"] = len(records)
+    return records, report
+
+
+def _number(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float):
+        return float(value) if math.isfinite(float(value)) else None
+    if isinstance(value, str) and PLAIN_NUMBER.fullmatch(value.strip()):
+        return float(value.strip())
+    return None
 
 
 def _convert(
@@ -129,19 +186,21 @@ def _convert(
     if canonical not in table:
         return None
     key, units = table[canonical]
+    blocking = sorted({n.kind for n in value.notes} & EXCLUDING_NOTES)
+    number = _number(value.value)
     problem = None
-    if value.qualifier:
+    if blocking:
+        problem = f"note ({', '.join(blocking)}) keeps it out of filterable numbers"
+    elif value.qualifier:
         problem = f"qualifier '{value.qualifier}' kept as text"
-    elif not isinstance(value.value, int | float) or isinstance(value.value, bool):
+    elif number is None:
         problem = f"non-numeric value {value.value!r}"
-    elif not math.isfinite(float(value.value)):
-        problem = "non-finite value"
     else:
         unit = value.unit.strip().lower() if value.unit else None
         if unit not in units:
             problem = f"unit {value.unit!r} not recognized for {canonical}"
         else:
-            return key, float(value.value) * units[unit]
+            return key, number * units[unit]
     report.append(
         {"record": record, "field": canonical, "original": value.original_value, "reason": problem}
     )
@@ -166,23 +225,38 @@ def to_card(record: dict[str, Any]) -> dict[str, Any]:
             if item.get("evidence_kind") == "background_table_row"
             else ""
         ),
-        f"Review: {record['review_action']}; transcription status {candidate.human_review_status}.",
+        f"Review: {record['review_action']}; transcription status "
+        f"{candidate.human_review_status}."
+        + (
+            " A reviewer's rule was applied to this row by pattern; the row itself was not checked."
+            if record.get("pattern_rule_only")
+            else ""
+        ),
         "Source cells (verbatim):",
     ]
     for cell in candidate.raw_cells:
         unit = f" [{cell.original_unit}]" if cell.original_unit else ""
         lines.append(f"- {cell.provenance.column}: {cell.original_value}{unit}")
-    derived = [
-        f"- {name} = {value.value}{' ' + value.unit if value.unit else ''}"
-        + (f" ({value.qualifier})" if value.qualifier else "")
-        for name, value in candidate.conditions.items()
-    ] + [
-        f"- {o.outcome_type} = {o.value}{' ' + o.unit if o.unit else ''}"
-        + (f" ({o.qualifier})" if o.qualifier else "")
-        for o in candidate.outcomes
-    ]
+
+    def value_lines(name: str, value: Any) -> list[str]:
+        unit = f" {value.unit}" if value.unit else ""
+        qualifier = f" ({value.qualifier})" if value.qualifier else ""
+        out = [f"- {name} = {value.value}{unit}{qualifier}"]
+        for note in value.notes:
+            who = [] if note.by == note.kind else [note.by]
+            who += [note.decision] if note.decision else []
+            by = f", {' '.join(who)}" if who else ""
+            out.append(f"  note ({note.kind}{by}): {note.text}")
+        return out
+
+    derived = [line for name, v in candidate.conditions.items() for line in value_lines(name, v)]
+    derived += [line for o in candidate.outcomes for line in value_lines(o.outcome_type, o)]
     if derived:
         lines += ["Derived values (interpretations, not source text):", *derived]
+    if candidate.additional_fields:
+        lines.append("Additional source content (not mapped to a field):")
+        for name, value in candidate.additional_fields.items():
+            lines += value_lines(name, value)
     questions = item.get("unresolved_questions") or decision.get("unresolved_questions") or []
     if questions:
         lines += ["Open questions:", *[f"- {q}" for q in questions]]
@@ -208,7 +282,16 @@ def to_card(record: dict[str, Any]) -> dict[str, Any]:
             "test_id": identity.test_id,
             "evidence_kind": item.get("evidence_kind"),
             "review_action": record["review_action"],
+            "pattern_rule_only": bool(record.get("pattern_rule_only")),
             "transcription_status": candidate.human_review_status,
+            "notes": sum(
+                len(v.notes)
+                for v in [
+                    *candidate.conditions.values(),
+                    *candidate.outcomes,
+                    *candidate.additional_fields.values(),
+                ]
+            ),
             "open_questions": len(questions),
             "locator": _locator(first) if first else None,
         },
@@ -218,8 +301,8 @@ def to_card(record: dict[str, Any]) -> dict[str, Any]:
 def to_coverage(record: dict[str, Any], report: list[dict[str, Any]]) -> dict[str, Any] | None:
     """Coverage fields from faithful conversions; background rows are not runs."""
     item, candidate = record["evidence"], record["candidate"]
-    if item.get("evidence_kind") != "run":
-        return None
+    if item.get("evidence_kind") != "run" or record.get("pattern_rule_only"):
+        return None  # background rows are not runs; pattern-only rows were not checked
     name = f"{candidate.identity.investigation_id}/{candidate.identity.test_id}"
     fields: dict[str, float] = {}
     for canonical, value in candidate.conditions.items():

@@ -198,3 +198,124 @@ def test_cards_sync_into_search_without_touching_other_chunks(tmp_path: Path) ->
         assert card_hit["record_card"]["review_action"] == "accepted"
         assert bridge.sync_cards(store, [])["removed"] == 1
         assert store.chunk_count() == 1
+
+
+def note(kind: str, text: str = "Caveat.", by: str = "reviewer") -> dict[str, Any]:
+    return {"kind": kind, "text": text, "by": by, "decision": "D1"}
+
+
+def test_csv_run_pairs_notes_additional_fields_and_pattern_rows(tmp_path: Path) -> None:
+    o12 = candidate(
+        "O12",
+        {
+            "initial_oxygen": cell("Calibrated initial O2 % by vol", "13.6", "13.6", "% by vol"),
+            "initial_co": {
+                **cell("Initial CO (ppm)", "OR", "OR", "ppm"),
+                "notes": [note("unresolved", "OR kept as written.")],
+            },
+        },
+    )
+    o12["additional_fields"] = {
+        "rod_dimension": {
+            **cell("Fuel Sample Material", '3/8" clear rod', "3/8", "in"),
+            "notes": [note("unresolved", "Probably the rod diameter.")],
+        }
+    }
+    b11 = candidate(
+        "B11",
+        {
+            "width": {
+                **cell("Fuel Sample Material", "2 cm 0.2 mm PMMA film", 2.0, "cm"),
+                "notes": [note("assumed", "Width assumed from context.")],
+            },
+            "thickness": {
+                **cell("Fuel Sample Material", "2 cm 0.2 mm PMMA film", "0.2", "mm"),
+                "notes": [note("assumed"), note("model", "Parsed.", by="model")],
+            },
+        },
+    )
+    t1 = candidate("T1", {"initial_oxygen": cell("O2", "18.5", "18.5", "% by vol")})
+    write_pair(tmp_path, [(b1(), "run", "accept_extraction")])  # the v1 pair
+    csv_root = tmp_path / "csv"
+    write_pair(
+        csv_root,
+        [
+            (o12, "run", "accept_extraction"),
+            (b11, "run", "accept_extraction"),
+            (t1, "run", "accept_extraction"),
+        ],
+    )
+    for name in ("evidence", "decisions"):  # place as the -csv-run-v1 pair
+        source = csv_root / f"data/processed/reviewed-{name}-v1.json"
+        source.rename(tmp_path / f"data/processed/reviewed-{name}-csv-run-v1.json")
+    path = tmp_path / "data/processed/reviewed-evidence-csv-run-v1.json"
+    payload = json.loads(path.read_text())
+    payload["records"][2]["confirming_note"] = {"pattern_rule_only": True}
+    path.write_text(json.dumps(payload, indent=2) + "\n")
+    decisions_path = tmp_path / "data/processed/reviewed-decisions-csv-run-v1.json"
+    decisions = json.loads(decisions_path.read_text())
+    decisions["fixture_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    decisions_path.write_text(json.dumps(decisions))
+
+    records, report = bridge.load_reviewed(tmp_path)
+    assert report["accepted"] == 4 and len(report["files"]) == 2
+    cards = {r["candidate"].identity.test_id: bridge.to_card(r) for r in records}
+    assert "  note (unresolved, reviewer D1): OR kept as written." in cards["O12"]["text"]
+    assert "Additional source content (not mapped to a field):" in cards["O12"]["text"]
+    assert "- rod_dimension = 3/8 in" in cards["O12"]["text"]
+    assert "not individually reviewed" in cards["T1"]["text"]
+    assert cards["T1"]["meta"]["pattern_rule_only"] is True
+
+    unconverted: list[dict[str, Any]] = []
+    runs = {r["candidate"].identity.test_id: bridge.to_coverage(r, unconverted) for r in records}
+    assert runs["O12"]["fields"] == {"oxygen_pct": 13.6}  # numeric string accepted
+    assert runs["B11"]["fields"] == {"thickness_mm": 0.2}  # assumed/model notes allowed
+    assert runs["T1"] is None  # pattern-rule-only rows stay out of coverage
+    assert "rod_dimension" not in str(runs["O12"])  # additional fields never mapped
+
+
+def test_draft_pairs_and_duplicate_identities_are_rejected(tmp_path: Path) -> None:
+    write_pair(tmp_path, [(b1(), "run", "accept_extraction")])
+    path = tmp_path / bridge.EVIDENCE
+    payload = json.loads(path.read_text())
+    copy = tmp_path / "data/processed/reviewed-evidence-copy.json"
+    copy.write_text(path.read_text())
+    (tmp_path / "data/processed/reviewed-decisions-copy.json").write_text(
+        (tmp_path / bridge.DECISIONS).read_text()
+    )
+    records, report = bridge.load_reviewed(tmp_path)
+    assert records == [] and "more than one file" in report["rejected"][0]["reason"]
+
+    payload["draft"] = True
+    copy.unlink()
+    path.write_text(json.dumps(payload, indent=2) + "\n")
+    decisions = json.loads((tmp_path / bridge.DECISIONS).read_text())
+    decisions["fixture_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    (tmp_path / bridge.DECISIONS).write_text(json.dumps(decisions))
+    records, report = bridge.load_reviewed(tmp_path)
+    assert records == [] and any("draft" in r["reason"] for r in report["rejected"])
+
+
+def test_named_test_ids_pin_their_record_card(tmp_path: Path) -> None:
+    from combustion_atlas.rag.search import retrieve
+
+    write_pair(tmp_path, [(b1(), "run", "accept_extraction")])
+    records, _ = bridge.load_reviewed(tmp_path)
+    pages = [
+        PageRecord(
+            source_id="f" * 16,
+            filename="r.pdf",
+            sha256="f" * 64,
+            physical_page=i,
+            text="Initial oxygen readings were calibrated for every test in the series.",
+        )
+        for i in range(1, 8)
+    ]
+    with DocumentStore(tmp_path / "rag.sqlite3") as store:
+        store.replace(pages, [c for p in pages for c in chunk_page(p)])
+        bridge.sync_cards(store, [bridge.to_card(r) for r in records])
+        assert store.cards_for_identifiers("What was the initial oxygen for test B1?")
+        assert store.cards_for_identifiers("Tests at 22.2 percent oxygen") == []  # numbers only
+        hits = retrieve(store, "initial oxygen readings test B1", method="keyword", top_k=3)
+        assert str(hits[0]["chunk_id"]).startswith("card:PSI-25:B1:")
+        assert hits[0]["record_card"]["review_action"] == "accepted"

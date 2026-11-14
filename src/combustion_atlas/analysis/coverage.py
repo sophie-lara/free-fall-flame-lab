@@ -311,7 +311,14 @@ def apply_reviewed(records: list[dict[str, Any]], root: Path) -> dict[str, Any]:
     from .evidence_bridge import coverage_overrides
 
     overrides, report = coverage_overrides(root)
-    by_id = {(r["investigation_id"], str(r["test_id"])): r for r in records}
+    # Reviewed IDs may carry an investigation prefix the table does not ("SAFFIRE-II-2-8").
+    prefixes = {"PSI-98": "SAFFIRE-I-", "PSI-99": "SAFFIRE-II-", "PSI-100": "SAFFIRE-III-"}
+    by_id: dict[tuple[str, str], dict[str, Any]] = {}
+    for r in records:
+        by_id[(r["investigation_id"], str(r["test_id"]))] = r
+        prefix = prefixes.get(r["investigation_id"])
+        if prefix:
+            by_id[(r["investigation_id"], prefix + str(r["test_id"]))] = r
     applied = 0
     for item in overrides:
         target = by_id.get((item["investigation_id"], str(item["test_id"])))

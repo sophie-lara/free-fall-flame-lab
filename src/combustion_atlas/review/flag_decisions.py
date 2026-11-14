@@ -17,7 +17,7 @@ import re
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from .evidence_schema import EvidenceCandidate, ValueNote
 from .fixtures import ReviewedEvidence, fingerprint
@@ -37,7 +37,9 @@ class Context:
         self.questions: list[str] = []
 
     def note(self, value: dict[str, Any], kind: str, text: str) -> None:
-        item = ValueNote(kind=kind, text=text, by="reviewer", decision=self.decision)
+        item = ValueNote.model_validate(
+            {"kind": kind, "text": text, "by": "reviewer", "decision": self.decision}
+        )
         value.setdefault("notes", []).append(item.model_dump(mode="json"))
 
     def log(self, text: str) -> None:
@@ -52,11 +54,11 @@ class Context:
     def fsm_cell(self) -> dict[str, Any]:
         for cell in self.c["raw_cells"]:
             if cell["provenance"]["column"] == FSM:
-                return cell
+                return cast(dict[str, Any], cell)
         raise ValueError(f"No {FSM} cell: {self.c['identity']}")
 
     def from_fsm(self, value: dict[str, Any]) -> bool:
-        return value["provenance"]["column"] == FSM
+        return bool(value["provenance"]["column"] == FSM)
 
     def drop_condition(self, name: str) -> None:
         value = self.c["conditions"].get(name)
@@ -339,7 +341,7 @@ def load_spec(path: Path) -> dict[str, Any]:
             raise ValueError(f"Unknown status for {key}")
         if decision["status"] == "decided" and key not in RULES and decision.get("tests"):
             raise ValueError(f"No rule implements decided {key}")
-    return spec
+    return cast(dict[str, Any], spec)
 
 
 def apply(
@@ -455,6 +457,7 @@ def apply(
                 + ", ".join(decision_ids)
                 + " applied by pattern rule; other values unchecked."
             )
+        action: Literal["accept_extraction", "correction_proposed", "needs_research"]
         if pending or any(n["kind"] == "pending" for n in notes):
             action = "needs_research"
             updated["human_review_status"] = "unreviewed"
