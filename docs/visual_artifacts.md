@@ -128,7 +128,8 @@ identities. Outputs are saved after each completed figure. Failed API calls do n
 replace earlier successful results. Imports use content fingerprints to invalidate
 changed visual chunks and their vectors while preserving unrelated text chunks.
 Embedding adds only missing visual vectors; it does not re-embed existing text.
-Changes to a full PDF corpus via `rag build` still replace the entire index.
+`rag build` replaces the entire index and refuses a populated database without
+`--replace-existing`; use `rag add` to add documents incrementally.
 
 The UI exposes descriptions as derived evidence with original page/crop links.
 Citation validation confirms references to retrieved text, not that a generated

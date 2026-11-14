@@ -54,6 +54,44 @@ def _write_jsonl(path: Path, values: list[PageRecord] | list[ChunkRecord]) -> No
             stream.write(json.dumps(value.model_dump(mode="json"), ensure_ascii=False) + "\n")
 
 
+def add_document(
+    pdf: Path,
+    *,
+    investigation_id: str | None,
+    source_url: str | None,
+    processed_dir: Path,
+    database: Path,
+) -> dict[str, object]:
+    """Add one PDF incrementally; existing sources, vectors and visuals are untouched."""
+    pages = extract_pdf(pdf, investigation_id=investigation_id, source_url=source_url)
+    if not pages:
+        raise ValueError(f"{pdf} has no pages")
+    chunks = [chunk for page in pages for chunk in chunk_page(page)]
+    with DocumentStore(database) as store:
+        status = store.add_document(pages, chunks)
+        total_chunks = store.chunk_count()
+    source_id = pages[0].source_id
+    if status == "added":
+        # Per-source files; the combined build files are never overwritten here.
+        _write_jsonl(processed_dir / "sources" / f"{source_id}.pages.jsonl", pages)
+        _write_jsonl(processed_dir / "sources" / f"{source_id}.chunks.jsonl", chunks)
+    return {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "status": status,
+        "source_id": source_id,
+        "sha256": pages[0].sha256,
+        "filename": pdf.name,
+        "investigation_id": investigation_id,
+        "source_url": source_url,
+        "physical_pages": len(pages),
+        "chunks_added": len(chunks) if status == "added" else 0,
+        "sparse_pages": sum(page.extraction_warning is not None for page in pages),
+        "index_chunks_total": total_chunks,
+        "database": str(database),
+        "next_step": "Embed only missing chunks: providers embed --missing-only",
+    }
+
+
 def build_index(
     pdfs: list[Path],
     *,
@@ -61,7 +99,17 @@ def build_index(
     source_url: str | None,
     processed_dir: Path,
     database: Path,
+    replace_existing: bool = False,
 ) -> dict[str, object]:
+    """Rebuild the whole corpus. Refuses to discard a populated index unless asked."""
+    if database.is_file() and not replace_existing:
+        with DocumentStore(database) as store:
+            if store.chunk_count():
+                raise ValueError(
+                    "The index already has chunks; `build` would delete them with all vectors "
+                    "and visual artifacts. Use `rag add` for new documents, or pass "
+                    "--replace-existing after making a backup."
+                )
     pages: list[PageRecord] = []
     seen_hashes: set[str] = set()
     for pdf in pdfs:

@@ -100,11 +100,29 @@ Figure extraction and the shared table handoff are documented in
 [JSON Schema](visual-artifact.schema.json) is exported alongside that guide.
 Complex table transcription remains a separate worker's responsibility.
 
-Build page-preserving chunks and the keyword index:
+Build page-preserving chunks and the keyword index for an **empty** database:
 
 ```sh
 uv run python -m combustion_atlas.rag build data/raw/report.pdf --investigation PSI-25
 ```
+
+`build` replaces the whole corpus, every vector namespace and all visual artifacts,
+so it refuses to run on a populated index unless `--replace-existing` is given.
+Add further documents incrementally, one PDF per call so each keeps its own
+investigation and source metadata:
+
+```sh
+uv run python -m combustion_atlas.rag add data/raw/new-report.pdf \
+  --investigation SAFFIRE-I --source-url https://ntrs.nasa.gov/citations/...
+uv run python -m combustion_atlas.providers embed --missing-only            # plan
+uv run python -m combustion_atlas.providers embed --missing-only --allow-provider-calls
+uv run python -m combustion_atlas.rag remove <source_id>   # one source, its vectors and visuals
+```
+
+`add` reports `unchanged` for an already indexed file and refuses a different
+file whose source ID collides. Per-source page/chunk JSONL is written under
+`data/processed/rag/sources/`; the original build files are not overwritten.
+Back up `data/embeddings/rag.sqlite3` (e.g. `sqlite3 ... ".backup ..."`) first.
 
 Create OpenAI embeddings only after inspecting the chunk build report:
 

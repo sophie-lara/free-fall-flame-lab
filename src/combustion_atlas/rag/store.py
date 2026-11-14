@@ -172,6 +172,107 @@ class DocumentStore:
                 [(chunk.chunk_id, chunk.text) for chunk in chunks],
             )
 
+    def chunk_count(self) -> int:
+        return int(self.connection.execute("SELECT count(*) FROM chunks").fetchone()[0])
+
+    def add_document(self, pages: list[PageRecord], chunks: list[ChunkRecord]) -> str:
+        """Insert one new source without touching other sources, vectors, or visuals.
+
+        Returns "added" or "unchanged". A different file with the same source_id
+        prefix is refused rather than merged.
+        """
+        sources = {page.source_id for page in pages} | {chunk.source_id for chunk in chunks}
+        if len(sources) != 1:
+            raise ValueError("add_document takes exactly one source document")
+        source_id = sources.pop()
+        existing = self.connection.execute(
+            "SELECT DISTINCT sha256 FROM pages WHERE source_id=?", (source_id,)
+        ).fetchall()
+        if existing:
+            if {row[0] for row in existing} == {pages[0].sha256}:
+                return "unchanged"
+            raise ValueError(f"Source {source_id} is indexed with different bytes")
+        with self.connection:
+            self.connection.executemany(
+                "INSERT INTO pages VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    (
+                        page.source_id,
+                        page.physical_page,
+                        page.investigation_id,
+                        page.filename,
+                        page.source_url,
+                        page.sha256,
+                        page.text,
+                        page.extraction_warning,
+                    )
+                    for page in pages
+                ],
+            )
+            self.connection.executemany(
+                "INSERT INTO chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    (
+                        chunk.chunk_id,
+                        chunk.source_id,
+                        chunk.investigation_id,
+                        chunk.filename,
+                        chunk.source_url,
+                        chunk.sha256,
+                        chunk.physical_page,
+                        chunk.chunk_index,
+                        chunk.char_start,
+                        chunk.char_end,
+                        chunk.text,
+                    )
+                    for chunk in chunks
+                ],
+            )
+            self.connection.executemany(
+                "INSERT INTO chunks_fts (chunk_id, text) VALUES (?, ?)",
+                [(chunk.chunk_id, chunk.text) for chunk in chunks],
+            )
+        return "added"
+
+    def remove_document(self, source_id: str) -> dict[str, int]:
+        """Delete one source with its chunks, vectors and visual artifacts."""
+        chunk_ids = [
+            row[0]
+            for row in self.connection.execute(
+                "SELECT chunk_id FROM chunks WHERE source_id=?", (source_id,)
+            )
+        ]
+        artifacts = [
+            row[0]
+            for row in self.connection.execute(
+                "SELECT DISTINCT v.artifact_id FROM visual_chunks v "
+                "JOIN chunks c ON c.chunk_id=v.chunk_id WHERE c.source_id=?",
+                (source_id,),
+            )
+        ]
+        with self.connection:
+            for chunk_id in chunk_ids:
+                for table in ("vectors", "chunks_fts", "visual_chunks"):
+                    self.connection.execute(f"DELETE FROM {table} WHERE chunk_id=?", (chunk_id,))
+            for artifact_id in artifacts:
+                self.connection.execute(
+                    "DELETE FROM visual_artifacts WHERE artifact_id=?", (artifact_id,)
+                )
+            self.connection.execute("DELETE FROM chunks WHERE source_id=?", (source_id,))
+            pages = self.connection.execute(
+                "DELETE FROM pages WHERE source_id=?", (source_id,)
+            ).rowcount
+        return {"pages": pages, "chunks": len(chunk_ids), "visual_artifacts": len(artifacts)}
+
+    def chunks_missing_vectors(self, model_key: str) -> list[ChunkRecord]:
+        rows = self.connection.execute(
+            "SELECT c.* FROM chunks c LEFT JOIN vectors v "
+            "ON v.chunk_id=c.chunk_id AND v.model_key=? WHERE v.chunk_id IS NULL "
+            "ORDER BY c.source_id, c.physical_page, c.chunk_index",
+            (model_key,),
+        ).fetchall()
+        return [ChunkRecord.model_validate(dict(row)) for row in rows]
+
     def search(
         self, question: str, investigation_id: str | None = None, top_k: int = 5
     ) -> list[dict[str, object]]:
