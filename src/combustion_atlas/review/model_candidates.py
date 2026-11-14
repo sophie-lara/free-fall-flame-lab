@@ -255,10 +255,19 @@ def convert(root: Path, path: Path) -> dict[str, Any]:
             "issues": issues,
         }
     )
+    field_mappings = [
+        {
+            **field.model_dump(mode="json"),
+            "source_cells": [cell_at(i) for i in field.source_indexes],
+        }
+        for field in proposal.fields
+    ]
     return {
         "candidate": candidate.model_dump(mode="json"),
         "result_file": path.name,
         "result_sha256": hashlib.sha256(raw_result).hexdigest(),
+        "field_mappings": field_mappings,
+        "source_context": batch.context,
     }
 
 
@@ -335,9 +344,16 @@ def main() -> None:
     with target.open("x", encoding="utf-8") as stream:
         json.dump(
             {
+                "schema_version": "model-review-candidates-v2",
                 "records": [item["candidate"] for item in adapted],
                 "model_results": [
-                    {"file": item["result_file"], "sha256": item["result_sha256"]}
+                    {
+                        "identity": item["candidate"]["identity"],
+                        "file": item["result_file"],
+                        "sha256": item["result_sha256"],
+                        "field_mappings": item["field_mappings"],
+                        "source_context": item["source_context"],
+                    }
                     for item in adapted
                 ],
             },
