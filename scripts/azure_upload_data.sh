@@ -22,14 +22,49 @@ done
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 stage="$(mktemp -d)"; trap 'rm -rf "$stage"' EXIT
-mkdir -p "$stage/embeddings" "$stage/processed"
-cp -R "$root/data/raw" "$stage/raw"
-for part in rag visuals; do
-  [ -d "$root/data/processed/$part" ] && cp -R "$root/data/processed/$part" "$stage/processed/$part"
-done
-[ -d "$root/data/review" ] && cp -R "$root/data/review" "$stage/review"
-# Consistent snapshot even if the local app is running.
+mkdir -p "$stage/embeddings"
+# Consistent snapshot even if the local app is running. The embedding vectors live
+# inside this database, so uploading it is how the vectors reach Azure.
 sqlite3 "$root/data/embeddings/rag.sqlite3" ".backup '$stage/embeddings/rag.sqlite3'"
+# Copy only what the app serves (App Service Free tier has 1 GB of disk): indexed PDFs
+# (matched by SHA-256, duplicates collapse), PSI experiment tables and capture
+# manifests, figure crops referenced by the index, small RAG artifacts, review files.
+"${PYTHON:-$root/.venv/bin/python}" - "$root" "$stage" <<'PY'
+import hashlib, json, shutil, sqlite3, sys
+from pathlib import Path
+root, stage = Path(sys.argv[1]), Path(sys.argv[2])
+data = root / "data"
+db = sqlite3.connect(stage / "embeddings/rag.sqlite3")
+wanted = {row[0] for row in db.execute("SELECT DISTINCT sha256 FROM pages")}
+crops = {json.loads(p)["crop_path"] for (p,) in db.execute("SELECT payload FROM visual_artifacts")}
+copied, seen = 0, set()
+def put(source: Path) -> None:
+    global copied
+    target = stage / source.relative_to(data)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, target)
+    copied += source.stat().st_size
+for pdf in sorted((data / "raw").rglob("*.pdf")):
+    digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
+    if digest in wanted and digest not in seen:
+        seen.add(digest)
+        put(pdf)
+for extra in [*(data / "raw").rglob("Experimental_table/*"), *(data / "raw").rglob("*.json*")]:
+    if extra.is_file():
+        put(extra)
+for crop in crops:
+    path = root / crop
+    if path.is_file():
+        put(path)
+for part in ("processed/rag", "review"):
+    for item in (data / part).rglob("*") if (data / part).is_dir() else []:
+        if item.is_file():
+            put(item)
+missing = wanted - seen
+print(f"Selected {copied / 1e6:.0f} MB; indexed PDFs {len(seen)}/{len(wanted)}; crops {len(crops)}")
+if missing:
+    print(f"WARNING: {len(missing)} indexed documents have no local PDF (page links will 404)")
+PY
 find "$stage" \( -name '.env*' -o -name '*.part' -o -name '.DS_Store' \) -delete
 (cd "$stage" && zip -qr "$stage/data.zip" .)
 
