@@ -9,6 +9,14 @@ crops, the SQLite index) lives on the server's persistent disk at
 Locally nothing changes: the app still listens on `127.0.0.1:8765` and accepts
 only loopback requests unless the hosting settings below are given.
 
+## Option A: Terraform
+
+Steps 1–4 below can be done in one go with Terraform: see
+[`infra/README.md`](../infra/README.md). It creates the web app, app settings,
+Microsoft sign-in with assigned users and guests, the GitHub OIDC deploy identity,
+and the GitHub Actions secrets and variables. Then continue with step 5 (upload
+the evidence data). The manual portal steps below remain the reference.
+
 ## 1. Create the web app (portal, once)
 
 1. Create a resource group, e.g. `combustion-atlas`.
