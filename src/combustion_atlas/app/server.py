@@ -199,6 +199,8 @@ class Workspace:
             root / "psi-25-b1-b5.json",
             root / "additional-candidates/flex-table13.json",
             root / "additional-candidates/saffire-ii.json",
+            self.data / "review/holdout-evidence.json",
+            self.data / "review/flex-table2-candidates.json",
         ]
         return [record for path in paths if path.is_file() for record in read_json(path)["records"]]
 

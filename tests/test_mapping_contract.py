@@ -5,6 +5,7 @@ from combustion_atlas.ingestion.mapping_contract import (
     MappedField,
     MappedRow,
     mapping_request,
+    material_coverage,
     propose_mapping,
     validate_mapping,
 )
@@ -48,6 +49,48 @@ def test_source_marker_cannot_become_a_measurement() -> None:
         row, "saffire_ii", source)
     field.value = "n/a"
     assert not validate_mapping(row, "saffire_ii", source)
+
+
+def test_unclear_gravity_header_requires_review() -> None:
+    source = SourceBatch(cells=[SourceCellRef(source_sha256="a" * 64, filename="a.csv",
+        kind="csv", csv_record=2, csv_column="?-g Burn Length", text="~ 0", state="present")])
+    field = mapped_field(canonical_field="burn_length_unspecified_gravity", value=0.0,
+                         unit=None, qualifier="~", mapping_status="direct")
+    row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[field])
+    assert "fields[0]:ambiguous_source_gravity_header" in validate_mapping(
+        row, "saffire_ii", source)
+
+
+def test_coverage_flags_extractable_dimensions_and_geometry() -> None:
+    row = MappedRow(schema_version="mapping-proposal-v1", profile="bass_ii", fields=[])
+    found = {"material": None, "geometry": "film",
+             "dimensions": {"thickness_um": {"value": 100}, "width_cm": {"value": 2}}}
+    assert material_coverage(row, found) == ["missing_extractable_field:geometry",
+        "missing_extractable_field:thickness", "missing_extractable_field:width"]
+
+
+def test_review_unlabeled_width_leading_zero_and_qualified_marker() -> None:
+    def cell(column: str, text: str) -> SourceBatch:
+        return SourceBatch(cells=[SourceCellRef(source_sha256="a" * 64, filename="a.csv",
+            kind="csv", csv_record=2, csv_column=column, text=text, state="present")])
+    width = mapped_field(canonical_field="width", value=2.0, unit="cm")
+    row = MappedRow(schema_version="mapping-proposal-v1", profile="bass_ii", fields=[width])
+    assert "fields[0]:unverified_width_interpretation" in validate_mapping(
+        row, "bass_ii", cell("Fuel Sample Material", "2 cm 0.1 mm PMMA film"))
+    width_source = cell("Fuel Sample Material", "100 micron film 2 cm wide")
+    assert "fields[0]:unverified_width_interpretation" not in validate_mapping(
+        row, "bass_ii", width_source)
+    thickness = mapped_field(canonical_field="thickness", value="037", unit="mm",
+                             mapping_status="direct")
+    row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[thickness])
+    assert "fields[0]:ambiguous_leading_zero" in validate_mapping(
+        row, "saffire_ii", cell("Samle Thickness", "037 mm"))
+    marker = mapped_field(canonical_field="spread_rate_1g", value="n/a (Nomex)", unit=None,
+                          missingness="source_marker", mapping_status="direct")
+    row = MappedRow(schema_version="mapping-proposal-v1", profile="saffire_ii", fields=[marker])
+    issues = validate_mapping(row, "saffire_ii", cell("1-g Spread Rate", "n/a (Nomex)"))
+    assert "fields[0]:qualified_marker_context" in issues
+    assert not any("mismatch" in issue or "unsupported" in issue for issue in issues)
 
 
 def test_provider_interface_uses_schema_and_does_not_send_review_notes() -> None:

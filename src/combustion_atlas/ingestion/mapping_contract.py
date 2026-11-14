@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -59,6 +60,12 @@ SAFFIRE = frozenset({"sample_id", "material", "thickness", "length", "width", "a
 ALLOWED = {"bass_ii": BASS, "flex_table_13": FLEX, "saffire_ii": SAFFIRE}
 
 
+def source_marker(text: str | None) -> bool:
+    """Recognize a marker with an optional qualifier without assigning its meaning."""
+    return text is not None and bool(re.fullmatch(
+        r"\s*(?:n/a|na|none|null)(?:\s*\([^()]+\))?\s*", text, re.IGNORECASE))
+
+
 def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> list[str]:
     """Validate source links and vocabulary; return issues without certifying science."""
     issues = []
@@ -78,16 +85,16 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
         if field.missingness == "mapping_uncertain":
             issues.append(f"{prefix}:mapping_uncertain")
         cells = [source.cells[i] for i in field.source_indexes]
+        if any((c.csv_column or "").strip().casefold().startswith("?-g") for c in cells):
+            issues.append(f"{prefix}:ambiguous_source_gravity_header")
         if all(c.state == "blank" for c in cells) and field.missingness != "source_blank":
             issues.append(f"{prefix}:source_blank_mismatch")
         if all(c.state == "unreadable" for c in cells) and field.missingness != "unreadable":
             issues.append(f"{prefix}:unreadable_mismatch")
-        if all(c.text is not None and c.text.strip().casefold() in {"n/a", "na", "none", "null"}
-               for c in cells) and field.missingness != "source_marker":
+        if all(source_marker(c.text) for c in cells) and field.missingness != "source_marker":
             issues.append(f"{prefix}:source_marker_mismatch")
         if field.missingness == "source_marker" and any(
-            c.text is None or c.text.strip().casefold() not in {"n/a", "na", "none", "null"}
-            for c in cells
+            not source_marker(c.text) for c in cells
         ):
             issues.append(f"{prefix}:source_marker_mismatch")
         if field.missingness == "source_blank" and any(c.state != "blank" for c in cells):
@@ -100,6 +107,25 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
                 and all(c.text == field.value for c in cells)
             ):
                 issues.append(f"{prefix}:unsupported_value_for_missing_source")
+        if profile == "saffire_ii" and field.canonical_field == "thickness" and any(
+            re.match(r"^\s*0\d+\s*(?:mm|cm|micron|um)\b", c.text or "", re.IGNORECASE)
+            for c in cells
+        ):
+            issues.append(f"{prefix}:ambiguous_leading_zero")
+        if (profile == "bass_ii" and field.canonical_field == "width" and all(
+                not re.search(r"\b(?:wide|width)\b", c.text or "", re.IGNORECASE) for c in cells)):
+            issues.append(f"{prefix}:unverified_width_interpretation")
+        if field.canonical_field == "spread_length_unspecified_gravity" and (
+            (field.unit or "").strip().casefold() in {"mm/s", "cm/s", "m/s"}
+        ):
+            issues.append(f"{prefix}:unit_conflicts_with_field_name")
+        if profile == "saffire_ii" and field.canonical_field in {
+            "material", "thickness", "length", "burn_length_unspecified_gravity"
+        } and any(re.search(r"\b\d+(?:\.\d+)?\b.*(?:\band\b|&).*\b\d", c.text or "",
+                            re.IGNORECASE) for c in cells):
+            issues.append(f"{prefix}:compound_source_requires_review")
+        if field.missingness == "source_marker" and any("(" in (c.text or "") for c in cells):
+            issues.append(f"{prefix}:qualified_marker_context")
         if profile == "flex_table_13" and field.canonical_field in {
             "droplet_diameter", "burning_rate_constant"
         }:
@@ -109,6 +135,19 @@ def validate_mapping(row: MappedRow, profile: Profile, source: SourceBatch) -> l
                 issues.append(f"{prefix}:unverified_flex_source")
             if field.mapping_status != "proposed":
                 issues.append(f"{prefix}:flex_mapping_must_remain_proposed")
+    return issues
+
+
+def material_coverage(row: MappedRow, deterministic: dict[str, Any]) -> list[str]:
+    """Flag material details extracted locally but omitted by the mapping proposal."""
+    issues = []
+    names = {field.canonical_field for field in row.fields}
+    for name in ("material", "geometry"):
+        if deterministic.get(name) is not None and name not in names:
+            issues.append(f"missing_extractable_field:{name}")
+    for native, field in (("thickness_um", "thickness"), ("width_cm", "width")):
+        if native in deterministic.get("dimensions", {}) and field not in names:
+            issues.append(f"missing_extractable_field:{field}")
     return issues
 
 
