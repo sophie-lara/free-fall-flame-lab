@@ -74,7 +74,7 @@ class DocumentStore:
             CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(
                 chunk_id UNINDEXED,
                 text,
-                tokenize='unicode61'
+                tokenize='porter unicode61'
             );
             CREATE TABLE IF NOT EXISTS vector_namespaces (
                 model_key TEXT PRIMARY KEY,
@@ -104,6 +104,24 @@ class DocumentStore:
             );
             """
         )
+        self._migrate_keyword_index()
+
+    def _migrate_keyword_index(self) -> None:
+        """Rebuild only the derived FTS index with stemming; chunks and vectors are untouched."""
+        row = self.connection.execute(
+            "SELECT sql FROM sqlite_master WHERE name='chunks_fts'"
+        ).fetchone()
+        if row is None or "porter" in row[0]:
+            return
+        with self.connection:
+            self.connection.execute("DROP TABLE chunks_fts")
+            self.connection.execute(
+                "CREATE VIRTUAL TABLE chunks_fts USING fts5("
+                "chunk_id UNINDEXED, text, tokenize='porter unicode61')"
+            )
+            self.connection.execute(
+                "INSERT INTO chunks_fts (chunk_id, text) SELECT chunk_id, text FROM chunks"
+            )
 
     def replace(self, pages: list[PageRecord], chunks: list[ChunkRecord]) -> None:
         with self.connection:

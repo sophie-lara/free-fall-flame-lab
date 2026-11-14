@@ -125,6 +125,35 @@ uv run python -m combustion_atlas.rag query "oxygen concentration and extinction
   --allow-provider-calls
 ```
 
+Keyword search drops question words and ORs the remaining terms with Porter
+stemming, so natural-language questions do not need every word to match. Opening
+an older database rebuilds only the derived `chunks_fts` index; chunks and vectors
+are unchanged.
+
+### Retrieval and answer evaluation
+
+Question files follow `combustion_atlas.evaluation.retrieval.EvalQuestion`:
+expected pages, visual element IDs or chunk IDs; expected status
+(`answered` or `insufficient_evidence`); required answer terms; and a
+`development` or `heldout` split. Only reviewed questions are scored by default.
+
+```sh
+# Free: keyword only
+uv run python -m combustion_atlas.evaluation questions.json \
+  --split development --output data/processed/eval/report.json
+# Billable: compare methods and score answers (draft run on unreviewed questions)
+uv run python -m combustion_atlas.evaluation questions.json --split development \
+  --methods keyword dense hybrid --answers --include-unreviewed \
+  --allow-provider-calls --output data/processed/eval/report.json
+```
+
+Reports bind results to the question-file hash, Git commit and dirty state, a
+chunk-content fingerprint, document hashes, vector namespaces, visual fingerprints
+and configured models. Retrieval metrics (hit@3/5, MRR@5, element hit@5) are
+reported separately from answer checks (status, required terms, numbers missing
+from the claim's own quotes). Visual-description fidelity is flagged for manual
+review. Do not tune retrieval against the held-out split.
+
 ## Review and adjudication
 
 ```sh

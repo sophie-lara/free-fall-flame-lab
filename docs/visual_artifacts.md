@@ -22,6 +22,24 @@ assert artifact.table is not None
 jsonl_line = artifact.model_dump_json()
 ```
 
+Before importing, run the validator. It checks every line, reports all problems
+with line numbers, and never writes to the database:
+
+```sh
+uv run python -m combustion_atlas.rag.visuals validate data/processed/visuals/tables.jsonl
+```
+
+Errors (block import): invalid JSON or schema, duplicate IDs, missing/changed
+crops, source page/hash/filename not in the index, tables without cells, rejected
+records. Warnings (review): no header cells, unit visible in a header but `unit`
+unset, numeric values without a resolvable unit, unreadable cells without an
+uncertainty, full-page crops, and records already marked reviewed.
+
+After import, `GET /api/visuals/<artifact_id>/cells` returns each data cell with
+its verbatim column-header and row-header path (spans honored, header units
+inherited). Exact-value answers should read these cells
+(`combustion_atlas.rag.tables.find_cells`), not the serialized retrieval text.
+
 Required identity and provenance:
 
 - `artifact_id`: stable unique ID, e.g. `<source_id>:p64:table:5.1`.

@@ -222,6 +222,11 @@ def main() -> int:
     describe.add_argument("--model", required=True)
     describe.add_argument("--limit", type=int, default=5)
     describe.add_argument("--allow-provider-calls", action="store_true")
+    validate = commands.add_parser(
+        "validate", help="Check a figure/table JSONL before import; never writes"
+    )
+    validate.add_argument("manifest", type=Path)
+    validate.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
     index = commands.add_parser("index")
     index.add_argument("manifest", type=Path)
     index.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
@@ -302,6 +307,12 @@ def main() -> int:
             for item in batch:
                 by_id[item.artifact_id] = describe_figure(item, root, args.model)
                 write_artifacts(args.output, list(by_id.values()))
+    elif args.command == "validate":
+        from .tables import validate_manifest
+
+        report = validate_manifest(args.manifest, workspace=root, database=args.database)
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        return 0 if report["valid"] else 1
     elif args.command == "index":
         items = read_artifacts(args.manifest)
         for item in items:

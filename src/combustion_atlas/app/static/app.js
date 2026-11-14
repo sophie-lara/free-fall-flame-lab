@@ -207,11 +207,11 @@ function renderSearchResults() {
   if(result.error) { el.innerHTML=`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
   if(!result.hits.length) { el.innerHTML=empty('No matching passages.','Try different terms or a broader investigation scope. This search provides no supported answer.'); return; }
   const answer=result.answer;
-  const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(claim.text)}</p>${claim.supports.map(s=>`<blockquote>${esc(s.quote)}</blockquote><button class="btn link" data-support="${esc(s.chunk_id)}">View supporting passage →</button>`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p></div></section>` : '';
+  const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(claim.text)}</p>${claim.supports.map(s=>`<blockquote>${esc(s.quote)}</blockquote><button class="btn link" data-support="${esc(s.chunk_id)}">View supporting passage →</button>`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}${answer.status==='answered'?'<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p>':'<p class="form-hint">No claim was supported by the retrieved passages. This means missing from the indexed collection, not unstudied.</p>'}</div></section>` : '';
   el.innerHTML=answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
     const c=hit.chunk; const source=state.sources.find(s=>s.source_id===c.source_id);
     const link=source?.available_locally ? `/api/documents/${encodeURIComponent(c.source_id)}#page=${c.page}` : safeURL(c.file_url || c.source_url);
-    return `<article class="result-card"><div class="result-top"><span class="eyebrow" style="margin:0">PASSAGE ${String(i+1).padStart(2,'0')} · ${esc(c.investigation_ids.map(i=>names[i]||i).join(' / '))}</span>${tag(`Page ${c.page}`)}</div><h2>${esc(c.title)}</h2>${c.section?`<span class="muted" style="font-size:11px">Section hint: ${esc(c.section)}</span>`:''}<div class="excerpt">${esc(c.text)}</div><div class="result-footer"><span>${esc(source?.category || 'Document')} · ${esc(c.extraction_method==='pdf_native_text'?'Native PDF text':'Plain text')}</span><a class="btn small" href="${link}" target="_blank" rel="noopener noreferrer">Open cited page ↗</a></div><details><summary>Source details and extraction notes</summary><p><a href="${safeURL(c.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a></p>Chunk: ${esc(c.chunk_id)}<br>SHA-256: ${esc(c.sha256)}${c.warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details></article>`;
+    return `<article class="result-card"><div class="result-top"><span class="eyebrow" style="margin:0">PASSAGE ${String(i+1).padStart(2,'0')} · ${esc(c.investigation_ids.map(i=>names[i]||i).join(' / '))}</span>${tag(`Page ${c.page}`)}</div><h2>${esc(c.title)}</h2>${c.section?`<span class="muted" style="font-size:11px">Section hint: ${esc(c.section)}</span>`:''}<div class="excerpt">${esc(c.text)}</div><div class="result-footer"><span>${esc(source?.category || 'Document')} · ${esc(c.extraction_method==='pdf_native_text'?'Native PDF text':c.extraction_method==='derived_visual_text'?'Derived visual text (not source text)':'Plain text')}</span><a class="btn small" href="${link}" target="_blank" rel="noopener noreferrer">Open cited page ↗</a></div><details><summary>Source details and extraction notes</summary><p><a href="${safeURL(c.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a></p>Chunk: ${esc(c.chunk_id)}<br>SHA-256: ${esc(c.sha256)}${c.warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details></article>`;
   }).join('');
   el.querySelectorAll('.result-card').forEach((card,index)=>{
     const chunk=result.hits[index].chunk;
@@ -226,7 +226,26 @@ function renderSearchResults() {
     image.src=chunk.crop_url; image.loading='lazy'; image.style.maxWidth='100%';
     image.alt=`Original page crop for ${chunk.visual.kind} ${chunk.visual.label}`;
     details.append(summary,image); card.prepend(note); card.append(details);
+    if(chunk.visual.kind==='table') renderTableCells(card, chunk);
   });
+}
+async function renderTableCells(card, chunk) {
+  // Show the structured cells as a grid; the serialized JSON excerpt is only for retrieval.
+  const excerpt=card.querySelector('.excerpt');
+  try {
+    const data=await api(chunk.crop_url+'/cells');
+    const t=data.table; const byRow=new Map();
+    t.cells.slice().sort((a,b)=>a.row-b.row||a.column-b.column).forEach(cell=>{ if(!byRow.has(cell.row)) byRow.set(cell.row,[]); byRow.get(cell.row).push(cell); });
+    const rows=[...Array(t.rows).keys()].map(r=>`<tr>${(byRow.get(r)||[]).map(cell=>{
+      const tagName=cell.role==='data'?'td':'th'; const span=`${cell.row_span>1?` rowspan="${cell.row_span}"`:''}${cell.column_span>1?` colspan="${cell.column_span}"`:''}`;
+      const value=cell.state==='unreadable'?'<em>unreadable</em>':cell.state==='blank'?'<em>blank</em>':esc(cell.text);
+      const unit=cell.unit&&cell.role==='data'?` <small>${esc(cell.unit)}</small>`:'';
+      const title=cell.uncertainty?` title="${esc(cell.uncertainty)}"`:'';
+      return `<${tagName}${span}${title}${cell.role==='row_header'?' scope="row"':''}>${value}${unit}</${tagName}>`; }).join('')}</tr>`).join('');
+    const wrap=document.createElement('div'); wrap.className='table-scroll';
+    wrap.innerHTML=`<table class="source-table"><caption>${esc(`Table ${data.label}: ${data.caption}`)} · ${esc(pretty(data.review_status))} transcription</caption>${rows}</table>${t.footnotes.length?`<ul class="form-hint">${t.footnotes.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`:''}`;
+    excerpt?.replaceWith(wrap);
+  } catch(err) { /* Keep the serialized excerpt when structured cells are unavailable. */ }
 }
 async function start() {
   try {

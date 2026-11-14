@@ -71,3 +71,25 @@ class RagTests(unittest.TestCase):
         )
         self.assertEqual(keyword_query("what is the"), '"what" OR "is" OR "the"')
         self.assertEqual(keyword_query("?? --"), "")
+
+    def test_plural_query_matches_singular_text_and_old_indexes_migrate(self) -> None:
+        import sqlite3
+
+        page = self.page("Comparison of extinction velocity for thin samples")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "rag.sqlite3"
+            with DocumentStore(path) as store:
+                store.replace([page], chunk_page(page))
+            legacy = sqlite3.connect(path)
+            legacy.executescript(
+                "DROP TABLE chunks_fts; CREATE VIRTUAL TABLE chunks_fts USING fts5("
+                "chunk_id UNINDEXED, text, tokenize='unicode61');"
+                "INSERT INTO chunks_fts SELECT chunk_id, text FROM chunks;"
+            )
+            legacy.commit()
+            legacy.close()
+            with DocumentStore(path) as store:
+                results = store.search("extinction velocities", None, 5)
+                chunk_count = store.connection.execute("SELECT count(*) FROM chunks")
+                self.assertEqual(chunk_count.fetchone()[0], 1)
+        self.assertEqual(results[0]["chunk_id"], "source:p3:c0")

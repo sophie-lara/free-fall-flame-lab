@@ -202,7 +202,12 @@ def test_visual_crop_endpoint_is_hash_bound(
 ) -> None:
     from PIL import Image
 
-    from combustion_atlas.rag.visual_models import PageRegion, VisualArtifact
+    from combustion_atlas.rag.visual_models import (
+        PageRegion,
+        TableCell,
+        TableContent,
+        VisualArtifact,
+    )
 
     crop = workspace.data / "processed/visuals/test.png"
     crop.parent.mkdir(parents=True)
@@ -235,6 +240,36 @@ def test_visual_crop_endpoint_is_hash_bound(
     encoded = "/api/visuals/" + artifact.artifact_id.replace(":", "%3A")
     assert request(server, encoded)[1] == crop.read_bytes()
     assert request(server, "/api/visuals/unknown")[0] == 404
+    assert request(server, endpoint + "/cells")[0] == 404  # figures have no cells
+    table = TableContent(
+        rows=2,
+        columns=1,
+        cells=[
+            TableCell(row=0, column=0, role="header", text="Width (cm)", unit="cm"),
+            TableCell(row=1, column=0, text="2"),
+        ],
+    )
+    with DocumentStore(workspace.database) as store:
+        store.upsert_visual(
+            artifact.model_copy(
+                update={"artifact_id": "test:p1:table:1", "kind": "table", "table": table}
+            )
+        )
+    status, body = request(server, "/api/visuals/test%3Ap1%3Atable%3A1/cells")
+    cells = body["resolved_cells"]
+    assert status == 200
+    assert cells == [
+        {
+            "row": 1,
+            "column": 0,
+            "text": "2",
+            "state": "present",
+            "unit": "cm",
+            "uncertainty": None,
+            "column_headers": ["Width (cm)"],
+            "row_headers": [],
+        }
+    ]
     crop.write_bytes(b"tampered")
     assert request(server, endpoint)[0] == 400
 
