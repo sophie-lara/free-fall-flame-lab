@@ -4,17 +4,34 @@ from __future__ import annotations
 
 import argparse
 import json
+import tempfile
 from pathlib import Path
 
 from combustion_atlas.artifacts import CandidateBatch
 from combustion_atlas.io import read_json
 from combustion_atlas.normalization.schema import ExperimentRecord
+from combustion_atlas.review.workflow import apply_decisions
 
 from .structured import filter_records
 
 
 def _load(path: Path, scope: str) -> list[ExperimentRecord]:
     payload = read_json(path)
+    if scope == "approved":
+        if (
+            not isinstance(payload, dict)
+            or not payload.get("candidate_file")
+            or not payload.get("decision_file")
+        ):
+            raise ValueError("Approved search requires a candidate-bound adjudication audit")
+        with tempfile.TemporaryDirectory() as directory:
+            replay = Path(directory) / "audit.json"
+            apply_decisions(
+                Path(payload["candidate_file"]), Path(payload["decision_file"]), replay, None
+            )
+            verified = read_json(replay)
+        if verified != payload:
+            raise ValueError("Approved artifact does not match its source decisions")
     values = (
         CandidateBatch.model_validate(payload).records
         if scope == "candidates"

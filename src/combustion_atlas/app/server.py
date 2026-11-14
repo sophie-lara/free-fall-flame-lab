@@ -78,8 +78,29 @@ class Workspace:
                 if note_path.is_file():
                     with note_path.open(encoding="utf-8") as stream:
                         notes.extend(json.loads(line) for line in stream if line.strip())
+        candidates: dict[tuple[str, str], list[str]] = {}
+        for r in self.records():
+            key = (r.investigation_id, r.test_id)
+            canonical = json.dumps(r.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+            candidates.setdefault(key, []).append(hashlib.sha256(canonical.encode()).hexdigest())
+        for preserved_record in self.preserved():
+            key = (
+                preserved_record["identity"]["investigation_id"],
+                preserved_record["identity"]["test_id"],
+            )
+            canonical = json.dumps(preserved_record, sort_keys=True, separators=(",", ":"))
+            candidates.setdefault(key, []).append(hashlib.sha256(canonical.encode()).hexdigest())
         for note in notes:
             note.setdefault("saved_at_utc", note.get("saved_at"))
+            note_key = (str(note.get("investigation_id", "")), str(note.get("test_id", "")))
+            fingerprint = note.get("candidate_fingerprint")
+            note["binding_status"] = (
+                "unbound"
+                if not fingerprint
+                else "matched"
+                if fingerprint in candidates.get(note_key, [])
+                else "stale"
+            )
         return notes
 
     def save_note(self, note: ReviewNote) -> dict[str, Any]:
@@ -92,16 +113,40 @@ class Workspace:
             for r in self.preserved()
         ):
             raise ValueError("Unknown candidate")
+        native = next(
+            (
+                r.model_dump(mode="json")
+                for r in self.records()
+                if (r.investigation_id, r.test_id) == (note.investigation_id, note.test_id)
+            ),
+            None,
+        )
+        preserved = next(
+            (
+                r
+                for r in self.preserved()
+                if (r["identity"]["investigation_id"], r["identity"]["test_id"])
+                == (note.investigation_id, note.test_id)
+            ),
+            None,
+        )
+        if native is not None and preserved is not None:
+            raise ValueError("Duplicate candidate identity; choose a distinct workspace")
+        candidate = native if native is not None else preserved
+        fingerprint = hashlib.sha256(
+            json.dumps(candidate, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
         entry = {
             **note.model_dump(),
             "saved_at_utc": datetime.now(UTC).isoformat(),
             "status": "draft",
+            "candidate_fingerprint": fingerprint,
         }
         path = self.data / "review/human-notes.jsonl"
         path.parent.mkdir(parents=True, exist_ok=True)
         with _WRITE_LOCK, path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        return entry
+        return {**entry, "binding_status": "matched"}
 
     def source_rows(self) -> list[dict[str, Any]]:
         rows: dict[str, dict[str, Any]] = {}

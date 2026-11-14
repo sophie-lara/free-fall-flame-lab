@@ -131,6 +131,7 @@ def test_review_notes_are_bound_and_drafts_only(
     status, saved = request(server, "/api/reviews", note)
     assert status == 201 and saved["status"] == "draft"
     assert request(server, "/api/experiments")[1]["notes"][0]["note"] == "Fixture checked"
+    assert request(server, "/api/experiments")[1]["notes"][0]["binding_status"] == "matched"
     assert candidate.read_bytes() == before
     assert request(server, "/api/reviews", {**note, "test_id": "unknown"})[0] == 400
     assert request(server, "/api/reviews", {**note, "reviewer": "   "})[0] == 400
@@ -139,6 +140,10 @@ def test_review_notes_are_bound_and_drafts_only(
         request(server, "/api/reviews", note, headers={"Origin": "https://example.org"})[0] == 403
     )
     assert request(server, "/api/overview", headers={"Host": "example.org"})[0] == 403
+    changed = json.loads(candidate.read_text(encoding="utf-8"))
+    changed["records"][0]["raw_cells"]["Oxygen"] = "changed"
+    candidate.write_text(json.dumps(changed), encoding="utf-8")
+    assert request(server, "/api/experiments")[1]["notes"][0]["binding_status"] == "stale"
 
 
 def test_captured_sources_require_matching_local_bytes(
@@ -205,5 +210,5 @@ def test_preserved_candidates_and_notes_remain_exact(workspace: Workspace) -> No
     note_path.write_text(json.dumps(note) + "\n", encoding="utf-8")
     before = note_path.read_bytes()
     assert workspace.preserved() == [candidate]
-    assert workspace.notes() == [note]
+    assert workspace.notes() == [{**note, "binding_status": "unbound"}]
     assert note_path.read_bytes() == before

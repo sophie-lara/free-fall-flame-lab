@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 
 from pydantic import HttpUrl
@@ -13,7 +14,7 @@ from .field_mapper import classify_header, normalized_header
 from .schema import Conditions, ExperimentRecord, Measurement, OutcomeMeasurement, Provenance
 from .validate import validate_candidate
 
-_NUMBER = re.compile(r"[-+]?\d+(?:\.\d+)?")
+_NUMBER = re.compile(r"[-+]?(?:(?:0|[1-9]\d*)(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
 
 
 def _value(cells: dict[str, str | None], normalized_name: str) -> tuple[str, str | None] | None:
@@ -26,8 +27,9 @@ def _value(cells: dict[str, str | None], normalized_name: str) -> tuple[str, str
 def _number(value: str | None) -> float | None:
     if value is None or not value.strip():
         return None
-    match = _NUMBER.search(value.replace(",", ""))
-    return float(match.group()) if match else None
+    match = _NUMBER.fullmatch(value.strip())
+    number = float(match.group()) if match else None
+    return number if number is not None and math.isfinite(number) else None
 
 
 def _provenance(source_url: str, source_sha256: str, row: RawRow, column: str) -> Provenance:
@@ -49,11 +51,21 @@ def _measurement(
     raw: str | None,
     unit: str,
 ) -> Measurement:
+    value = _number(raw)
+    stripped = (raw or "").strip()
+    qualifier = "source_blank" if raw is not None and not stripped else None
+    if stripped and value is None:
+        qualifier = (
+            "source_marker"
+            if stripped.casefold() in {"none", "null", "n/a"}
+            else "unparsed_or_qualified"
+        )
     return Measurement(
-        value=_number(raw),
+        value=value,
         unit=unit,
         original_value=raw,
-        original_unit=unit,
+        original_unit="% by vol" if unit == "%" else unit,
+        qualifier=qualifier,
         provenance=_provenance(source_url, source_sha256, row, header),
     )
 
@@ -77,6 +89,19 @@ def extract_bass_row(
             conditions.material = "PMMA"
         if re.search(r"\bfilm\b", raw_material, re.IGNORECASE):
             conditions.geometry = "film"
+        for field, pattern, unit in (
+            ("thickness_um", r"\b(\d+(?:\.\d+)?)\s+micron\b", "um"),
+            ("width_cm", r"\b(\d+(?:\.\d+)?)\s+cm\s+wide\b", "cm"),
+        ):
+            matches = list(re.finditer(pattern, raw_material, re.IGNORECASE))
+            if len(matches) == 1:
+                conditions.dimensions[field] = Measurement(
+                    value=float(matches[0].group(1)),
+                    unit=unit,
+                    original_value=raw_material,
+                    original_unit="micron" if unit == "um" else unit,
+                    provenance=_provenance(source_url, source_sha256, row, material_cell[0]),
+                )
 
     initial_fields = {
         "calibrated initial o2 % by vol": ("oxygen_pct", "%"),
@@ -139,7 +164,7 @@ def extract_bass_row(
         extra_metadata=metadata,
         raw_cells=row.cells,
         provenance=[row_provenance],
-        extraction_confidence=1.0,
+        extraction_confidence=None,
     )
     return validate_candidate(record)
 

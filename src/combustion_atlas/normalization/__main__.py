@@ -34,6 +34,16 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not wanted or (test_value and test_value.strip().casefold() in wanted):
             rows.append(row)
+    found = {
+        value.strip().casefold()
+        for row in rows
+        for header, value in row.cells.items()
+        if normalized_header(header) == "test #" and value
+    }
+    if wanted - found:
+        parser.error(f"Missing requested test IDs: {sorted(wanted - found)}")
+    if not rows:
+        parser.error("No candidate records selected")
     records = [
         extract_bass_row(
             row,
