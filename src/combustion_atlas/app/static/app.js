@@ -19,7 +19,7 @@ const count = value => Number(value ?? 0).toLocaleString();
 const val = measure => measure?.value == null ? (measure?.qualifier === 'not_applicable_in_source' ? 'Not applicable (source)' : measure?.qualifier === 'missing_in_source' ? 'Missing (source)' : 'Unresolved') : `${measure.qualifier === 'approximate' ? '~ ' : ''}${esc(measure.value)}${measure.unit ? ` <small>${esc(measure.unit)}</small>` : ''}`;
 const safeURL = value => { try { const u = new URL(value); return u.protocol === 'https:' ? esc(u.href) : '#'; } catch { return '#'; } };
 const tag = (text, color = '') => `<span class="tag ${color}">${esc(text)}</span>`;
-const optionList = selected => `<option value="">All investigations</option>${Object.entries(state.overview?.demo ? Object.fromEntries(state.sources.flatMap(s=>s.investigation_ids).map(id=>[id,id])) : names).map(([id, name]) => `<option value="${id}" ${selected === id ? 'selected' : ''}>${name} · ${id}</option>`).join('')}`;
+const optionList = selected => `<option value="">All investigations</option>${Object.entries(state.overview?.demo ? Object.fromEntries(state.sources.flatMap(s=>s.investigation_ids).map(id=>[id,id])) : {...names, ...Object.fromEntries((state.corpus?.documents||[]).flatMap(d=>d.investigation_ids).filter(id=>!names[id]).map(id=>[id,id]))}).map(([id, name]) => `<option value="${id}" ${selected === id ? 'selected' : ''}>${name} · ${id}</option>`).join('')}`;
 const empty = (title, message) => `<div class="empty"><div class="empty-icon">⌕</div><h2>${esc(title)}</h2><p>${esc(message)}</p></div>`;
 const heading = (eyebrow, title, description, action = '') => `${state.overview?.demo ? '<div class="notice"><strong>SYNTHETIC DEMO</strong> · Offline fixtures only. These are not NASA observations or scientifically approved records.</div>' : ''}<div class="page-heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${state.overview?.demo ? 'Explore synthetic records and unrelated toy documents in an isolated workspace.' : description}</p></div>${action}</div>`;
 
@@ -63,14 +63,15 @@ function toast(message) {
   const el = document.querySelector('#toast'); el.textContent = message; el.classList.add('visible');
   clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('visible'), 4500);
 }
-function route() { return location.hash.slice(1).split('/')[0] || 'overview'; }
+function route() { return location.hash.slice(1).split('/')[0] || 'ask'; }
 function render() {
-  const page = route();
+  const page = route()==='search' ? 'ask' : route();
   document.querySelectorAll('[data-nav]').forEach(link => { link.classList.toggle('active', link.dataset.nav === page); if (link.dataset.nav === page) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
-  document.querySelector('#breadcrumb').innerHTML = `Workspace <span>/</span> ${esc({overview:'Overview',experiments:'Experiments',search:'Document search',sources:'Source library'}[page] || 'Overview')}`;
-  if(page==='conditions') document.querySelector('#breadcrumb').textContent='Workspace / Proposed conditions';
-  if(page==='search') document.querySelector('#breadcrumb').textContent='Workspace / Ask the evidence';
-  ({ overview: renderOverview, experiments: renderExperiments, search: renderSearch, sources: renderSources, conditions: renderConditions }[page] || renderOverview)();
+  const review = ['overview','experiments','conditions','sources'].includes(page);
+  const group = document.querySelector('.nav-group'); if(group && review) group.open = true;
+  const titles = {ask:'Ask the corpus',corpus:'Corpus',directions:'Research directions',overview:'Review workspace / Overview',experiments:'Review workspace / Experiments',conditions:'Review workspace / Proposed conditions',sources:'Review workspace / Source library'};
+  document.querySelector('#breadcrumb').textContent = titles[page] || 'Ask the corpus';
+  ({ ask: renderSearch, corpus: renderCorpus, directions: renderDirections, overview: renderOverview, experiments: renderExperiments, sources: renderSources, conditions: renderConditions }[page] || renderSearch)();
 }
 function renderConditions() {
   main.innerHTML = heading('PROPOSED CONDITIONS','Find the evidence for your experiment.','Compare proposed conditions with recorded experiments and inspect supporting sources.') +
@@ -172,11 +173,13 @@ function renderSourceTable() {
   document.querySelector('#source-table').innerHTML = `<section class="panel"><div class="panel-head"><h2>${rows.length} selected source files</h2>${tag(`${state.overview.files_failed} unavailable`,'amber')}</div>${rows.length ? `<div class="table-scroll"><table><thead><tr><th>Document / file</th><th>Investigation</th><th>Availability</th><th>Open</th></tr></thead><tbody>${rows.map(s => `<tr><td class="source-name"><strong>${esc(s.file_name)}</strong><small>${esc(s.category)} · ${esc(s.provider.toUpperCase())}${s.version!=null?` · File v${s.version}`:''}</small></td><td>${s.investigation_ids.map(i => `<div style="margin-bottom:4px">${esc(names[i] || i)}</div>`).join('')}</td><td>${tag(pretty(s.status),s.status==='downloaded'?'green':s.status==='failed'?'red':'')}<small>${esc(s.error || (s.sha256 ? 'Checksum captured' : ''))}</small></td><td>${s.available_locally ? `<a class="btn small" href="/api/documents/${encodeURIComponent(s.source_id)}" target="_blank" rel="noopener noreferrer">Open file ↗</a>` : `<a class="btn small" href="${safeURL(s.source_url)}" target="_blank" rel="noopener noreferrer">NASA ↗</a>`}</td></tr>`).join('')}</tbody></table></div>` : empty('No matching files','Try another filename or availability filter.')}<div class="panel-footer"><span>Source files referenced by candidate batches and indexed documents.</span></div></section>`;
 }
 function renderSearch() {
-  main.innerHTML = heading('ASK THE EVIDENCE','Find the context behind the data.','Ask about past experiments and follow the evidence back to its original page.') +
-  `<div class="notice"><strong>Local RAG POC · ${count(state.ragStatus.embedded_chunks)} embedded passages</strong><br>Currently testing the BASS-II Summary Report. This POC searches extracted text; dedicated table and figure extraction is still pending.</div>
-  <form id="search-form" class="search-box"><input id="question" name="question" type="search" maxlength="1000" required aria-label="Search document passages" placeholder="Which variables were tested in BASS-II?" value="${esc(state.question)}"><select id="investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${state.searching?'disabled':''}>${state.searching?'Searching…':'Ask the evidence'}</button></form>
-  <div class="panel panel-body"><label>Search method <select id="search-method">${[['keyword','Keyword'],['dense','Semantic'],['hybrid','Hybrid']].map(([v,t])=>`<option value="${v}" ${state.searchMethod===v?'selected':''}>${t}</option>`).join('')}</select></label> <label><input id="provider-calls" type="checkbox" ${state.allowProviderCalls?'checked':''}> Allow OpenAI calls for this query</label> <label><input id="generate-answer" type="checkbox" ${state.generateAnswer?'checked':''} ${state.ragStatus.answer_ready?'':'disabled'}> Generate cited answer</label><p class="form-hint">Semantic and hybrid search send the question to OpenAI. Answer generation also sends retrieved passages. ${state.ragStatus.answer_ready?'Answer generation is configured.':'Answer generation needs an answer provider and model configured locally.'}</p></div>
-  <div class="suggestions"><span>TRY A QUESTION</span>${['Which variables were tested in BASS-II?','How many tests were conducted in BASS-II?','What measured flame spread rates does this report give for titanium alloy samples at Martian surface pressure?'].map(q => `<button data-query="${q}" ${state.searching?'disabled':''}>${q}</button>`).join('')}</div><div class="notice">Document evidence is separate from candidate record approval. Generated claims include supporting excerpts; verify their meaning and numerical accuracy against the source.</div><div id="search-results" aria-live="polite"></div>`;
+  const t = state.corpus?.totals || {};
+  main.innerHTML = heading('ASK THE CORPUS','Ask NASA combustion research a question.','Get answers built only from the indexed reports, with every claim linked to the exact passage and page it came from.') +
+  `<div class="notice"><strong>Searching ${count(t.documents)} document${t.documents===1?'':'s'} · ${count(t.pages)} pages · ${count(t.passages)} text passages · ${count(t.figures)} figures</strong><br>Answers quote the source verbatim. Figure descriptions are AI interpretations that have not been reviewed; check numbers against the original page. <a href="#corpus">See what is in the corpus →</a></div>
+  <form id="search-form" class="search-box"><input id="question" name="question" type="search" maxlength="1000" required aria-label="Ask a question about the corpus" placeholder="Ask about materials, conditions, results or methods…" value="${esc(state.question)}"><select id="investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${state.searching?'disabled':''}>${state.searching?'Searching…':'Ask'}</button></form>
+  <div class="suggestions"><span>TRY</span>${['Which variables were tested in BASS-II?','How many samples were burned in BASS-II?','Which components are labelled in Figure 5.1 of the BASS-II duct schematic?','What range of airflow speeds was used for the PMMA flat samples?','What measured flame spread rates does this report give for titanium alloy samples at Martian surface pressure?'].map(q => `<button data-query="${esc(q)}" ${state.searching?'disabled':''}>${esc(q)}</button>`).join('')}</div>
+  <details class="panel search-settings"><summary>Search settings</summary><div class="panel-body"><label>Search method <select id="search-method">${[['keyword','Keyword'],['dense','Semantic'],['hybrid','Hybrid (recommended)']].map(([v,t])=>`<option value="${v}" ${state.searchMethod===v?'selected':''}>${t}</option>`).join('')}</select></label> <label><input id="provider-calls" type="checkbox" ${state.allowProviderCalls?'checked':''}> Allow OpenAI calls for this query</label> <label><input id="generate-answer" type="checkbox" ${state.generateAnswer?'checked':''} ${state.ragStatus.answer_ready?'':'disabled'}> Generate cited answer</label><p class="form-hint">Semantic and hybrid search send the question to OpenAI; answers also send the retrieved passages. Answer model: ${esc(state.ragStatus.answer_model||'not configured')}.</p></div></details>
+  <div id="search-results" aria-live="polite"></div>`;
   renderSearchResults();
   main.querySelectorAll('[data-support]').forEach(button => button.addEventListener('click', () => {
     const index=state.results.hits.findIndex(hit=>hit.chunk.chunk_id===button.dataset.support);
@@ -251,6 +254,7 @@ async function start() {
   try {
     const [overview, experiments, sources] = await Promise.all([api('/api/overview'),api('/api/experiments'),api('/api/sources')]);
     state.ragStatus=await api('/api/rag-status');
+    try { state.corpus=await api('/api/corpus'); } catch { state.corpus=null; }
     state.searchMethod=state.ragStatus.semantic_ready?'hybrid':'keyword';
     state.generateAnswer=state.ragStatus.answer_ready;
     state.allowProviderCalls=state.ragStatus.semantic_ready || state.ragStatus.answer_ready;
@@ -262,4 +266,150 @@ async function start() {
   } catch(err) { main.innerHTML=`<div class="error" role="alert">The workspace could not be loaded. ${esc(err.message)}</div><button class="btn" id="retry" style="margin-top:15px">Try again</button>`; main.querySelector('#retry').addEventListener('click',start); }
 }
 window.addEventListener('hashchange',()=>{ if(location.hash==='#main') { main.focus(); return; } if(state.overview) render(); });
+
+// ---- Shared helpers for user-facing pages ----
+const pageLink = (sourceId, page) => {
+  const src = state.sources.find(s => s.source_id === sourceId);
+  return src?.available_locally ? `/api/documents/${encodeURIComponent(sourceId)}#page=${page}` : safeURL(src?.source_url);
+};
+const shortSection = s => String(s || 'Unsectioned').replace('Individual Principal Investigator Report: ', 'PI report: ').replace('Project Scientist Report: ', 'Project scientist: ').replace(/^1\.0 Summary of .*/, '1.0 Summary');
+async function refreshCorpus() {
+  [state.corpus, state.ragStatus] = await Promise.all([api('/api/corpus'), api('/api/rag-status')]);
+  state.topicMap = null;
+}
+
+// ---- Corpus page ----
+function renderCorpus() {
+  const c = state.corpus;
+  if (!c) { main.innerHTML = '<div class="loading">Loading the corpus…</div>'; refreshCorpus().then(() => route() === 'corpus' && renderCorpus()).catch(e => { main.innerHTML = `<div class="error" role="alert">${esc(e.message)}</div>`; }); return; }
+  const t = c.totals;
+  const stat = (label, value, foot) => `<div class="stat"><div class="stat-label">${label}</div><div class="stat-number">${count(value)}</div><div class="stat-foot">${foot}</div></div>`;
+  const known = [...new Set(c.documents.flatMap(d => d.investigation_ids))];
+  main.innerHTML = heading('CORPUS', 'What the atlas can draw on.', 'Every indexed document, page and figure, where each topic sits, and a way to add new reports.') +
+  `<div class="stats">${stat('Documents', t.documents, `${count(t.investigations)} investigation${t.investigations === 1 ? '' : 's'}`)}${stat('Pages', t.pages, 'physical PDF pages')}${stat('Text passages', t.passages, `${count(t.embedded)} searchable by meaning`)}${stat('Figures & tables', t.figures + t.tables, `${count(t.figures)} figures · ${count(t.tables)} tables`)}</div>
+  <section class="panel"><div class="panel-head"><div><h2>Topic map</h2><p>Each mark is a text passage (●) or figure description (◆). Marks close together discuss similar topics. Position comes from the embeddings; the axes have no units or scientific meaning.</p></div></div>
+    <div class="panel-body"><div class="section-filter" role="group" aria-label="Highlight a report section"></div><div class="map-wrap"><svg id="topic-map" viewBox="0 0 800 420" role="img" aria-label="Topic map of corpus passages"></svg><div id="map-tip" class="map-tip" hidden></div></div><div id="map-detail" class="map-detail form-hint">Hover a mark for its page and topic; click it to open the passage.</div></div></section>
+  <section class="panel"><div class="panel-head"><div><h2>Documents</h2><p>Bar height shows how much text each page has; orange marks show figures. Click a page to open it.</p></div></div><div class="panel-body">${c.documents.length ? c.documents.map(renderDocument).join('') : empty('No documents yet', 'Add a PDF below to start building the corpus.')}</div></section>
+  <section class="panel"><div class="panel-head"><div><h2>Add a document</h2><p>Upload a NASA report or paper (PDF). Text is extracted page by page and added without changing existing documents.</p></div></div>
+    <form id="upload-form" class="panel-body upload-form">
+      <div class="form-field"><label for="upload-file">PDF file (up to 80 MB)</label><input id="upload-file" type="file" accept="application/pdf,.pdf" required></div>
+      <div class="form-field"><label for="upload-investigation">Investigation ID</label><input id="upload-investigation" list="known-investigations" required maxlength="79" placeholder="e.g. PSI-25 or SAFFIRE-II"><datalist id="known-investigations">${known.map(i => `<option value="${esc(i)}">${esc(names[i] || i)}</option>`).join('')}</datalist></div>
+      <div class="form-field"><label for="upload-url">Source URL (optional)</label><input id="upload-url" type="url" placeholder="https://ntrs.nasa.gov/citations/…"></div>
+      <label><input id="upload-embed" type="checkbox" ${state.ragStatus.semantic_ready ? 'checked' : ''}> Make it searchable by meaning (sends the extracted text to OpenAI for embeddings; about a cent per few hundred pages)</label>
+      <button class="btn primary" type="submit">Add to corpus</button>
+      <p class="form-hint">Figures are not described automatically yet; text search and cited answers work immediately. Scanned PDFs without a text layer will index as sparse pages.</p>
+      <div id="upload-status" aria-live="polite"></div>
+    </form></section>`;
+  bindUpload();
+  drawTopicMap();
+}
+function renderDocument(doc) {
+  const max = Math.max(1, ...doc.page_strip.map(p => p.words));
+  const sections = [];
+  doc.page_strip.forEach(p => { const last = sections[sections.length - 1]; if (!last || last.name !== p.section) sections.push({ name: p.section, first: p.page, last: p.page, figures: p.figures.length }); else { last.last = p.page; last.figures += p.figures.length; } });
+  const bars = doc.page_strip.map((p, i) => {
+    const start = i > 0 && doc.page_strip[i - 1].section !== p.section;
+    const h = p.sparse ? 4 : Math.max(6, Math.round(100 * p.words / max));
+    const tip = `Page ${p.page} · ${shortSection(p.section)} · ${p.words} words${p.figures.length ? ` · Figure ${p.figures.join(', ')}` : ''}${p.tables.length ? ` · Table ${p.tables.join(', ')}` : ''}`;
+    return `<a class="strip-page${start ? ' section-start' : ''}${p.sparse ? ' sparse' : ''}" href="${pageLink(doc.source_id, p.page)}" target="_blank" rel="noopener noreferrer" title="${esc(tip)}" aria-label="${esc(tip)}"><span style="height:${h}%"></span>${p.figures.length || p.tables.length ? '<i></i>' : ''}</a>`;
+  }).join('');
+  return `<article class="doc-card"><div class="doc-head"><div><h3>${esc(doc.filename)}</h3><div>${doc.investigation_ids.map(i => tag(names[i] ? `${names[i]} · ${i}` : i)).join(' ')}</div></div><div class="doc-actions"><a class="btn small" href="${pageLink(doc.source_id, 1)}" target="_blank" rel="noopener noreferrer">Open PDF ↗</a>${doc.source_url ? `<a class="btn small" href="${safeURL(doc.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a>` : ''}</div></div>
+    <p class="form-hint">${count(doc.pages)} pages · ${count(doc.passages)} passages · ${count(doc.figures)} figures · ${count(doc.tables)} tables · ${count(doc.embedded)} embedded</p>
+    <div class="strip" role="group" aria-label="Pages of ${esc(doc.filename)}">${bars}</div>
+    <details><summary>Sections (${sections.length})</summary><div class="table-scroll"><table><thead><tr><th>Section</th><th>Pages</th><th>Figures</th></tr></thead><tbody>${sections.map(s => `<tr><td>${esc(shortSection(s.name))}</td><td><a href="${pageLink(doc.source_id, s.first)}" target="_blank" rel="noopener noreferrer">${s.first}–${s.last}</a></td><td>${s.figures}</td></tr>`).join('')}</tbody></table></div></details></article>`;
+}
+async function drawTopicMap() {
+  const svg = main.querySelector('#topic-map'); if (!svg) return;
+  try { state.topicMap ||= await api('/api/corpus/map'); } catch (err) { svg.outerHTML = `<div class="error">${esc(err.message)}</div>`; return; }
+  if (route() !== 'corpus') return;
+  const points = state.topicMap.points || [];
+  if (!points.length) { svg.outerHTML = empty('No embeddings yet', 'Make documents searchable by meaning to see the topic map.'); return; }
+  const sections = []; const seen = new Map();
+  [...points].sort((a, b) => a.page - b.page).forEach(p => { const key = `${p.filename} · ${p.section}`; if (!seen.has(key)) { seen.set(key, 0); sections.push(key); } seen.set(key, seen.get(key) + 1); });
+  const multiDoc = new Set(points.map(p => p.source_id)).size > 1;
+  const label = key => multiDoc ? key : shortSection(key.split(' · ').slice(1).join(' · '));
+  const filter = main.querySelector('.section-filter');
+  filter.innerHTML = `<span class="eyebrow" style="margin:0 6px 0 0">HIGHLIGHT</span><button data-section="" class="${!state.mapSection ? 'active' : ''}">All</button>` + sections.map(s => `<button data-section="${esc(s)}" class="${state.mapSection === s ? 'active' : ''}">${esc(label(s))} <small>${seen.get(s)}</small></button>`).join('');
+  filter.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.mapSection = b.dataset.section; drawTopicMap(); }));
+  const xs = points.map(p => p.x), ys = points.map(p => p.y);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const sx = x => 24 + (x - x0) / ((x1 - x0) || 1) * 752, sy = y => 396 - (y - y0) / ((y1 - y0) || 1) * 372;
+  const on = p => !state.mapSection || `${p.filename} · ${p.section}` === state.mapSection;
+  const ordered = [...points].sort((a, b) => on(a) - on(b));
+  const mark = (p, i) => {
+    const x = sx(p.x).toFixed(1), y = sy(p.y).toFixed(1), cls = `mark ${on(p) ? (state.mapSection ? 'hi' : 'all') : 'dim'}`;
+    const shape = p.kind === 'text' ? `<circle class="${cls}" cx="${x}" cy="${y}" r="4.5"/>` : `<rect class="${cls}" x="${x - 5}" y="${y - 5}" width="10" height="10" transform="rotate(45 ${x} ${y})"/>`;
+    return `<g class="hit" data-i="${points.indexOf(p)}" tabindex="0">${shape}<circle cx="${x}" cy="${y}" r="10" fill="transparent"/></g>`;
+  };
+  svg.innerHTML = `<rect x="0.5" y="0.5" width="799" height="419" rx="6" class="map-frame"/>` + ordered.map(mark).join('');
+  const tip = main.querySelector('#map-tip'), detail = main.querySelector('#map-detail');
+  const describe = p => `<strong>${esc(p.label || 'Passage')} · page ${p.page}</strong><br><span>${esc(shortSection(p.section))}${multiDoc ? ` · ${esc(p.filename)}` : ''}</span><br>${esc(p.snippet)}${p.snippet.length >= 220 ? '…' : ''}`;
+  svg.querySelectorAll('.hit').forEach(g => {
+    const p = points[Number(g.dataset.i)];
+    const show = e => { const box = svg.getBoundingClientRect(); tip.innerHTML = describe(p); tip.hidden = false; const cx = (e.clientX ?? box.left + sx(p.x) / 800 * box.width) - box.left, cy = (e.clientY ?? box.top + sy(p.y) / 420 * box.height) - box.top; tip.style.left = `${Math.min(cx + 14, box.width - 300)}px`; tip.style.top = `${cy + 14}px`; };
+    g.addEventListener('mousemove', show); g.addEventListener('focus', show);
+    g.addEventListener('mouseleave', () => { tip.hidden = true; }); g.addEventListener('blur', () => { tip.hidden = true; });
+    const open = () => { detail.innerHTML = `${describe(p)}<div style="margin-top:10px;display:flex;gap:8px"><a class="btn small" href="${pageLink(p.source_id, p.page)}" target="_blank" rel="noopener noreferrer">Open page ${p.page} ↗</a></div>`; };
+    g.addEventListener('click', open); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  });
+}
+function bindUpload() {
+  const form = main.querySelector('#upload-form'); if (!form) return;
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const file = form.querySelector('#upload-file').files[0], status = form.querySelector('#upload-status'), button = form.querySelector('button[type=submit]');
+    if (!file) return;
+    if (file.size > 80 * 1024 * 1024) { status.innerHTML = '<div class="error">The PDF is larger than 80 MB.</div>'; return; }
+    const params = new URLSearchParams({ filename: file.name, investigation: form.querySelector('#upload-investigation').value.trim(), source_url: form.querySelector('#upload-url').value.trim(), embed: form.querySelector('#upload-embed').checked ? '1' : '0' });
+    button.disabled = true; status.innerHTML = '<div class="loading" style="padding:20px">Extracting and indexing pages… large reports can take a minute.</div>';
+    try {
+      const r = await api(`/api/upload?${params}`, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: file });
+      await refreshCorpus(); state.sources = (await api('/api/sources')).sources;
+      toast(r.status === 'unchanged' ? 'That document is already in the corpus.' : `Added ${r.filename}: ${r.physical_pages} pages, ${r.chunks_added} passages.`);
+      if (route() === 'corpus') renderCorpus();
+      const s2 = main.querySelector('#upload-status');
+      if (s2) s2.innerHTML = `<div class="notice">${r.status === 'unchanged' ? 'Already indexed — nothing changed.' : `Added <strong>${esc(r.filename)}</strong> (${esc(r.investigation_id)}): ${count(r.physical_pages)} pages, ${count(r.chunks_added)} passages, ${count(r.embedded_chunks)} embedded${r.sparse_pages ? `, ${count(r.sparse_pages)} sparse pages (possibly scanned)` : ''}.`}</div>`;
+    } catch (err) { status.innerHTML = `<div class="error" role="alert">${esc(err.message)}</div>`; button.disabled = false; }
+  });
+}
+
+// ---- Research directions page ----
+state.directions = { topic: '', result: null, loading: false, error: '' };
+function renderDirections() {
+  const d = state.directions;
+  main.innerHTML = heading('RESEARCH DIRECTIONS', 'Plan the next experiment from the evidence.', 'Describe a topic or proposed test condition. The atlas gathers what the corpus reports, what the authors say is still open, what the collection does not cover, and suggests next steps tied to those citations.') +
+  `<div class="notice"><strong>Suggestions are starting points for expert judgment, not validated recommendations or predictions.</strong> Each one cites the passages it builds on. “Not found” means not found in this indexed collection, not that it has never been studied.</div>
+  <form id="directions-form" class="panel panel-body"><label for="topic">Topic or proposed condition</label><textarea id="topic" rows="3" maxlength="1000" required placeholder="e.g. Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen">${esc(d.topic)}</textarea>
+    <div class="filters" style="margin:14px 0 0"><select id="directions-investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${d.loading || !state.ragStatus.answer_ready ? 'disabled' : ''}>${d.loading ? 'Analyzing evidence…' : 'Find research directions'}</button></div>
+    <p class="form-hint">Sends the topic and retrieved passages to OpenAI (${esc(state.ragStatus.answer_model || 'no model configured')}). Takes up to a minute.</p></form>
+  <div class="suggestions"><span>TRY</span>${['Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen', 'Flammability limits of PMMA rods in microgravity', 'Concurrent-flow flame spread over cotton-fiberglass fabric'].map(q => `<button data-topic="${esc(q)}" ${d.loading ? 'disabled' : ''}>${esc(q)}</button>`).join('')}</div>
+  <div id="directions-results" aria-live="polite">${renderDirectionsResult()}</div>`;
+  main.querySelector('#directions-form').addEventListener('submit', e => { e.preventDefault(); runDirections(main.querySelector('#topic').value.trim()); });
+  main.querySelectorAll('[data-topic]').forEach(b => b.addEventListener('click', () => runDirections(b.dataset.topic)));
+}
+async function runDirections(topic) {
+  if (!topic || state.directions.loading) return;
+  state.investigation = main.querySelector('#directions-investigation')?.value || state.investigation;
+  Object.assign(state.directions, { topic, loading: true, error: '', result: null }); renderDirections();
+  try { state.directions.result = await api('/api/directions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, investigation: state.investigation || null, allow_provider_calls: true }) }); }
+  catch (err) { state.directions.error = err.message; }
+  state.directions.loading = false; if (route() === 'directions') renderDirections();
+}
+function renderDirectionsResult() {
+  const d = state.directions;
+  if (d.loading) return '<div class="loading">Reading the evidence and drafting directions…</div>';
+  if (d.error) return `<div class="error" role="alert">${esc(d.error)}</div>`;
+  if (!d.result) return '';
+  const r = d.result.directions, byId = Object.fromEntries(d.result.results.map(x => [x.chunk_id, x]));
+  if (r.status !== 'answered') return empty('Not enough evidence in the corpus', (r.gaps || [])[0] || 'No passages address this topic.');
+  const claims = [...r.evidence, ...r.open_questions];
+  const claimHTML = (c, i) => `<li id="dir-claim-${i}" class="draft-note"><span class="ref">[${i + 1}]</span> ${esc(c.text)}${c.supports.map(s => { const src = byId[s.chunk_id] || {}; return `<blockquote>${esc(s.quote)}</blockquote><small>${src.visual ? `${esc(pretty(src.visual.kind))} ${esc(src.visual.label)} · unreviewed AI description · ` : ''}<a href="${pageLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a></small>`; }).join('')}</li>`;
+  const section = (title, hint, body) => `<section class="panel"><div class="panel-head"><div><h2>${title}</h2><p>${hint}</p></div></div><div class="panel-body">${body}</div></section>`;
+  return section('What the corpus shows', 'Reported conditions, observations and conclusions, quoted from the source.', r.evidence.length ? `<ol class="claim-list">${r.evidence.map((c, i) => claimHTML(c, i)).join('')}</ol>` : '<p class="form-hint">No direct findings retrieved.</p>') +
+    section('Open questions stated by the authors', 'Limitations, uncertainties and future work in the authors’ own words.', r.open_questions.length ? `<ol class="claim-list">${r.open_questions.map((c, i) => claimHTML(c, i + r.evidence.length)).join('')}</ol>` : '<p class="form-hint">The retrieved passages do not state open questions on this topic.</p>') +
+    section('Not found in the indexed collection', 'Aspects of the topic the retrieved passages do not cover.', r.gaps.length ? `<ul class="gap-list">${r.gaps.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="form-hint">No gaps identified in the retrieved passages.</p>') +
+    section('Suggested next steps', 'AI-drafted from the cited items above. Review before acting on them.', r.suggestions.length ? r.suggestions.map(s => `<div class="suggestion-card">${tag(pretty(s.kind), s.kind === 'experiment' ? 'amber' : s.kind === 'analysis' ? 'green' : '')}<p>${esc(s.text)}</p><small>Based on ${s.basis.map(i => `<a href="#directions" data-claim="${i}">[${i + 1}]</a>`).join(' ')}</small></div>`).join('') : '<p class="form-hint">No suggestions could be grounded in the retrieved evidence.</p>') +
+    `<p class="form-hint">${claims.length} cited items from ${d.result.results.length} retrieved passages.</p>`;
+}
+document.addEventListener('click', e => { const a = e.target.closest('[data-claim]'); if (!a) return; e.preventDefault(); document.querySelector(`#dir-claim-${a.dataset.claim}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
 start();

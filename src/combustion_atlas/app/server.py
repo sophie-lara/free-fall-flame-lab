@@ -63,6 +63,108 @@ def ask_evidence(workspace: Workspace, request: EvidenceRequest) -> dict[str, ob
     return payload
 
 
+class DirectionsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    topic: str = Field(min_length=3, max_length=1000)
+    investigation: str | None = Field(default=None, max_length=80)
+    allow_provider_calls: bool = False
+
+
+def research_directions(workspace: Workspace, request: DirectionsRequest) -> dict[str, object]:
+    from combustion_atlas.providers.research_directions import ResearchDirectionsProvider
+
+    if not workspace.database.is_file():
+        raise ValueError("Build the document index first")
+    if not request.allow_provider_calls:
+        raise ValueError("Enable OpenAI calls to generate research directions")
+    investigation = request.investigation or None
+    with DocumentStore(workspace.database) as store:
+        # Topic passages plus passages where authors discuss limitations or future work.
+        primary = retrieve(store, request.topic, method="hybrid", investigation=investigation)
+        forward = retrieve(
+            store,
+            request.topic + " future work recommendations limitations further research",
+            method="hybrid",
+            investigation=investigation,
+            top_k=4,
+        )
+    seen: set[str] = set()
+    results = []
+    for item in [*primary, *forward]:
+        if str(item["chunk_id"]) not in seen:
+            seen.add(str(item["chunk_id"]))
+            results.append(item)
+    provider = ResearchDirectionsProvider(ProviderConfig.from_environment())
+    return {
+        "topic": request.topic,
+        "results": results,
+        "directions": provider.directions(request.topic, results).model_dump(),
+    }
+
+
+MAX_UPLOAD_BYTES = 80 * 1024 * 1024
+
+
+def ingest_upload(
+    workspace: Workspace,
+    body: bytes,
+    *,
+    filename: str,
+    investigation: str,
+    source_url: str | None,
+    embed: bool,
+) -> dict[str, object]:
+    """Save an uploaded PDF under data/raw/uploads and add it without replacing the index."""
+    import re
+
+    from combustion_atlas.rag.build import add_document
+
+    if not body.startswith(b"%PDF-"):
+        raise ValueError("Upload a PDF file")
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 _.()-]{0,78}", investigation):
+        raise ValueError("Investigation ID: letters, numbers, spaces, '.', '_', '-' only")
+    if source_url and not re.match(r"^https?://", source_url):
+        raise ValueError("Source URL must start with http:// or https://")
+    sha = hashlib.sha256(body).hexdigest()
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "-", Path(filename).stem).strip("-.")[:60] or "upload"
+    folder = workspace.data / "raw/uploads"
+    folder.mkdir(parents=True, exist_ok=True)
+    target = folder / f"{stem}.pdf"
+    if target.exists() and hashlib.sha256(target.read_bytes()).hexdigest() != sha:
+        target = folder / f"{stem}-{sha[:8]}.pdf"
+    if not target.exists():
+        target.write_bytes(body)
+    report = add_document(
+        target,
+        investigation_id=investigation,
+        source_url=source_url or None,
+        processed_dir=workspace.data / "processed/rag",
+        database=workspace.database,
+    )
+    report["embedded_chunks"] = 0
+    if embed:
+        from combustion_atlas.providers import OpenAIEmbeddingProvider
+
+        provider = OpenAIEmbeddingProvider(ProviderConfig.from_environment())
+        with DocumentStore(workspace.database) as store:
+            missing = [
+                c
+                for c in store.chunks_missing_vectors(provider.model_key)
+                if c.source_id == report["source_id"]
+            ]
+            if missing:
+                vectors = provider.embed([c.text for c in missing])
+                store.append_vectors(
+                    model_key=provider.model_key,
+                    model=provider.model,
+                    dimensions=provider.dimensions,
+                    vectors={c.chunk_id: v for c, v in zip(missing, vectors, strict=True)},
+                )
+            report["embedded_chunks"] = len(missing)
+    report["saved_as"] = str(target.relative_to(workspace.root))
+    return report
+
+
 class ReviewNote(BaseModel):
     model_config = ConfigDict(extra="forbid")
     investigation_id: str = Field(min_length=1, max_length=80)
@@ -344,6 +446,34 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._json({"status": "ok"})
         elif parsed.path == "/api/overview":
             self._json(atlas.overview())
+        elif parsed.path == "/api/corpus":
+            from combustion_atlas.rag.corpus import corpus_summary
+
+            if not atlas.database.is_file():
+                self._json({"documents": [], "totals": {}})
+                return
+            with DocumentStore(atlas.database) as store:
+                self._json(corpus_summary(store))
+        elif parsed.path == "/api/corpus/map":
+            from combustion_atlas.providers import OpenAIEmbeddingProvider
+            from combustion_atlas.rag.corpus import topic_map
+
+            config = ProviderConfig.from_environment()
+            model = config.embedding_model or "text-embedding-3-small"
+            map_dimensions = (
+                config.embedding_dimensions or OpenAIEmbeddingProvider._default_dimensions(model)
+            )
+            if not atlas.database.is_file():
+                self._json({"points": []})
+                return
+            with DocumentStore(atlas.database) as store:
+                self._json(
+                    topic_map(
+                        store,
+                        model_key=f"openai:{model}:{map_dimensions}",
+                        cache_dir=atlas.data / "processed/rag",
+                    )
+                )
         elif parsed.path == "/api/rag-status":
             config = ProviderConfig.from_environment()
             chunks = vectors = 0
@@ -547,8 +677,12 @@ class AtlasHandler(BaseHTTPRequestHandler):
         }:
             self._json({"error": "Same-origin local requests required"}, HTTPStatus.FORBIDDEN)
             return
-        path = urlparse(self.path).path
-        if path not in {"/api/reviews", "/api/review-notes", "/api/ask"}:
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path
+        if path == "/api/upload":
+            self._upload(parsed_url.query)
+            return
+        if path not in {"/api/reviews", "/api/review-notes", "/api/ask", "/api/directions"}:
             self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
             return
         try:
@@ -558,6 +692,11 @@ class AtlasHandler(BaseHTTPRequestHandler):
             raw = self.rfile.read(length)
             if path == "/api/ask":
                 self._json(ask_evidence(self.atlas, EvidenceRequest.model_validate_json(raw)))
+                return
+            if path == "/api/directions":
+                self._json(
+                    research_directions(self.atlas, DirectionsRequest.model_validate_json(raw))
+                )
                 return
             note = ReviewNote.model_validate_json(raw)
             self._json(self.atlas.save_note(note), HTTPStatus.CREATED)
@@ -571,6 +710,36 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._json(
                 {"error": "OpenAI request failed. Check local configuration and try again."},
                 HTTPStatus.BAD_GATEWAY,
+            )
+
+    def _upload(self, raw_query: str) -> None:
+        query = {k: v[0] for k, v in parse_qs(raw_query).items()}
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if not 0 < length <= MAX_UPLOAD_BYTES:
+                raise ValueError("Upload a PDF up to 80 MB")
+            if self.headers.get_content_type() != "application/pdf":
+                raise ValueError("Upload a PDF file")
+            body = self.rfile.read(length)
+            report = ingest_upload(
+                self.atlas,
+                body,
+                filename=query.get("filename", "upload.pdf"),
+                investigation=query.get("investigation", "").strip(),
+                source_url=query.get("source_url", "").strip() or None,
+                embed=query.get("embed") == "1",
+            )
+            self._json(report, HTTPStatus.CREATED)
+        except ValueError as exc:
+            self._json({"error": str(exc)[:500]}, HTTPStatus.BAD_REQUEST)
+        except OpenAIError:
+            self._json(
+                {"error": "Document indexed, but embedding failed. Retry embedding later."},
+                HTTPStatus.BAD_GATEWAY,
+            )
+        except (OSError, sqlite3.Error):
+            self._json(
+                {"error": "The upload could not be indexed"}, HTTPStatus.INTERNAL_SERVER_ERROR
             )
 
     def _serve_static(self, request_path: str) -> None:
