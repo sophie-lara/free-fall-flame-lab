@@ -14,15 +14,53 @@ from pathlib import Path
 from typing import Any, Literal, cast
 from urllib.parse import parse_qs, urlparse
 
+from openai import OpenAIError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from combustion_atlas.artifacts import CandidateBatch
 from combustion_atlas.io import read_json
 from combustion_atlas.normalization.schema import ExperimentRecord
+from combustion_atlas.providers import ProviderConfig
+from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
+from combustion_atlas.rag.search import retrieve
 from combustion_atlas.rag.store import DocumentStore
 from combustion_atlas.retrieval.structured import filter_records
 
 _WRITE_LOCK = threading.Lock()
+
+
+class EvidenceRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    question: str = Field(min_length=1, max_length=1000)
+    method: Literal["keyword", "dense", "hybrid"] = "keyword"
+    investigation: str | None = Field(default=None, max_length=80)
+    generate_answer: bool = False
+    allow_provider_calls: bool = False
+
+
+def ask_evidence(workspace: Workspace, request: EvidenceRequest) -> dict[str, object]:
+    if not workspace.database.is_file():
+        raise ValueError("Build the document index to search evidence")
+    if (
+        request.method != "keyword" or request.generate_answer
+    ) and not request.allow_provider_calls:
+        raise ValueError("Enable OpenAI calls for semantic search or generated answers")
+    with DocumentStore(workspace.database) as store:
+        results = retrieve(
+            store,
+            request.question,
+            method=request.method,
+            investigation=request.investigation or None,
+        )
+    payload: dict[str, object] = {
+        "question": request.question,
+        "method": request.method,
+        "results": results,
+    }
+    if request.generate_answer:
+        provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
+        payload["answer"] = provider.answer(request.question, results).model_dump()
+    return payload
 
 
 class ReviewNote(BaseModel):
@@ -261,6 +299,17 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._json({"status": "ok"})
         elif parsed.path == "/api/overview":
             self._json(atlas.overview())
+        elif parsed.path == "/api/rag-status":
+            config = ProviderConfig.from_environment()
+            self._json(
+                {
+                    "answer_ready": config.answer_provider == "openai"
+                    and bool(config.answer_model)
+                    and config.openai_api_key_present,
+                    "embedding_model": config.embedding_model,
+                    "answer_model": config.answer_model,
+                }
+            )
         elif parsed.path == "/api/experiments":
             batches = atlas.batches()
             self._json(
@@ -389,20 +438,30 @@ class AtlasHandler(BaseHTTPRequestHandler):
         }:
             self._json({"error": "Same-origin local requests required"}, HTTPStatus.FORBIDDEN)
             return
-        if urlparse(self.path).path not in {"/api/reviews", "/api/review-notes"}:
+        path = urlparse(self.path).path
+        if path not in {"/api/reviews", "/api/review-notes", "/api/ask"}:
             self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
             if not 0 < length <= 32768 or self.headers.get_content_type() != "application/json":
                 raise ValueError("A bounded JSON review note is required")
-            note = ReviewNote.model_validate_json(self.rfile.read(length))
+            raw = self.rfile.read(length)
+            if path == "/api/ask":
+                self._json(ask_evidence(self.atlas, EvidenceRequest.model_validate_json(raw)))
+                return
+            note = ReviewNote.model_validate_json(raw)
             self._json(self.atlas.save_note(note), HTTPStatus.CREATED)
         except (ValueError, ValidationError) as exc:
             self._json({"error": str(exc)[:500]}, HTTPStatus.BAD_REQUEST)
         except OSError:
             self._json(
                 {"error": "Review note could not be saved"}, HTTPStatus.INTERNAL_SERVER_ERROR
+            )
+        except OpenAIError:
+            self._json(
+                {"error": "OpenAI request failed. Check local configuration and try again."},
+                HTTPStatus.BAD_GATEWAY,
             )
 
     def _serve_static(self, request_path: str) -> None:

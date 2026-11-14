@@ -6,6 +6,8 @@ import argparse
 import json
 from pathlib import Path
 
+from openai import OpenAIError
+
 from combustion_atlas.rag.store import DocumentStore
 
 from .config import ProviderConfig
@@ -55,4 +57,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except OpenAIError as exc:
+        # Provider error messages may contain credential fragments. Never print them.
+        raise SystemExit(
+            f"OpenAI request failed ({type(exc).__name__}); check local credentials, "
+            "network access and account limits."
+        ) from None

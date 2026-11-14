@@ -170,6 +170,17 @@ def test_search_preserves_native_chunk_citations(
     assert result["results"][0]["physical_page"] == 3
     assert result["results"][0]["sha256"] == "a" * 64
     assert request(server, "/api/overview")[1]["documents"] == 1
+    status, payload = request(server, "/api/ask", {"question": "seed storage"})
+    assert status == 200 and payload["results"][0]["physical_page"] == 3
+    assert request(server, "/api/ask", {"question": "   "})[0] == 400
+    assert request(server, "/api/ask", {"question": "seed", "method": "hybrid"})[0] == 400
+    assert request(server, "/api/ask", {"question": "seed", "generate_answer": True})[0] == 400
+    assert (
+        request(
+            server, "/api/ask", {"question": "seed"}, headers={"Origin": "https://example.org"}
+        )[0]
+        == 403
+    )
 
 
 def test_empty_workspace_has_no_invented_records(tmp_path: Path) -> None:

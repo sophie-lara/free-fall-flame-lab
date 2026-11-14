@@ -7,6 +7,10 @@ state.structuredFilters = {scope:'candidates'};
 state.filterError = '';
 state.recordSources = {};
 state.preservedRecords = [];
+state.searchMethod = 'keyword';
+state.generateAnswer = false;
+state.allowProviderCalls = false;
+state.ragStatus = {};
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fieldNames = {ambient_gas:'Ambient gas',oxygen_mole_fraction:'O₂ mole fraction',droplet_diameter_mm:'Droplet diameter',burning_rate_constant:'Burning rate constant',residence_time_s:'Residence time',flame_temperature_k:'Flame temperature',material_description:'Material description',material:'Material',fuel_type:'Fuel',geometry:'Geometry',thickness_um:'Thickness',width_cm:'Width',oxygen_pct:'Initial O₂',initial_co2_pct:'Initial CO₂',initial_co_ppm:'Initial CO',final_oxygen_pct:'Final O₂',final_co2_pct:'Final CO₂',final_co_ppm:'Final CO',airflow_cm_s:'Airflow',pressure_kpa:'Pressure',gravity_regime:'Gravity regime',ignition_method:'Ignition method',suppressant:'Suppressant'};
 const recordKey = record => `${record.identity.investigation_id}/${record.identity.test_id}`;
@@ -64,7 +68,13 @@ function render() {
   const page = route();
   document.querySelectorAll('[data-nav]').forEach(link => { link.classList.toggle('active', link.dataset.nav === page); if (link.dataset.nav === page) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
   document.querySelector('#breadcrumb').innerHTML = `Workspace <span>/</span> ${esc({overview:'Overview',experiments:'Experiments',search:'Document search',sources:'Source library'}[page] || 'Overview')}`;
-  ({ overview: renderOverview, experiments: renderExperiments, search: renderSearch, sources: renderSources }[page] || renderOverview)();
+  if(page==='conditions') document.querySelector('#breadcrumb').textContent='Workspace / Proposed conditions';
+  if(page==='search') document.querySelector('#breadcrumb').textContent='Workspace / Ask the evidence';
+  ({ overview: renderOverview, experiments: renderExperiments, search: renderSearch, sources: renderSources, conditions: renderConditions }[page] || renderOverview)();
+}
+function renderConditions() {
+  main.innerHTML = heading('PROPOSED CONDITIONS','Find the evidence for your experiment.','Compare proposed conditions with recorded experiments and inspect supporting sources.') +
+    `<section class="panel"><div class="panel-body"><h2>Condition matching is in candidate preview</h2><p>Filter candidate records by material, oxygen, pressure and airflow in the experiment browser.</p><p>Scientific comparability, mismatch ranking and coverage assessments will follow reviewed field meanings and approved records. Predictions are not currently available.</p><a class="btn primary" href="#experiments">Explore candidate conditions →</a> <a class="btn" href="#search">Ask the evidence →</a></div></section>`;
 }
 function recordRows() {
   return state.records.map(r => `<tr class="clickable" data-record="${esc(recordKey(r))}"><td><button class="btn link" data-record="${esc(recordKey(r))}">${esc(r.identity.test_id)} <span class="arrow">↗</span></button><small>${esc(r.identity.investigation_id)}</small></td><td>${esc(r.conditions.material?.value || r.conditions.fuel_type?.value || 'Unresolved')}<small>${esc(r.conditions.geometry?.value || 'See source description')}</small></td><td class="mono">${val(r.conditions.oxygen_pct || r.conditions.oxygen_mole_fraction)}</td><td>${tag(r.issues.length ? `${r.issues.length} review flag${r.issues.length === 1 ? '' : 's'}` : 'Checks passed', r.issues.length ? 'amber' : 'green')}</td></tr>`).join('');
@@ -162,20 +172,27 @@ function renderSourceTable() {
   document.querySelector('#source-table').innerHTML = `<section class="panel"><div class="panel-head"><h2>${rows.length} selected source files</h2>${tag(`${state.overview.files_failed} unavailable`,'amber')}</div>${rows.length ? `<div class="table-scroll"><table><thead><tr><th>Document / file</th><th>Investigation</th><th>Availability</th><th>Open</th></tr></thead><tbody>${rows.map(s => `<tr><td class="source-name"><strong>${esc(s.file_name)}</strong><small>${esc(s.category)} · ${esc(s.provider.toUpperCase())}${s.version!=null?` · File v${s.version}`:''}</small></td><td>${s.investigation_ids.map(i => `<div style="margin-bottom:4px">${esc(names[i] || i)}</div>`).join('')}</td><td>${tag(pretty(s.status),s.status==='downloaded'?'green':s.status==='failed'?'red':'')}<small>${esc(s.error || (s.sha256 ? 'Checksum captured' : ''))}</small></td><td>${s.available_locally ? `<a class="btn small" href="/api/documents/${encodeURIComponent(s.source_id)}" target="_blank" rel="noopener noreferrer">Open file ↗</a>` : `<a class="btn small" href="${safeURL(s.source_url)}" target="_blank" rel="noopener noreferrer">NASA ↗</a>`}</td></tr>`).join('')}</tbody></table></div>` : empty('No matching files','Try another filename or availability filter.')}<div class="panel-footer"><span>Source files referenced by candidate batches and indexed documents.</span></div></section>`;
 }
 function renderSearch() {
-  main.innerHTML = heading('DOCUMENT SEARCH','Find the context behind the data.','Search NASA reports and methods. Follow every passage back to its original page.') +
+  main.innerHTML = heading('ASK THE EVIDENCE','Find the context behind the data.','Ask about past experiments and follow the evidence back to its original page.') +
   `<form id="search-form" class="search-box"><input id="question" name="question" type="search" maxlength="1000" required aria-label="Search document passages" placeholder="e.g. limiting oxygen index" value="${esc(state.question)}"><select id="investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${state.searching?'disabled':''}>${state.searching?'Searching…':'Search evidence'}</button></form>
-  <div class="suggestions"><span>TRY A SEARCH</span>${['limiting oxygen index','ventilation flame spread','large scale flame spread'].map(q => `<button data-query="${q}">${q}</button>`).join('')}</div><div class="notice">Document passages are unreviewed context. Search currently uses keywords; relevance and scientific support need your judgment.</div><div id="search-results" aria-live="polite"></div>`;
+  <div class="panel panel-body"><label>Search method <select id="search-method">${[['keyword','Keyword'],['dense','Semantic'],['hybrid','Hybrid']].map(([v,t])=>`<option value="${v}" ${state.searchMethod===v?'selected':''}>${t}</option>`).join('')}</select></label> <label><input id="provider-calls" type="checkbox" ${state.allowProviderCalls?'checked':''}> Allow OpenAI calls for this query</label> <label><input id="generate-answer" type="checkbox" ${state.generateAnswer?'checked':''} ${state.ragStatus.answer_ready?'':'disabled'}> Generate cited answer</label><p class="form-hint">Semantic and hybrid search send the question to OpenAI. Answer generation also sends retrieved passages. ${state.ragStatus.answer_ready?'Answer generation is configured.':'Answer generation needs an answer provider and model configured locally.'}</p></div>
+  <div class="suggestions"><span>TRY A SEARCH</span>${['material sample dimensions','experimental conditions','flame spread measurements'].map(q => `<button data-query="${q}">${q}</button>`).join('')}</div><div class="notice">Document evidence is separate from candidate record approval. Generated claims include supporting excerpts; verify their meaning and numerical accuracy against the source.</div><div id="search-results" aria-live="polite"></div>`;
   renderSearchResults();
+  main.querySelectorAll('[data-support]').forEach(button => button.addEventListener('click', () => {
+    const index=state.results.hits.findIndex(hit=>hit.chunk.chunk_id===button.dataset.support);
+    main.querySelectorAll('.result-card')[index]?.scrollIntoView({behavior:'smooth',block:'start'});
+  }));
   main.querySelector('#search-form').addEventListener('submit', e => { e.preventDefault(); runSearch(); });
   main.querySelectorAll('[data-query]').forEach(btn => btn.addEventListener('click', () => { main.querySelector('#question').value=btn.dataset.query; runSearch(); }));
 }
 async function runSearch() {
   state.question = main.querySelector('#question').value.trim(); state.investigation=main.querySelector('#investigation').value;
+  state.searchMethod=main.querySelector('#search-method').value;
+  state.allowProviderCalls=main.querySelector('#provider-calls').checked;
+  state.generateAnswer=main.querySelector('#generate-answer').checked;
   if (!state.question) return;
   state.searching=true; renderSearch();
-  const params=new URLSearchParams({q:state.question,k:'5'}); if(state.investigation) params.set('investigation',state.investigation);
-  try { const payload=await api(`/api/search?${params}`);
-    state.results={question:payload.question,hits:payload.results.map(c=>({chunk:{...c,
+  try { const payload=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:state.question, investigation:state.investigation || null, method:state.searchMethod, generate_answer:state.generateAnswer, allow_provider_calls:state.allowProviderCalls})});
+    state.results={question:payload.question,method:payload.method,answer:payload.answer,hits:payload.results.map(c=>({chunk:{...c,
       title:c.filename,page:c.physical_page,file_name:c.filename,investigation_ids:c.investigation_id?[c.investigation_id]:[],
       extraction_method:'pdf_native_text',warnings:[]}}))}; }
   catch(err) { state.results={error:err.message}; }
@@ -187,7 +204,9 @@ function renderSearchResults() {
   if(!result) { el.innerHTML=empty('A source is a good place to start.',`${count(state.overview.chunks)} passages from ${state.overview.documents} documents, with page-level citations.`); return; }
   if(result.error) { el.innerHTML=`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
   if(!result.hits.length) { el.innerHTML=empty('No matching passages.','Try different terms or a broader investigation scope. This search provides no supported answer.'); return; }
-  el.innerHTML=`<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>Keyword retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
+  const answer=result.answer;
+  const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(claim.text)}</p>${claim.supports.map(s=>`<blockquote>${esc(s.quote)}</blockquote><button class="btn link" data-support="${esc(s.chunk_id)}">View supporting passage →</button>`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p></div></section>` : '';
+  el.innerHTML=answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
     const c=hit.chunk; const source=state.sources.find(s=>s.source_id===c.source_id);
     const link=source?.available_locally ? `/api/documents/${encodeURIComponent(c.source_id)}#page=${c.page}` : safeURL(c.file_url || c.source_url);
     return `<article class="result-card"><div class="result-top"><span class="eyebrow" style="margin:0">PASSAGE ${String(i+1).padStart(2,'0')} · ${esc(c.investigation_ids.map(i=>names[i]||i).join(' / '))}</span>${tag(`Page ${c.page}`)}</div><h2>${esc(c.title)}</h2>${c.section?`<span class="muted" style="font-size:11px">Section hint: ${esc(c.section)}</span>`:''}<div class="excerpt">${esc(c.text)}</div><div class="result-footer"><span>${esc(source?.category || 'Document')} · ${esc(c.extraction_method==='pdf_native_text'?'Native PDF text':'Plain text')}</span><a class="btn small" href="${link}" target="_blank" rel="noopener noreferrer">Open cited page ↗</a></div><details><summary>Source details and extraction notes</summary><p><a href="${safeURL(c.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a></p>Chunk: ${esc(c.chunk_id)}<br>SHA-256: ${esc(c.sha256)}${c.warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details></article>`;
@@ -196,6 +215,7 @@ function renderSearchResults() {
 async function start() {
   try {
     const [overview, experiments, sources] = await Promise.all([api('/api/overview'),api('/api/experiments'),api('/api/sources')]);
+    state.ragStatus=await api('/api/rag-status');
     state.recordSources=experiments.record_sources; state.overview=overview; state.preservedRecords=experiments.preserved_records || []; state.records=[...experiments.records.map(presentRecord),...state.preservedRecords]; state.mappings=experiments.mappings; state.notes=experiments.notes; state.sources=sources.sources;
     document.querySelector('#nav-count').textContent=overview.experiments;
     if(overview.demo) document.querySelector('.stage').textContent='SYNTHETIC DEMO';

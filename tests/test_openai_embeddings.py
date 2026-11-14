@@ -1,5 +1,6 @@
 import unittest
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 from combustion_atlas.providers import OpenAIEmbeddingProvider, ProviderConfig
 
@@ -19,6 +20,21 @@ class FakeEmbeddings:
 
 
 class OpenAIEmbeddingTests(unittest.TestCase):
+    def test_rejects_duplicate_indexes_and_invalid_vectors(self) -> None:
+        config = ProviderConfig("openai", "disabled", "text-embedding-3-small", 2, 64, "", False)
+        client = Mock()
+        provider = OpenAIEmbeddingProvider(config, client=client)
+        for items in (
+            [(0, [1.0, 1.0]), (0, [1.0, 1.0])],
+            [(0, [float("nan"), 1.0]), (1, [1.0, 1.0])],
+            [(0, [0.0, 0.0]), (1, [1.0, 1.0])],
+        ):
+            client.embeddings.create.return_value = SimpleNamespace(
+                data=[SimpleNamespace(index=i, embedding=v) for i, v in items]
+            )
+            with self.assertRaises(RuntimeError):
+                provider.embed(["one", "two"])
+
     def test_batches_and_preserves_response_order(self) -> None:
         config = ProviderConfig(
             embedding_provider="openai",

@@ -6,11 +6,14 @@ import argparse
 import json
 from pathlib import Path
 
+from openai import OpenAIError
+
 from combustion_atlas.io import write_json
-from combustion_atlas.providers import OpenAIEmbeddingProvider, ProviderConfig
-from combustion_atlas.retrieval import reciprocal_rank_fusion
+from combustion_atlas.providers import ProviderConfig
+from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
 
 from .build import build_index
+from .search import retrieve
 from .store import DocumentStore
 
 
@@ -31,6 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     query.add_argument("--database", type=Path, default=Path("data/embeddings/rag.sqlite3"))
     query.add_argument("--output", type=Path)
     query.add_argument("--allow-provider-calls", action="store_true")
+    query.add_argument("--answer", action="store_true", help="Generate an excerpt-backed answer")
     args = parser.parse_args(argv)
     if args.command == "build":
         report = build_index(
@@ -43,36 +47,19 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2))
         return 0
     with DocumentStore(args.database) as store:
-        if args.method == "keyword":
-            results = store.search(args.question, args.investigation, args.top_k)
-        else:
-            if not args.allow_provider_calls:
-                parser.error(f"{args.method} query requires --allow-provider-calls")
-            provider = OpenAIEmbeddingProvider(ProviderConfig.from_environment())
-            query_vector = provider.embed([args.question])[0]
-            dense = store.dense_search(
-                query_vector,
-                model_key=provider.model_key,
-                investigation_id=args.investigation,
-                top_k=max(args.top_k * 3, 10),
-            )
-            if args.method == "dense":
-                results = dense[: args.top_k]
-            else:
-                keyword = store.search(args.question, args.investigation, max(args.top_k * 3, 10))
-                fused = reciprocal_rank_fusion(
-                    [
-                        [str(item["chunk_id"]) for item in keyword],
-                        [str(item["chunk_id"]) for item in dense],
-                    ]
-                )
-                by_id = {str(item["chunk_id"]): item for item in [*keyword, *dense]}
-                results = []
-                for chunk_id, score in fused[: args.top_k]:
-                    item = dict(by_id[chunk_id])
-                    item["score"] = score
-                    results.append(item)
+        if (args.method != "keyword" or args.answer) and not args.allow_provider_calls:
+            parser.error("Semantic retrieval and answers require --allow-provider-calls")
+        results = retrieve(
+            store,
+            args.question,
+            method=args.method,
+            investigation=args.investigation,
+            top_k=args.top_k,
+        )
     payload = {"question": args.question, "method": args.method, "results": results}
+    if args.answer:
+        provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
+        payload["answer"] = provider.answer(args.question, results).model_dump()
     if args.output:
         write_json(args.output, payload)
         print(f"Wrote {args.output}")
@@ -82,4 +69,10 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except OpenAIError as exc:
+        raise SystemExit(
+            f"OpenAI request failed ({type(exc).__name__}); "
+            "check local configuration and account limits."
+        ) from None

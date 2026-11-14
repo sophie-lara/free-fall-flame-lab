@@ -19,7 +19,66 @@ COMBUSTION_ATLAS_EMBEDDING_MODEL=text-embedding-3-small
 COMBUSTION_ATLAS_EMBEDDING_DIMENSIONS=1536
 ```
 
-Generated answers remain disabled unless an answer provider is configured separately.
+To enable cited answers, set `COMBUSTION_ATLAS_ANSWER_PROVIDER=openai` and
+`COMBUSTION_ATLAS_ANSWER_MODEL` to an available Responses API model supporting
+structured outputs in your local `.env`. The model is deliberately explicit.
+The UI reads configuration after a page refresh; it never receives the API key.
+
+In **Ask the evidence**, choose keyword, semantic, or hybrid retrieval. Semantic
+retrieval requires document embeddings generated for the configured embedding
+model. Enable OpenAI calls for a query to use semantic retrieval or generated
+answers. Questions are sent for embeddings; retrieved passages are also sent
+when generating answers. Keyword-only search uses local storage.
+
+Answers contain individual claims, exact supporting excerpts, and references
+to retrieved chunks. Unknown references and excerpts absent from the supplied
+passages cause the response to fail validation. These checks verify citation
+identity and excerpt presence, not scientific entailment or numerical correctness.
+An empty retrieval result or unsupported question yields insufficient evidence.
+The answer path uses document passages and does not treat candidate experiment
+records as approved evidence. Proposed-condition matching remains a candidate
+preview in the experiment browser.
+
+The answer provider makes at most two generation attempts per query. If the
+first draft fails citation/excerpt validation, it requests one repaired draft;
+the same checks apply to the repair. Failed drafts are never shown as answers.
+
+### First real-document pilot
+
+The local pilot uses the public [BASS-II Summary Report, NASA/TM-20210011385](https://ntrs.nasa.gov/citations/20210011385).
+The captured PDF SHA-256 is
+`5ffa911fd9b6356f204646003fb9342e341810dcdfdf5cb15756e7f01ec5f770`.
+Capture metadata is in `data/raw/bass-ii-summary.capture.json`.
+The index contains 144 physical pages and 159 chunks; eight pages were flagged
+as sparse or image-heavy. Figure and table completeness is not established.
+PDF physical page numbers differ from printed report page numbers.
+
+The pilot generated 159 actual OpenAI `text-embedding-3-small` vectors, each with
+1,536 dimensions, in the ignored local SQLite database. Local answer generation
+uses `gpt-4.1-mini`; configure your own `.env` when setting up another workspace.
+Keys, reports, generated answers, and vector artifacts are not versioned.
+
+Reproduce a bounded live search and cited answer after building the index and
+embeddings as described below:
+
+```sh
+uv run python -m combustion_atlas.rag query \
+  "Which variables were tested in BASS-II?" \
+  --investigation PSI-25 --method hybrid --allow-provider-calls --answer \
+  --output data/processed/rag/pilot-answer.json
+```
+
+This is a development smoke check, not a reviewed retrieval benchmark or
+scientific validation. Next, review known-answer questions and expected source
+pages, include unsupported questions, and compare retrieval methods. Avoid
+rebuilding this corpus accidentally: the current build replaces the index and
+its stored vectors, which then need regenerating.
+
+In the first live smoke check, the variables question ranked physical page 11
+first and produced a citation-validated answer. A question requesting measured
+titanium-alloy flame-spread rates at Martian surface pressure returned
+`insufficient_evidence` with no claims. Local responses are saved as
+`data/processed/rag/pilot-answer.json` and `pilot-no-evidence.json`.
 
 ## Candidate normalization
 

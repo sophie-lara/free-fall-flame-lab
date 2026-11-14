@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 from typing import Any
 
@@ -22,7 +23,7 @@ class OpenAIEmbeddingProvider:
         self.dimensions = config.embedding_dimensions or self._default_dimensions(self.model)
         self.batch_size = config.embedding_batch_size
         self.model_key = f"openai:{self.model}:{self.dimensions}"
-        self._client = client or OpenAI()
+        self._client = client or OpenAI(timeout=45.0, max_retries=0)
 
     @staticmethod
     def _default_dimensions(model: str) -> int:
@@ -45,11 +46,13 @@ class OpenAIEmbeddingProvider:
                 dimensions=self.dimensions,
             )
             ordered = sorted(response.data, key=lambda item: item.index)
-            if len(ordered) != len(batch):
-                raise RuntimeError("OpenAI returned an unexpected number of embeddings")
+            if [item.index for item in ordered] != list(range(len(batch))):
+                raise RuntimeError("OpenAI returned invalid embedding response indexes")
             for item in ordered:
                 vector = [float(value) for value in item.embedding]
                 if len(vector) != self.dimensions:
                     raise RuntimeError("OpenAI returned an unexpected embedding dimension")
+                if not all(math.isfinite(value) for value in vector) or not any(vector):
+                    raise RuntimeError("OpenAI returned a nonfinite or zero embedding")
                 vectors.append(vector)
         return vectors
