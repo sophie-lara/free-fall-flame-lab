@@ -13,11 +13,37 @@ from .llm_handoff import SourceBatch, csv_batch
 from .mapping_contract import Profile, mapping_request
 from .mapping_runner import run
 from .pilot_runner import BUDGET, INPUT_RATE, MAX_OUTPUT, OUTPUT_RATE
+from .table_parser import read_csv_losslessly
+
+BASS_ID = r"[BFMOPT][0-9]+[a-z]?"
+SAFFIRE_ID = r"2-[0-9]+"
 
 
-def prepare(root: Path, csv: Path, investigation: str, record_numbers: list[int]) -> list[
-    tuple[dict[str, Any], SourceBatch, Profile, Decimal]
-]:
+def saffire_context(csv: Path, expected_sha: str) -> list[str]:
+    """Capture all source note rows, with record locations and original text."""
+    table = read_csv_losslessly(csv)
+    if table.sha256 != expected_sha:
+        raise ValueError("Saffire source changed while reading notes")
+    context = []
+    for row in table.rows:
+        label = row.cells.get("Sample Number") or ""
+        if re.match(r"^\s*Note\s+\d+\b", label, re.IGNORECASE):
+            context.append(
+                json.dumps(
+                    {
+                        "source_record_number": row.record_number,
+                        "source_sha256": table.sha256,
+                        "original_cells": row.cells,
+                    },
+                    ensure_ascii=False,
+                )
+            )
+    return context
+
+
+def prepare(
+    root: Path, csv: Path, investigation: str, record_numbers: list[int]
+) -> list[tuple[dict[str, Any], SourceBatch, Profile, Decimal]]:
     source_path = csv.resolve()
     if not source_path.is_relative_to((root / "data/raw").resolve()):
         raise ValueError("CSV must be inside the workspace data/raw directory")
@@ -35,16 +61,28 @@ def prepare(root: Path, csv: Path, investigation: str, record_numbers: list[int]
         if len(candidates) != 1 or candidates[0] is None:
             raise ValueError("Record identity column missing")
         identifier = candidates[0].strip()
-        if not re.fullmatch(r"B\d+" if profile == "bass_ii" else r"2-\d+", identifier):
+        if not re.fullmatch(
+            BASS_ID if profile == "bass_ii" else SAFFIRE_ID, identifier, re.IGNORECASE
+        ):
             raise ValueError(f"Record {number} is not a supported experiment row")
+        if profile == "saffire_ii":
+            source.context.extend(saffire_context(source_path, source.cells[0].source_sha256))
         test_id = identifier if profile == "bass_ii" else f"SAFFIRE-II-{identifier}"
-        record = {"investigation_id": investigation, "test_id": test_id,
-                  "source_sha256": source.cells[0].source_sha256, "record_number": number,
-                  "source_file": source_path.relative_to(root).as_posix(), "split": "unreviewed"}
-        request_size = len(json.dumps(mapping_request(profile, source), ensure_ascii=False).encode(
-            "utf-8")) + 16384
-        allowance = (Decimal(request_size) * INPUT_RATE +
-                     Decimal(MAX_OUTPUT) * OUTPUT_RATE) / 1_000_000
+        record = {
+            "investigation_id": investigation,
+            "test_id": test_id,
+            "source_sha256": source.cells[0].source_sha256,
+            "record_number": number,
+            "source_file": source_path.relative_to(root).as_posix(),
+            "split": "unreviewed",
+        }
+        request_size = (
+            len(json.dumps(mapping_request(profile, source), ensure_ascii=False).encode("utf-8"))
+            + 16384
+        )
+        allowance = (
+            Decimal(request_size) * INPUT_RATE + Decimal(MAX_OUTPUT) * OUTPUT_RATE
+        ) / 1_000_000
         requests.append((record, source, profile, allowance))
     if len({r[0]["test_id"] for r in requests}) != len(requests):
         raise ValueError("Duplicate source identities")
@@ -66,8 +104,13 @@ def main() -> None:
     args = parser.parse_args()
     root = args.workspace.resolve()
     requests = prepare(root, args.csv, args.investigation, args.records)
-    summary = run(root, root / "data/processed/pilot-plan-v1.json", args.output,
-                  allow_calls=args.allow_provider_calls, prepared_requests=requests)
+    summary = run(
+        root,
+        root / "data/processed/pilot-plan-v1.json",
+        args.output,
+        allow_calls=args.allow_provider_calls,
+        prepared_requests=requests,
+    )
     summary["selected_records"] = [item[0]["test_id"] for item in requests]
     print(json.dumps(summary))
 

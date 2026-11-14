@@ -161,7 +161,7 @@ def ingest_upload(
                     vectors={c.chunk_id: v for c, v in zip(missing, vectors, strict=True)},
                 )
             report["embedded_chunks"] = len(missing)
-    report["saved_as"] = str(target.relative_to(workspace.root))
+    report["saved_as"] = target.relative_to(workspace.root).as_posix()
     return report
 
 
@@ -202,6 +202,7 @@ class Workspace:
             self.data / "review/holdout-evidence.json",
             self.data / "review/flex-table2-candidates.json",
         ]
+        paths += sorted((self.data / "review/model-candidates").glob("*.json"))
         return [record for path in paths if path.is_file() for record in read_json(path)["records"]]
 
     def records(self) -> list[ExperimentRecord]:
