@@ -19,8 +19,31 @@ from combustion_atlas.providers import OpenAIEmbeddingProvider, ProviderConfig
 from .store import DocumentStore
 from .visual_models import PageRegion, VisualArtifact
 
-PROMPT_VERSION = "figure-description-v1"
-CAPTION = re.compile(r"^Figure\s+(\d+(?:\.\d+)*[a-z]?)[.\s]*[—–:-]\s*", re.I)
+PROMPT_VERSION = "figure-description-v2"
+# Numeric (5.1, 2.10a) and appendix (B.1, D.7) labels; a dash separates label from caption.
+CAPTION = re.compile(r"^Figure\s+((?:[A-Z]\.)?\d+(?:\.\d+)*[a-z]?)[.\s]*[—–:-]\s*")
+FOOTER = re.compile(r"^NASA/TM")
+
+
+def caption_lines(lines: list[dict[str, Any]], start: int) -> list[str]:
+    """Join wrapped caption lines separated by less than ~0.6 line heights.
+
+    Caption blocks in these reports are single-spaced and set apart from body text;
+    the gap test stops at the next paragraph, caption, or page footer.
+    """
+    joined = [lines[start]["text"]]
+    previous = lines[start]
+    for line in lines[start + 1 :]:
+        height = previous["bottom"] - previous["top"]
+        if (
+            line["top"] - previous["bottom"] >= 0.6 * height
+            or CAPTION.match(line["text"])
+            or FOOTER.match(line["text"])
+        ):
+            break
+        joined.append(line["text"])
+        previous = line
+    return joined
 
 
 def digest(path: Path) -> str:
@@ -69,11 +92,24 @@ def extract_figures(
             raise ValueError("Requested page is outside the PDF")
         for number in sorted(set(pages)) if pages else range(1, len(document.pages) + 1):
             page = document.pages[number - 1]
-            for line in page.extract_text_lines():
-                match = CAPTION.match(line["text"])
-                if not match:
-                    continue
+            lines = page.extract_text_lines()
+            captions = [i for i, line in enumerate(lines) if CAPTION.match(line["text"])]
+            for index in captions:
+                match = CAPTION.match(lines[index]["text"])
+                assert match is not None
                 label = match.group(1)
+                caption = caption_lines(lines, index)
+                notes = ["Full-page context crop: figure boundaries have not been isolated."]
+                if len(caption) > 1:
+                    notes.append(
+                        f"Caption joined from {len(caption)} lines by line spacing; "
+                        "verify its extent against the crop."
+                    )
+                if len(captions) > 1:
+                    notes.append(
+                        f"This page has {len(captions)} captioned figures; the crop shows all "
+                        f"of them. Only Figure {label} is designated."
+                    )
                 artifact_id = f"{sha[:16]}:p{number}:figure:{label}"
                 if any(a.artifact_id == artifact_id for a in items):
                     continue
@@ -93,7 +129,7 @@ def extract_figures(
                         investigation_id=investigation,
                         physical_page=number,
                         label=label,
-                        caption=line["text"],
+                        caption=" ".join(caption),
                         region=PageRegion(
                             page_width=page.width,
                             page_height=page.height,
@@ -104,10 +140,7 @@ def extract_figures(
                         ),
                         crop_path=relative,
                         crop_sha256=digest(output),
-                        uncertainties=[
-                            "Full-page context crop: figure boundaries have not been isolated.",
-                            "Caption detection is heuristic; wrapped captions may be incomplete.",
-                        ],
+                        uncertainties=notes,
                     )
                 )
                 if len(items) >= limit:
@@ -157,8 +190,12 @@ def describe_figure(
             "Do not transcribe tables or describe other figures. Identify the chart/diagram/photo, "
             "axes, visible units, legend and qualitative relationships. "
             "Do not infer exact numerical values from plotted points or claim causal conclusions. "
-            "Copy visible labels faithfully. Mark unreadable labels, ambiguous figure identity, "
-            "and other uncertainties explicitly. If absent or unreadable, say so. "
+            "Copy visible labels faithfully. visible_labels must contain only text printed "
+            "inside the designated figure, copied exactly; never add dimensions or labels "
+            "you cannot read. Write symbols as Unicode characters (°, µ, ±), never control "
+            "characters. Mention colors only when they are unambiguous. If the page holds "
+            "several figures, describe only the designated one. Mark unreadable labels, "
+            "ambiguous figure identity, and other uncertainties explicitly. "
             "This is an unreviewed interpretation, not scientific validation."
         ),
         input=[
@@ -167,7 +204,10 @@ def describe_figure(
                 "content": [
                     {
                         "type": "input_text",
-                        "text": f"Figure {artifact.label}. Caption: {artifact.caption}",
+                        "text": (
+                            f"Designated: Figure {artifact.label}. Caption: {artifact.caption}\n"
+                            "Capture notes: " + " ".join(artifact.uncertainties)
+                        ),
                     },
                     {
                         "type": "input_image",

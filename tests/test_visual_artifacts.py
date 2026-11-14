@@ -129,9 +129,9 @@ def test_figure_capture_ignores_table_captions_and_keeps_page_context(
     pdf.write_bytes(b"test source bytes")
     page = Mock(width=100, height=100)
     page.extract_text_lines.return_value = [
-        {"text": "Table 1 — Complex table"},
-        {"text": "Figure 2.1.—Diagram"},
-        {"text": "Figure 2.1.—Diagram"},
+        {"text": "Table 1 — Complex table", "top": 10, "bottom": 20},
+        {"text": "Figure 2.1.—Diagram", "top": 40, "bottom": 50},
+        {"text": "Figure 2.1.—Diagram", "top": 70, "bottom": 80},
     ]
     page.to_image.return_value.original = Image.new("RGB", (100, 100), "white")
     context = Mock()
@@ -153,3 +153,24 @@ def test_control_characters_in_vision_output_are_flagged() -> None:
     corrupt = clean.model_copy(update={"visible_labels": ["Igniter (1,300 \u00176C)"]})
     assert control_character_warnings(clean) == []
     assert "control characters" in control_character_warnings(corrupt)[0]
+
+
+def test_wrapped_and_appendix_captions_and_shared_pages() -> None:
+    from combustion_atlas.rag.visuals import CAPTION, caption_lines
+
+    lines = [
+        {"text": "Body paragraph ends here.", "top": 0, "bottom": 10},
+        {"text": "Figure B.1.—Model verification of", "top": 30, "bottom": 40},
+        {"text": "dilution with (a) data.", "top": 41, "bottom": 51},
+        {"text": "Next body paragraph after a gap.", "top": 70, "bottom": 80},
+        {"text": "Figure 2.10a—Second figure", "top": 81, "bottom": 91},
+        {"text": "NASA/TM-2021 page footer", "top": 92, "bottom": 99},
+    ]
+    assert caption_lines(lines, 1) == [
+        "Figure B.1.—Model verification of",
+        "dilution with (a) data.",
+    ]
+    assert caption_lines(lines, 4) == ["Figure 2.10a—Second figure"]
+    labels = [m.group(1) for line in lines if (m := CAPTION.match(line["text"]))]
+    assert labels == ["B.1", "2.10a"]
+    assert CAPTION.match("Figure 5.2 shows the position") is None
