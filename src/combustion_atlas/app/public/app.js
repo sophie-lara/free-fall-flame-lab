@@ -193,7 +193,10 @@ function stepsSummaryHTML(steps, failed = false) {
 function updateProgress() { const el = main.querySelector('#ask-results'); if (el && route() === 'ask' && state.ask.loading) el.innerHTML = progressHTML(); }
 function citeHTML(support, byId) {
   const src = byId[support.chunk_id] || {};
-  const where = src.source_id ? `<a href="${docLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a>` : esc(support.chunk_id);
+  const card = src.record_card;
+  const where = card
+    ? `<span class="pill ok">Table record · ${esc(card.review_action)}</span> <span>${esc(card.locator || src.filename || 'Reviewed evidence')}</span>${card.open_questions ? ` · <span class="pill warn">${esc(card.open_questions)} open question${card.open_questions === 1 ? '' : 's'}</span>` : ''}`
+    : src.source_id ? `<a href="${docLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a>` : esc(support.chunk_id);
   const visual = src.visual ? ` · <span class="pill warn">${esc(src.visual.kind)} ${esc(src.visual.label)} · unreviewed AI description</span>` : '';
   const crop = src.visual && String(src.crop_url || '').startsWith('/api/visuals/') ? `<details><summary class="cite">View original page image</summary><img class="crop" loading="lazy" src="${esc(src.crop_url)}" alt="Original page for ${esc(src.visual.kind)} ${esc(src.visual.label)}"></details>` : '';
   return `<blockquote>${esc(support.quote)}</blockquote><div class="cite">${where}${visual}</div>${crop}`;
@@ -202,7 +205,7 @@ function sourcesSummary(results) {
   if (!results?.length) return '';
   const docs = new Set(results.map(r => r.source_id));
   return `<section class="card"><div class="section-head"><h3>Sources searched</h3><span class="muted small">${results.length} passages · ${docs.size} document${docs.size === 1 ? '' : 's'}</span></div>
-    <ul class="source-list">${results.map(r => `<li><div class="row"><strong>${esc(r.filename)}</strong><span class="pill">page ${esc(r.physical_page)}</span>${r.visual ? `<span class="pill warn">${esc(r.visual.kind)} ${esc(r.visual.label)} · unreviewed</span>` : ''}${r.investigation_id ? `<span class="pill">${esc(invName(r.investigation_id))}</span>` : ''}<span class="spacer"></span><a class="small" href="${docLink(r.source_id, r.physical_page)}" target="_blank" rel="noopener noreferrer">Open page ↗</a></div>
+    <ul class="source-list">${results.map(r => `<li><div class="row"><strong>${esc(r.filename)}</strong>${r.record_card ? `<span class="pill ok">Table record · ${esc(r.record_card.review_action)}</span>` : `<span class="pill">page ${esc(r.physical_page)}</span>`}${r.visual ? `<span class="pill warn">${esc(r.visual.kind)} ${esc(r.visual.label)} · unreviewed</span>` : ''}${r.investigation_id ? `<span class="pill">${esc(invName(r.investigation_id))}</span>` : ''}<span class="spacer"></span>${r.record_card ? `<span class="small muted">${esc(r.record_card.locator || '')}</span>` : `<a class="small" href="${docLink(r.source_id, r.physical_page)}" target="_blank" rel="noopener noreferrer">Open page ↗</a>`}</div>
       <div class="muted small">${esc(String(r.visual ? r.visual.caption : r.text || '').replace(/\s+/g, ' ').slice(0, 220))}…</div></li>`).join('')}</ul></section>`;
 }
 function askResults() {

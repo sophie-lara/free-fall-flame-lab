@@ -172,6 +172,29 @@ reported separately from answer checks (status, required terms, numbers missing
 from the claim's own quotes). Visual-description fidelity is flagged for manual
 review. Do not tune retrieval against the held-out split.
 
+### Reviewed table evidence in retrieval and coverage
+
+`analysis.evidence_bridge` implements the RAG side of
+[rag_adapter_handoff.md](rag_adapter_handoff.md). Copy the ingestion team's
+`data/processed/reviewed-evidence-v1.json` and `reviewed-decisions-v1.json`
+(and their source captures) into this workspace, then:
+
+```sh
+uv run python -m combustion_atlas.analysis.evidence_bridge report   # verify only
+uv run python -m combustion_atlas.analysis.evidence_bridge sync     # index record cards
+uv run python -m combustion_atlas.providers embed --missing-only --allow-provider-calls
+```
+
+The decisions file must hash-match the evidence bytes, and each record must match its
+decision (identity, source hash, candidate and reviewed fingerprints) and validate as
+`EvidenceCandidate`; otherwise it is rejected with a reason. Record cards quote source
+cells verbatim and keep derived values, review state, open questions and CSV/PDF
+locators separate (CSV cards have no page: page 0). Coverage uses reviewed values in
+place of table-parsed ones only where conversion is faithful (numeric, known unit, no
+qualifier); everything else is listed under `unconverted`. Background table rows
+become cards but not coverage runs. Answers prefer record cards for exact values and
+label each claim's evidence type.
+
 ## Review and adjudication
 
 ```sh
