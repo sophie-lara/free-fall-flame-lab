@@ -298,3 +298,45 @@ def test_admin_identity_falls_back_to_email_claim_when_hosted(tmp_path) -> None:
             assert me["is_admin"] is True and me["name"] == "Admin@Example.edu"
         else:  # loopback ignores the header (local user is admin, but no hosted identity)
             assert me["name"] is None
+
+
+def test_hosted_allowlist_blocks_other_signed_in_accounts(tmp_path) -> None:
+    import http.client
+    import threading
+    from http.server import ThreadingHTTPServer
+
+    from combustion_atlas.app.server import AtlasHandler
+
+    handler = type(
+        "H",
+        (AtlasHandler,),
+        {
+            "workspace": tmp_path,
+            "allowed_hosts": frozenset({"atlas.example.net"}),
+            "ui_mode": "public",
+            "admins": frozenset({"owner-gh"}),
+            "allowed_users": frozenset({"friend-gh"}),
+        },
+    )
+    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+
+    def status(path: str, user: str | None) -> int:
+        conn = http.client.HTTPConnection("127.0.0.1", server.server_port)
+        headers = {"Host": "atlas.example.net"}
+        if user:
+            headers["X-MS-CLIENT-PRINCIPAL-NAME"] = user
+        conn.request("GET", path, headers=headers)
+        code = conn.getresponse().status
+        conn.close()
+        return code
+
+    try:
+        assert status("/api/me", "Owner-GH") == 200  # admin, case-insensitive
+        assert status("/api/me", "friend-gh") == 200  # allow-listed
+        assert status("/api/me", "stranger-gh") == 403
+        assert status("/api/me", None) == 403
+        assert status("/api/health", None) == 200  # health check stays open
+    finally:
+        server.shutdown()
+        server.server_close()

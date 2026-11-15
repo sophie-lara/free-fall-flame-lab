@@ -12,6 +12,8 @@ locals {
 
   # Free/Shared tiers (F1, D1) do not support always-on; the app sleeps when idle.
   always_on = !contains(["F1", "D1"], upper(var.app_service_sku))
+
+  use_github = var.auth_provider == "github"
 }
 
 # --- Hosting -------------------------------------------------------------
@@ -32,6 +34,15 @@ resource "azurerm_service_plan" "main" {
 }
 
 resource "azurerm_linux_web_app" "main" {
+  lifecycle {
+    precondition {
+      condition = !local.use_github || (
+        var.github_oauth_client_id != "" && var.github_oauth_client_secret != "" && length(var.allowed_users) > 0
+      )
+      error_message = "GitHub sign-in needs github_oauth_client_id, TF_VAR_github_oauth_client_secret and a non-empty allowed_users (it admits any GitHub account otherwise)."
+    }
+  }
+
   name                = var.app_name
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
@@ -66,6 +77,8 @@ resource "azurerm_linux_web_app" "main" {
     COMBUSTION_ATLAS_WORKSPACE               = local.workspace
     SCM_DO_BUILD_DURING_DEPLOYMENT           = "true"
     MICROSOFT_PROVIDER_AUTHENTICATION_SECRET = azuread_application_password.signin.value
+    GITHUB_PROVIDER_AUTHENTICATION_SECRET    = var.github_oauth_client_secret
+    COMBUSTION_ATLAS_ALLOWED_USERS           = join(",", var.allowed_users)
   }
 
   auth_settings_v2 {
@@ -73,17 +86,30 @@ resource "azurerm_linux_web_app" "main" {
     require_authentication = true
     require_https          = true
     unauthenticated_action = "RedirectToLoginPage"
-    default_provider       = "azureactivedirectory"
+    default_provider       = local.use_github ? "github" : "azureactivedirectory"
     excluded_paths         = ["/api/health"]
 
-    active_directory_v2 {
-      client_id                  = azuread_application.signin.client_id
-      tenant_auth_endpoint       = "https://login.microsoftonline.com/${data.azuread_client_config.current.tenant_id}/v2.0"
-      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
-      # Request only what the app needs to identify the user. "profile" and
-      # "offline_access" need an admin's approval in some directories (e.g. UChicago).
-      login_parameters = {
-        scope = "openid email"
+    # Microsoft (Entra ID) sign-in, restricted by "assignment required" in the directory.
+    dynamic "active_directory_v2" {
+      for_each = local.use_github ? [] : [1]
+      content {
+        client_id                  = azuread_application.signin.client_id
+        tenant_auth_endpoint       = "https://login.microsoftonline.com/${data.azuread_client_config.current.tenant_id}/v2.0"
+        client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+        # Request only what the app needs to identify the user. "profile" and
+        # "offline_access" need an admin's approval in some directories (e.g. UChicago).
+        login_parameters = {
+          scope = "openid email"
+        }
+      }
+    }
+
+    # GitHub sign-in admits any GitHub account: the app enforces allowed_users.
+    dynamic "github_v2" {
+      for_each = local.use_github ? [1] : []
+      content {
+        client_id                  = var.github_oauth_client_id
+        client_secret_setting_name = "GITHUB_PROVIDER_AUTHENTICATION_SECRET"
       }
     }
 

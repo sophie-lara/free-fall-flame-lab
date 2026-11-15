@@ -97,3 +97,33 @@ variable "deploy_approvers" {
   type        = string
   default     = "sophie-lara"
 }
+
+variable "auth_provider" {
+  description = "Sign-in provider for the web app: \"microsoft\" (Entra ID) or \"github\"."
+  type        = string
+  default     = "microsoft"
+
+  validation {
+    condition     = contains(["microsoft", "github"], var.auth_provider)
+    error_message = "auth_provider must be \"microsoft\" or \"github\"."
+  }
+}
+
+variable "github_oauth_client_id" {
+  description = "Client ID of the GitHub OAuth App used for sign-in (auth_provider = \"github\")."
+  type        = string
+  default     = ""
+}
+
+variable "github_oauth_client_secret" {
+  description = "GitHub OAuth App client secret. Pass via TF_VAR_github_oauth_client_secret."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "allowed_users" {
+  description = "Sign-in names (GitHub usernames or emails) allowed to use the app; admins are always allowed. Required with GitHub sign-in, which admits any GitHub account."
+  type        = list(string)
+  default     = []
+}

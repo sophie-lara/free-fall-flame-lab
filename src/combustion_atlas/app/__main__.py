@@ -42,6 +42,15 @@ def main(argv: list[str] | None = None) -> int:
         default=[a.strip() for a in env.get("COMBUSTION_ATLAS_ADMINS", "").split(",") if a.strip()],
         help="Sign-in name (email) allowed to administer a hosted deployment (repeatable)",
     )
+    parser.add_argument(
+        "--allowed-user",
+        action="append",
+        default=[
+            u.strip() for u in env.get("COMBUSTION_ATLAS_ALLOWED_USERS", "").split(",") if u.strip()
+        ],
+        help="Hosted only: sign-in names allowed to use the app (repeatable); admins are "
+        "always allowed. Unset means any signed-in user.",
+    )
     args = parser.parse_args(argv)
     serve(
         workspace=args.workspace,
@@ -50,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
         allowed_hosts=frozenset(args.allowed_host),
         ui_mode=args.ui,
         admins=frozenset(args.admin),
+        allowed_users=frozenset(args.allowed_user),
     )
     return 0
 

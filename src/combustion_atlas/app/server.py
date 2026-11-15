@@ -405,6 +405,9 @@ class AtlasHandler(BaseHTTPRequestHandler):
     ui_mode: str = "workspace"
     # Lower-case sign-in names (emails) allowed to administer a hosted deployment.
     admins: frozenset[str] = frozenset()
+    # Hosted only: when set, every request except /api/health needs a signed-in identity
+    # in this set (or in admins). Needed for providers like GitHub that admit any account.
+    allowed_users: frozenset[str] = frozenset()
     static_dir = Path(__file__).with_name("static")
     public_dir = Path(__file__).with_name("public")
 
@@ -475,6 +478,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     "upn",
                     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
                     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn",
+                    "urn:github:login",
                 }
                 names += [
                     str(claim.get("val") or "").strip()
@@ -484,6 +488,21 @@ class AtlasHandler(BaseHTTPRequestHandler):
             except (ValueError, TypeError, AttributeError):
                 pass  # malformed header: fall back to the principal name only
         return list(dict.fromkeys(n for n in names if n))
+
+    def _denied_by_allowlist(self) -> bool:
+        """Send 403 and return True when a hosted allow-list excludes the caller."""
+        if not self.allowed_hosts or not self.allowed_users:
+            return False
+        if urlparse(self.path).path == "/api/health":
+            return False
+        permitted = self.allowed_users | self.admins
+        if any(name.casefold() in permitted for name in self._identities()):
+            return False
+        self._json(
+            {"error": "This account is not on the access list for this deployment."},
+            HTTPStatus.FORBIDDEN,
+        )
+        return True
 
     def _is_admin(self) -> bool:
         if not self.allowed_hosts:
@@ -512,6 +531,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         if not self._allowed_host():
             self._json({"error": "Local requests required"}, HTTPStatus.FORBIDDEN)
+            return
+        if self._denied_by_allowlist():
             return
         try:
             self._get()
@@ -770,6 +791,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
         if not self._allowed_host() or not self._same_origin():
             self._json({"error": "Same-origin local requests required"}, HTTPStatus.FORBIDDEN)
             return
+        if self._denied_by_allowlist():
+            return
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         if path == "/api/upload":
@@ -922,6 +945,7 @@ def serve(
     allowed_hosts: frozenset[str] = frozenset(),
     ui_mode: str = "workspace",
     admins: frozenset[str] = frozenset(),
+    allowed_users: frozenset[str] = frozenset(),
 ) -> None:
     """Serve the interface. Defaults to loopback; hosted use must name its public hosts."""
     if ui_mode not in {"workspace", "public"}:
@@ -938,6 +962,7 @@ def serve(
             "allowed_hosts": allowed_hosts,
             "ui_mode": ui_mode,
             "admins": frozenset(a.casefold() for a in admins),
+            "allowed_users": frozenset(u.casefold() for u in allowed_users),
         },
     )
     server = ThreadingHTTPServer((host, port), handler)
