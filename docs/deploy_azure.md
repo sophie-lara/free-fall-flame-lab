@@ -1,149 +1,121 @@
 # Deploying to Azure App Service
 
-The app runs on Azure App Service (Linux, Python 3.12) behind Microsoft sign-in.
-GitHub deploys **code only, and only when an approved person starts the
-"Deploy to Azure" workflow and types `deploy`**. Evidence data (PDFs, figure
-crops, PSI experiment tables, the SQLite index) lives on the server's persistent
-disk at `/home/site/data` and is uploaded separately.
+Live site: **https://combustion-atlas.azurewebsites.net** (public; admins sign in with GitHub).
 
-On Azure the app runs in **public mode**: `/` is the public UI (Ask, Coverage,
-Prediction, Sources), and the review workspace is at `/workspace`, visible only to
-admins listed in `COMBUSTION_ATLAS_ADMINS`. Admins also get the *Add to corpus* page
-and a Public/Workspace switch in the header. Everyone must sign in with an account
-you have assigned.
+## How it is set up
 
-Locally nothing changes: the app listens on `127.0.0.1:8765` in workspace mode
-(public UI preview at `/public`) and accepts only loopback requests.
-
-## Quick start (recommended: Terraform)
-
-1. **Tools:** Azure account (Space Apps offer), [Terraform](https://developer.hashicorp.com/terraform/install)
-   ≥ 1.6, Azure CLI, GitHub CLI, `sqlite3`.
-2. **Sign in:** `az login` (then `az account set -s <subscription-id>`), and
-   `gh auth login` with admin rights on the repo.
-3. **Configure:** `cd infra && cp terraform.tfvars.example terraform.tfvars`, then
-   set `subscription_id`, `location` (e.g. `eastus`), a globally unique `app_name`,
-   `admin_emails = ["you@…"]`, and the people allowed in
-   (`allowed_user_principal_names`, `guest_emails`). Export the OpenAI key without
-   writing it to a file: `read -rs TF_VAR_openai_api_key && export TF_VAR_openai_api_key`.
-4. **Create everything:** `terraform init && terraform validate && terraform plan`,
-   review the plan, then `terraform apply`. This creates the web app and settings,
-   sign-in, the GitHub deploy identity, and the GitHub secrets/variables.
-   (This configuration has not been validated against a live subscription yet; fix
-   any `validate`/`plan` errors before applying.)
-5. **Upload the data:** from the repo root, `scripts/azure_upload_data.sh <app_name> <resource_group>`
-   (dry run, ~210 MB), then again with `--upload`.
-6. **Deploy the code:** push your commits, then on GitHub **Actions → Deploy to
-   Azure → Run workflow** on `main` and type `deploy`. It runs the tests first.
-7. **Check:** open `https://<app_name>.azurewebsites.net` in a private window. You
-   should be asked to sign in; after signing in as an admin you should see the
-   switch, the corpus counts on the home page, and `/api/me` should report
-   `"is_admin": true`.
-
-Details for each part are in [`infra/README.md`](../infra/README.md). The manual
-portal steps below do the same thing by hand and remain the reference.
-
-## 1. Create the web app (portal, once)
-
-1. Create a resource group, e.g. `combustion-atlas`.
-2. Create a **Web App**: Publish *Code*, Runtime *Python 3.12*, OS *Linux*, a Basic
-   plan (check current pricing). Note the name; the host is `<name>.azurewebsites.net`.
-3. Keep the app at **one instance**. SQLite on the shared disk is fine for a small
-   team but is not safe across multiple instances.
-
-## 2. Configure the app
-
-**Settings → Environment variables → App settings**
-
-| Name | Value |
-| --- | --- |
-| `OPENAI_API_KEY` | the API key (or a Key Vault reference) |
-| `COMBUSTION_ATLAS_EMBEDDING_PROVIDER` | `openai` |
-| `COMBUSTION_ATLAS_EMBEDDING_MODEL` | `text-embedding-3-small` (must match the uploaded index) |
-| `COMBUSTION_ATLAS_ANSWER_PROVIDER` | `openai` |
-| `COMBUSTION_ATLAS_ANSWER_MODEL` | e.g. `gpt-6-luna` |
-| `COMBUSTION_ATLAS_ALLOWED_HOSTS` | `<name>.azurewebsites.net` (comma-separate custom domains) |
-| `COMBUSTION_ATLAS_UI` | `public` (public UI at `/`, workspace at `/workspace` for admins) |
-| `COMBUSTION_ATLAS_ADMINS` | your sign-in email(s), comma-separated; only these can upload or open the workspace |
-| `SCM_DO_BUILD_DURING_DEPLOYMENT` | `true` (installs `requirements.txt` on deploy) |
-
-Copy any other `COMBUSTION_ATLAS_*` values from your local `.env`. Never commit
-the key. Also set a monthly budget on the OpenAI project: Azure sign-in limits who
-can use the app, not how much they spend.
-
-**Settings → Configuration → Startup command**
-
-```sh
-python -m combustion_atlas.app --host 0.0.0.0 --port 8000 --workspace /home/site/data
+```
+Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, optional for visitors)
+                                              │
+                         Web app "combustion-atlas" (Python 3.12, Linux, B1, westeurope)
+                           ├─ /home/site/wwwroot  code, deployed by GitHub Actions
+                           ├─ /home/site/data     data, uploaded by scripts/azure_upload_data.sh
+                           │    raw/ PDFs + PSI tables · processed/ figures, caches
+                           │    embeddings/rag.sqlite3 (passages, vectors, figures, table cards)
+                           │    usage/paid-calls.json (site-wide AI answer counter)
+                           └─ calls OpenAI (embeddings for questions, gpt-6-luna answers)
 ```
 
-The app refuses to listen on `0.0.0.0` unless `COMBUSTION_ATLAS_ALLOWED_HOSTS` is
-set, and still rejects requests for any other host name.
+- **Public mode** (`COMBUSTION_ATLAS_UI=public`): `/` is the public UI. Anyone can
+  ask, browse coverage, prediction and sources without signing in.
+- **Admins** (`COMBUSTION_ATLAS_ADMINS`, e.g. the GitHub username `sophie-lara`) sign
+  in via *Admin sign-in* (`/.auth/login/github`). Only admins can open `/workspace`,
+  upload documents, or post review notes; their AI answers are not counted.
+- **AI answer limit** for visitors: `COMBUSTION_ATLAS_PAID_DAILY_LIMIT` (24) per UTC
+  day and `COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S` (60) between answers, site-wide,
+  persisted in `/home/site/data/usage`. Over the limit, answers fall back to free
+  keyword search and "Plan next steps" returns 429. `/api/limits` reports what is left.
+- `/home` is App Service's persistent network share (like EFS, but included in the
+  plan: 1 GB on F1, 10 GB on B1). Code deploys never touch `/home/site/data`.
+  SQLite on this share is safe for **one instance only**.
+- Secrets (OpenAI key, GitHub OAuth secret) are app settings, never files.
 
-## 3. Require Microsoft sign-in
+## Everything is Terraform (`infra/`)
 
-1. **Settings → Authentication → Add identity provider → Microsoft**, workforce
-   tenant, create a new app registration. Restrict access: *Require authentication*;
-   unauthenticated requests: *HTTP 302 redirect*.
-2. **Microsoft Entra ID → Enterprise applications →** the app's registration →
-   *Properties*: set **Assignment required = Yes**. Then *Users and groups*: add the
-   people allowed in. Without this, any account in the tenant can sign in.
-3. Outsiders (teammates on other accounts, judges): **Entra ID → Users → Invite
-   external user**, then assign them as above. They sign in with their own Microsoft
-   account, work/school email, or an emailed one-time code.
-
-## 4. Connect GitHub (approval-gated deploys)
-
-1. **Entra ID → App registrations → New registration** (e.g. `github-deploy-atlas`).
-   Under *Certificates & secrets → Federated credentials → Add*: scenario *GitHub
-   Actions*, organization `sophie-lara`, repository `free-fall-flame-lab`, entity
-   *Branch*, branch `main`. No client secret is needed (OIDC).
-2. On the **web app → Access control (IAM) → Add role assignment**: role *Website
-   Contributor*, assigned to that app registration, scoped to this web app only.
-3. GitHub repo **Settings → Secrets and variables → Actions**:
-   - Secrets: `AZURE_CLIENT_ID` (the registration's application ID),
-     `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`.
-   - Variables: `AZURE_WEBAPP_NAME` = the web app name; optional
-     `AZURE_DEPLOY_APPROVERS` = comma-separated GitHub usernames (default
-     `sophie-lara`).
-
-To deploy: **Actions → Deploy to Azure → Run workflow** on `main`, type `deploy`.
-The workflow checks you are an approved deployer, runs lint, type checks, tests and
-the `requirements.txt` lockfile check, then deploys. Pushing to `main` alone never
-deploys. Regenerate `requirements.txt` after dependency changes:
+Prerequisites: Azure CLI (`az login`), GitHub CLI (`gh auth login` with repo admin),
+Terraform ≥ 1.6, `sqlite3`. Settings live in `infra/terraform.tfvars` (git-ignored);
+see `terraform.tfvars.example`. Secrets come from the repo's `.env` at apply time:
 
 ```sh
-uv export --no-dev --no-hashes --no-editable --no-header --format requirements-txt --frozen -o requirements.txt
+cd infra
+export TF_VAR_openai_api_key="$(grep -E '^OPENAI_API_KEY=' ../.env | cut -d= -f2-)"
+export TF_VAR_github_oauth_client_secret="$(grep -E '^GITHUB_OAUTH_CLIENT_SECRET=' ../.env | cut -d= -f2-)"
+export GITHUB_TOKEN="$(gh auth token)"
+terraform plan    # always read the plan first
+terraform apply
 ```
 
-GitHub's approval-button protection (Environments with required reviewers) is not
-available for private repositories on personal plans. With GitHub Enterprise or a
-public repository, add `environment: production` to the deploy job, set required
-reviewers on that environment, and change the federated credential entity to
-*Environment* `production`.
+Key variables:
 
-## 5. Upload the evidence data (once, or deliberately)
+| Variable | Current value | Meaning |
+| --- | --- | --- |
+| `app_name` | `combustion-atlas` | Web app name → `<app_name>.azurewebsites.net` |
+| `plan_name` | `combustion-atlas-nasaspaceapp-plan` | Pins the existing plan so renaming the app never recreates it |
+| `location` | `westeurope` | See "Lessons learned" below |
+| `app_service_sku` | `B1` | `F1` (free, sleeps, 60 CPU-min/day, 1 GB) or `B1` (always on, ~$13/month) |
+| `auth_provider` | `github` | `github` or `microsoft` (Entra ID) |
+| `github_oauth_client_id` | GitHub OAuth App client ID | Secret via `TF_VAR_github_oauth_client_secret` |
+| `public_access` | `true` | Sign-in optional; admins still checked by the app |
+| `allowed_users` | `[]` | With `public_access = false`, the only accounts allowed in (GitHub sign-in admits any account otherwise; Terraform refuses that combination) |
+| `admin_emails` | GitHub username / emails | Admin identities |
+| `paid_daily_limit`, `paid_min_interval_s` | `24`, `60` | Visitor AI answer limits |
 
-Requires the Azure CLI (`az login`) and `sqlite3`.
+The state file (`infra/terraform.tfstate`) contains secrets in plain text: keep it
+local or in a private backend; never commit it.
+
+## Day-to-day operations
+
+**Deploy code** (never automatic): GitHub **Actions → Deploy to Azure → Run workflow**
+on `main`, type `deploy`. It checks the approver list, runs lint, types, tests and the
+`requirements.txt` lockfile check, then deploys with OIDC (no stored passwords).
+
+**Update data** after changing the local index (new documents, figures, table cards):
 
 ```sh
-scripts/azure_upload_data.sh <name> <resource-group>                      # dry run: lists contents
-scripts/azure_upload_data.sh <name> <resource-group> --upload             # first upload
-scripts/azure_upload_data.sh <name> <resource-group> --upload --overwrite # replace server data
+scripts/azure_upload_data.sh combustion-atlas combustion-atlas                    # dry run
+scripts/azure_upload_data.sh combustion-atlas combustion-atlas --upload --overwrite
 ```
 
-The package (~210 MB) holds `data/raw` (indexed PDFs, PSI tables and documents, NTRS papers), `data/processed/{rag,visuals}`,
-`data/review` and a consistent SQLite snapshot. It never includes `.env`, backups
-or evaluation outputs. Because documents uploaded through the hosted app are stored
-on the server, the script refuses to replace an existing server index without
-`--overwrite`, and stops the app while replacing it.
+It uploads only what the app serves (indexed PDFs by SHA-256, PSI tables, referenced
+figure crops, the database snapshot with the vectors), stops the app during the
+overwrite, and refuses to replace server data without `--overwrite` (documents added
+through the hosted *Add to corpus* page live only on the server).
+`--bundle out.zip` writes the same package to share without uploading.
 
-Code deploys never touch `/home/site/data`.
+**Switch tier** (e.g. B1 for judging, F1 afterwards): change `app_service_sku` and
+apply. This is an in-place update of the existing plan, billed per hour.
 
-## Checks after deploying
+**Check the site:** `/api/health` (no sign-in), `/api/rag-status` (index counts),
+`/api/limits` (AI answers left). Logs: portal → web app → Log stream.
 
-- Open `https://<name>.azurewebsites.net` in a private window: you should be sent
-  to Microsoft sign-in, and an unassigned account should be refused.
-- After signing in, the Corpus page should show the uploaded documents, and
-  `/api/rag-status` should report matching indexed and embedded counts.
-- Logs: **Monitoring → Log stream**.
+## Lessons learned (read before changing infrastructure)
+
+- **Quota is per region.** This free-trial subscription has 0 App Service quota (F1
+  and B1) in most US regions; `westeurope` and `westus3` allow it. Check in the
+  portal under *Quotas → App Service* before choosing a region.
+- **Plan creation is rate-limited.** A burst of create/delete attempts (including
+  failed ones) throttles new plans for a region for hours to ~2 days, and each
+  further failed attempt can extend it. Never probe or retry in loops; make one
+  attempt, then wait or open a free support request. Updates to an existing plan
+  (tier changes) are not affected, which is why `plan_name` is pinned.
+- **Microsoft sign-in in the UChicago directory** needs a university admin to approve
+  the `profile`/`offline_access` permissions Microsoft adds, so the site uses GitHub
+  sign-in instead. Moving back is `auth_provider = "microsoft"` once approved.
+- **GitHub OIDC subject** includes immutable IDs
+  (`repo:<owner>@<owner_id>/<repo>@<repo_id>:ref:refs/heads/main`); Terraform derives
+  them from the GitHub provider.
+- **Easy Auth changes** sometimes need a web app restart to take effect
+  (`az webapp restart -g combustion-atlas -n combustion-atlas`).
+- **Renaming the app** recreates the web app (new disk): re-upload the data, update the
+  GitHub OAuth App homepage and callback URL
+  (`https://<host>/.auth/login/github/callback`), and run a deploy.
+
+## Costs and cleanup
+
+- B1 ≈ $0.43/day from the $200 free-trial credit; the credit expires 30 days after
+  signup. If the subscription is upgraded to pay-as-you-go, switch to F1 or delete the
+  app to avoid card charges.
+- Set a monthly budget on the OpenAI project: the site's limit caps visitors, but only
+  OpenAI enforces spending.
+- The storage account used for the shared data download can be deleted when the link
+  is no longer needed.
