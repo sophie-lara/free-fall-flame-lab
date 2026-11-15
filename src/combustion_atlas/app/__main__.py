@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 from pathlib import Path
 
@@ -63,7 +64,28 @@ def main(argv: list[str] | None = None) -> int:
         default=int(env.get("COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S", "0")),
         help="Minimum seconds between site-wide AI answers for non-admins (0 = none)",
     )
+    parser.add_argument(
+        "--public-uploads",
+        action="store_true",
+        default=env.get("COMBUSTION_ATLAS_PUBLIC_UPLOADS", "") in {"1", "true", "yes"},
+        help="Public mode: let visitors upload PDFs into quarantine (admin approves)",
+    )
+    parser.add_argument(
+        "--upload-code",
+        default=env.get("COMBUSTION_ATLAS_UPLOAD_CODE", ""),
+        help="Optional code visitors must enter to upload",
+    )
+    parser.add_argument(
+        "--uploads-per-day",
+        type=int,
+        default=int(env.get("COMBUSTION_ATLAS_UPLOADS_PER_USER_DAY", "3")),
+        help="Uploads per visitor per UTC day",
+    )
     args = parser.parse_args(argv)
+    # App Service streams stdout/stderr to Log stream; keep provider failures visible there.
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
     serve(
         workspace=args.workspace,
         port=args.port,
@@ -74,6 +96,9 @@ def main(argv: list[str] | None = None) -> int:
         allowed_users=frozenset(args.allowed_user),
         paid_daily_limit=args.paid_daily_limit,
         paid_min_interval_s=args.paid_min_interval,
+        public_uploads=args.public_uploads,
+        upload_code=args.upload_code,
+        uploads_per_day=args.uploads_per_day,
     )
     return 0
 

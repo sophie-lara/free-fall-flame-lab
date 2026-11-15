@@ -19,7 +19,11 @@ def retrieve(
     investigation: str | None = None,
     top_k: int = 5,
     progress: Callable[[str, str], None] | None = None,
+    visible_sources: frozenset[str] = frozenset(),
 ) -> list[dict[str, object]]:
+    # Quarantined visitor uploads are only searchable by the browser that uploaded them.
+    store.visible_sources = frozenset(visible_sources)
+
     def say(stage: str, message: str) -> None:
         if progress is not None:
             progress(stage, message)

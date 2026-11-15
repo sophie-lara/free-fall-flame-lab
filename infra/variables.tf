@@ -151,3 +151,22 @@ variable "plan_name" {
   type        = string
   default     = ""
 }
+
+variable "public_uploads" {
+  description = "Public mode: let visitors upload PDFs into quarantine (private to the uploader until an admin approves)."
+  type        = bool
+  default     = false
+}
+
+variable "upload_code" {
+  description = "Optional code visitors must enter to upload (empty = no code). Pass via TF_VAR_upload_code."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "uploads_per_user_day" {
+  description = "Visitor uploads per person (signed-in name or client IP) per UTC day."
+  type        = number
+  default     = 3
+}

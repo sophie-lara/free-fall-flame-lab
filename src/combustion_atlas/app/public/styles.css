@@ -282,3 +282,13 @@ dl.kv dd { margin: 0; }
   .hm-strong, .hm-moderate, .hm-sparse { fill: Highlight; }
   .hm-hit.selected .hm-cell { stroke: CanvasText; }
 }
+
+.check { display: flex; align-items: flex-start; gap: 10px; font-weight: 500; cursor: pointer; }
+.check input[type=checkbox] { margin: 3px 0 0; flex: none; width: 16px; height: 16px; }
+ul.plain { margin: 0; padding-left: 18px; }
+#toast { position: fixed; right: 24px; bottom: 24px; max-width: 380px; padding: 12px 16px; border-radius: 8px; background: #0B3D91; color: #fff; font-size: 0.9rem; box-shadow: 0 6px 24px rgba(0,0,0,.18); opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 50; }
+#toast.visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+
+/* Grids space items with gap; cancel the vertical-stack margin so rows line up. */
+.grid > .card + .card { margin-top: 0; }

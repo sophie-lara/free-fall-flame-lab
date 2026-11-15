@@ -28,12 +28,29 @@ def keyword_query(question: str) -> str:
     return " OR ".join(f'"{term}"' for term in unique)
 
 
+# Visitor uploads are indexed under this investigation and stay out of shared results
+# (search, corpus counts, topic map) unless a request names them in visible_sources.
+QUARANTINE = "VISITOR-UPLOAD"
+
+
 class DocumentStore:
     def __init__(self, path: Path):
         path.parent.mkdir(parents=True, exist_ok=True)
         self.connection = sqlite3.connect(path)
         self.connection.row_factory = sqlite3.Row
+        # Quarantined (visitor-upload) sources this request may see; empty = none.
+        self.visible_sources: frozenset[str] = frozenset()
         self._initialize()
+
+    def _visibility(self) -> tuple[str, tuple[object, ...]]:
+        """SQL condition hiding quarantined sources not named in visible_sources."""
+        import json as _json
+
+        return (
+            " AND (c.investigation_id IS NULL OR c.investigation_id != ?"
+            " OR c.source_id IN (SELECT value FROM json_each(?)))",
+            (QUARANTINE, _json.dumps(sorted(self.visible_sources))),
+        )
 
     def __enter__(self) -> DocumentStore:
         return self
@@ -347,11 +364,13 @@ class DocumentStore:
             FROM chunks_fts
             JOIN chunks AS c ON c.chunk_id = chunks_fts.chunk_id
             WHERE chunks_fts MATCH ?
-              AND (? IS NULL OR lower(c.investigation_id) = lower(?))
+              AND (? IS NULL OR lower(c.investigation_id) = lower(?))"""
+            + self._visibility()[0]
+            + """
             ORDER BY score
             LIMIT ?
             """,
-            (query, investigation_id, investigation_id, top_k),
+            (query, investigation_id, investigation_id, *self._visibility()[1], top_k),
         ).fetchall()
         return self._attach_visuals([dict(row) for row in rows])
 
@@ -567,9 +586,9 @@ class DocumentStore:
             FROM vectors AS v
             JOIN chunks AS c ON c.chunk_id = v.chunk_id
             WHERE v.model_key = ?
-              AND (? IS NULL OR lower(c.investigation_id) = lower(?))
-            """,
-            (model_key, investigation_id, investigation_id),
+              AND (? IS NULL OR lower(c.investigation_id) = lower(?))"""
+            + self._visibility()[0],
+            (model_key, investigation_id, investigation_id, *self._visibility()[1]),
         ).fetchall()
         ranked = []
         for row in rows:

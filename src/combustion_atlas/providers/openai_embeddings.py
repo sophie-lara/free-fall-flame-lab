@@ -9,6 +9,7 @@ from typing import Any
 from openai import OpenAI
 
 from .config import ProviderConfig
+from .retry import call_with_retries
 
 
 class OpenAIEmbeddingProvider:
@@ -39,11 +40,14 @@ class OpenAIEmbeddingProvider:
         vectors: list[list[float]] = []
         for start in range(0, len(texts), self.batch_size):
             batch = list(texts[start : start + self.batch_size])
-            response = self._client.embeddings.create(
-                model=self.model,
-                input=batch,
-                encoding_format="float",
-                dimensions=self.dimensions,
+            response = call_with_retries(
+                lambda batch=batch: self._client.embeddings.create(  # type: ignore[misc]
+                    model=self.model,
+                    input=batch,
+                    encoding_format="float",
+                    dimensions=self.dimensions,
+                ),
+                what="embeddings",
             )
             ordered = sorted(response.data, key=lambda item: item.index)
             if [item.index for item in ordered] != list(range(len(batch))):

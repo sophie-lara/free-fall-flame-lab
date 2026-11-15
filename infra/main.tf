@@ -86,6 +86,9 @@ resource "azurerm_linux_web_app" "main" {
     COMBUSTION_ATLAS_ALLOWED_USERS           = join(",", var.allowed_users)
     COMBUSTION_ATLAS_PAID_DAILY_LIMIT        = tostring(var.paid_daily_limit)
     COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S     = tostring(var.paid_min_interval_s)
+    COMBUSTION_ATLAS_PUBLIC_UPLOADS          = var.public_uploads ? "1" : "0"
+    COMBUSTION_ATLAS_UPLOAD_CODE             = var.upload_code
+    COMBUSTION_ATLAS_UPLOADS_PER_USER_DAY    = tostring(var.uploads_per_user_day)
   }
 
   auth_settings_v2 {

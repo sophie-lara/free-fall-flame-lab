@@ -23,9 +23,20 @@ from combustion_atlas.normalization.schema import ExperimentRecord
 from combustion_atlas.providers import ProviderConfig
 from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
 from combustion_atlas.rag.search import retrieve
-from combustion_atlas.rag.store import DocumentStore
+from combustion_atlas.rag.store import QUARANTINE, DocumentStore
 from combustion_atlas.retrieval.structured import filter_records
 
+from .uploads import (
+    VISITOR_MAX_BYTES,
+    VISITOR_MAX_PAGES,
+    PendingUploads,
+    UploadQuota,
+    approve,
+    count_pages,
+    delete,
+    pending_for,
+    quota_for,
+)
 from .usage import PaidCallLimiter
 
 _WRITE_LOCK = threading.Lock()
@@ -38,6 +49,17 @@ class EvidenceRequest(BaseModel):
     investigation: str | None = Field(default=None, max_length=80)
     generate_answer: bool = False
     allow_provider_calls: bool = False
+    # Quarantined uploads this browser made (their source IDs); searchable only by it.
+    include_sources: list[str] = Field(default_factory=list, max_length=10)
+
+    @field_validator("include_sources")
+    @classmethod
+    def _source_ids(cls, value: list[str]) -> list[str]:
+        import re as _re
+
+        if any(not _re.fullmatch(r"[a-f0-9]{16}", item) for item in value):
+            raise ValueError("include_sources must be 16-character source IDs")
+        return value
 
 
 def apply_paid_limit(
@@ -73,9 +95,11 @@ def ask_evidence(
         raise ValueError("Enable OpenAI calls for semantic search or generated answers")
     from openai import OpenAIError
 
-    from .streaming import answer_unavailable, semantic_unavailable
+    from .streaming import answer_unavailable, charged_call, semantic_unavailable
 
+    original = request
     request, limited = apply_paid_limit(request, limiter, exempt)
+    charged = charged_call(original, limiter, exempt, limited)
     fallback = None
     with DocumentStore(workspace.database) as store:
         try:
@@ -84,6 +108,7 @@ def ask_evidence(
                 request.question,
                 method=request.method,
                 investigation=request.investigation or None,
+                visible_sources=frozenset(request.include_sources),
             )
         except (ValueError, OpenAIError) as exc:
             if request.method == "keyword":
@@ -94,6 +119,7 @@ def ask_evidence(
                 request.question,
                 method="keyword",
                 investigation=request.investigation or None,
+                visible_sources=frozenset(request.include_sources),
             )
     payload: dict[str, object] = {
         "question": request.question,
@@ -109,7 +135,12 @@ def ask_evidence(
             provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
             payload["answer"] = provider.answer(request.question, results).model_dump()
         except (ValueError, OpenAIError) as exc:
-            payload["answer_unavailable"] = answer_unavailable(exc)
+            refund = charged and isinstance(exc, OpenAIError)
+            if refund and limiter is not None:
+                limiter.refund()
+            payload["answer_unavailable"] = answer_unavailable(exc, refunded=refund)
+    elif charged and fallback and limiter is not None:
+        limiter.refund()
     return payload
 
 
@@ -163,11 +194,13 @@ def research_directions(
             seen.add(str(item["chunk_id"]))
             results.append(item)
     provider = ResearchDirectionsProvider(ProviderConfig.from_environment())
-    return {
-        "topic": request.topic,
-        "results": results,
-        "directions": provider.directions(request.topic, results).model_dump(),
-    }
+    try:
+        directions = provider.directions(request.topic, results).model_dump()
+    except OpenAIError:
+        if limiter is not None and not exempt:
+            limiter.refund()  # the provider failed after retries: not counted
+        raise
+    return {"topic": request.topic, "results": results, "directions": directions}
 
 
 MAX_UPLOAD_BYTES = 80 * 1024 * 1024
@@ -181,6 +214,7 @@ def ingest_upload(
     investigation: str,
     source_url: str | None,
     embed: bool,
+    folder_name: str = "raw/uploads",
 ) -> dict[str, object]:
     """Save an uploaded PDF under data/raw/uploads and add it without replacing the index."""
     import re
@@ -195,7 +229,7 @@ def ingest_upload(
         raise ValueError("Source URL must start with http:// or https://")
     sha = hashlib.sha256(body).hexdigest()
     stem = re.sub(r"[^A-Za-z0-9._-]+", "-", Path(filename).stem).strip("-.")[:60] or "upload"
-    folder = workspace.data / "raw/uploads"
+    folder = workspace.data / folder_name
     folder.mkdir(parents=True, exist_ok=True)
     target = folder / f"{stem}.pdf"
     if target.exists() and hashlib.sha256(target.read_bytes()).hexdigest() != sha:
@@ -478,6 +512,10 @@ class AtlasHandler(BaseHTTPRequestHandler):
     allowed_users: frozenset[str] = frozenset()
     # Site-wide paid-call limit for public deployments (None = unlimited).
     limiter: PaidCallLimiter | None = None
+    # Public deployments: let visitors upload PDFs into quarantine.
+    public_uploads: bool = False
+    upload_code: str = ""
+    uploads_per_day: int = 3
     static_dir = Path(__file__).with_name("static")
     public_dir = Path(__file__).with_name("public")
 
@@ -624,9 +662,28 @@ class AtlasHandler(BaseHTTPRequestHandler):
         if parsed.path == "/api/health":
             self._json({"status": "ok"})
         elif parsed.path == "/api/me":
+            visitor_uploads = self._visitor_uploads_enabled()
             self._json(
-                {"name": self._identity(), "is_admin": self._is_admin(), "mode": self.ui_mode}
+                {
+                    "name": self._identity(),
+                    "is_admin": self._is_admin(),
+                    "mode": self.ui_mode,
+                    "can_upload": self._is_admin() or visitor_uploads,
+                    "visitor_upload": visitor_uploads and not self._is_admin(),
+                    "upload_code_required": bool(self.upload_code) and not self._is_admin(),
+                    "upload_limits": {
+                        "max_mb": VISITOR_MAX_BYTES // (1024 * 1024),
+                        "max_pages": VISITOR_MAX_PAGES,
+                        "per_day": self.uploads_per_day,
+                        "remaining_today": self._upload_quota().remaining(self._visitor_key())
+                        if visitor_uploads
+                        else None,
+                    },
+                }
             )
+        elif parsed.path == "/api/uploads/pending":
+            if not self._forbidden_unless_admin():
+                self._json({"pending": self._pending_uploads().list()})
         elif parsed.path == "/api/coverage":
             module = self._analysis("coverage")
             if module is not None:
@@ -881,8 +938,12 @@ class AtlasHandler(BaseHTTPRequestHandler):
         parsed_url = urlparse(self.path)
         path = parsed_url.path
         if path == "/api/upload":
-            if not self._forbidden_unless_admin():
+            if self._is_admin():
                 self._upload(parsed_url.query)
+            elif self._visitor_uploads_enabled():
+                self._visitor_upload(parsed_url.query)
+            else:
+                self._forbidden_unless_admin()
             return
         if path == "/api/ask/stream":
             # Same host/origin checks as /api/ask (above); NDJSON progress, then the result.
@@ -904,6 +965,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
             "/api/ask",
             "/api/directions",
             "/api/predict",
+            "/api/uploads/approve",
+            "/api/uploads/delete",
         }:
             self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
             return
@@ -925,6 +988,28 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     if not isinstance(body, dict):
                         raise ValueError("Send a JSON object with target and inputs")
                     self._json(module.predict_payload(self.atlas, body))
+                return
+            if path in {"/api/uploads/approve", "/api/uploads/delete"}:
+                if self._forbidden_unless_admin():
+                    return
+                body = json.loads(raw)
+                source_id = str(body.get("source_id") or "")
+                entry = self._pending_uploads().pop(source_id) or {}
+                try:
+                    if path.endswith("approve"):
+                        pages = approve(
+                            self.atlas.database, source_id, str(body.get("investigation") or "")
+                        )
+                        self._json({"approved": source_id, "pages": pages})
+                    else:
+                        delete(
+                            self.atlas.database, self.atlas.root, source_id, entry.get("saved_as")
+                        )
+                        self._json({"deleted": source_id})
+                except ValueError:
+                    if entry:
+                        self._pending_uploads().add(entry, int(entry.get("pages", 0)))
+                    raise
                 return
             if path == "/api/ask":
                 self._json(
@@ -963,6 +1048,102 @@ class AtlasHandler(BaseHTTPRequestHandler):
             self._json(
                 {"error": "OpenAI request failed. Check local configuration and try again."},
                 HTTPStatus.BAD_GATEWAY,
+            )
+
+    def _visitor_uploads_enabled(self) -> bool:
+        return self.public_uploads and self.ui_mode == "public" and bool(self.allowed_hosts)
+
+    def _visitor_key(self) -> str:
+        """Who a visitor is for quotas: signed-in name, else client IP from the front end."""
+        identity = self._identity()
+        if identity:
+            return f"user:{identity.casefold()}"
+        forwarded = (
+            (self.headers.get("X-Client-IP") or self.headers.get("X-Forwarded-For") or "")
+            .split(",")[0]
+            .strip()
+        )
+        if forwarded.count(":") == 1:  # "1.2.3.4:5678" -> drop the port
+            forwarded = forwarded.split(":")[0]
+        return f"ip:{forwarded or self.client_address[0]}"
+
+    def _pending_uploads(self) -> PendingUploads:
+        return pending_for(self.atlas.data / "uploads/pending.json")
+
+    def _upload_quota(self) -> UploadQuota:
+        return quota_for(self.atlas.data / "usage/uploads.json", self.uploads_per_day)
+
+    def _visitor_upload(self, raw_query: str) -> None:
+        """Quarantined upload: capped size/pages, optional code, per-visitor and site limits."""
+        import hmac
+
+        query = {k: v[0] for k, v in parse_qs(raw_query).items()}
+        try:
+            if self.upload_code and not hmac.compare_digest(
+                (self.headers.get("X-Upload-Code") or "").encode(), self.upload_code.encode()
+            ):
+                self._json(
+                    {"error": "Enter the upload code to add a document."}, HTTPStatus.FORBIDDEN
+                )
+                return
+            length = int(self.headers.get("Content-Length", "0"))
+            if not 0 < length <= VISITOR_MAX_BYTES:
+                raise ValueError(f"Upload a PDF up to {VISITOR_MAX_BYTES // (1024 * 1024)} MB")
+            if self.headers.get_content_type() != "application/pdf":
+                raise ValueError("Upload a PDF file")
+            visitor = self._visitor_key()
+            quota = self._upload_quota()
+            if quota.remaining(visitor) <= 0:
+                raise PaidLimitReached(
+                    f"You have used today's {quota.per_day} uploads. Try again after 00:00 UTC.",
+                    0,
+                )
+            body = self.rfile.read(length)
+            pages = count_pages(body)
+            if pages > VISITOR_MAX_PAGES:
+                raise ValueError(
+                    f"Upload a PDF of at most {VISITOR_MAX_PAGES} pages ({pages} found)"
+                )
+            if self.limiter is not None:
+                decision = self.limiter.acquire()
+                if not decision.allowed:
+                    raise PaidLimitReached(
+                        (decision.reason or "Site limit reached").replace(
+                            "AI answers", "AI calls (answers and uploads)"
+                        ),
+                        decision.retry_after_s,
+                    )
+            report = ingest_upload(
+                self.atlas,
+                body,
+                filename=query.get("filename", "upload.pdf"),
+                investigation=QUARANTINE,
+                source_url=None,
+                embed=True,
+                folder_name="raw/uploads/visitors",
+            )
+            if report.get("status") == "added":
+                self._pending_uploads().add(report, pages)
+            report["quarantined"] = True
+            report["uploads_left_today"] = quota.record(visitor)
+            self._json(report, HTTPStatus.CREATED)
+        except PaidLimitReached as exc:
+            self._json(
+                {"error": str(exc), "retry_after_s": exc.retry_after_s},
+                HTTPStatus.TOO_MANY_REQUESTS,
+            )
+        except ValueError as exc:
+            self._json({"error": str(exc)[:500]}, HTTPStatus.BAD_REQUEST)
+        except OpenAIError:
+            if self.limiter is not None:
+                self.limiter.refund()
+            self._json(
+                {"error": "Document indexed, but semantic search setup failed. Try again later."},
+                HTTPStatus.BAD_GATEWAY,
+            )
+        except (OSError, sqlite3.Error):
+            self._json(
+                {"error": "The upload could not be indexed"}, HTTPStatus.INTERNAL_SERVER_ERROR
             )
 
     def _upload(self, raw_query: str) -> None:
@@ -1050,6 +1231,9 @@ def serve(
     allowed_users: frozenset[str] = frozenset(),
     paid_daily_limit: int = 0,
     paid_min_interval_s: int = 0,
+    public_uploads: bool = False,
+    upload_code: str = "",
+    uploads_per_day: int = 3,
 ) -> None:
     """Serve the interface. Defaults to loopback; hosted use must name its public hosts."""
     if ui_mode not in {"workspace", "public"}:
@@ -1067,6 +1251,9 @@ def serve(
             "ui_mode": ui_mode,
             "admins": frozenset(a.casefold() for a in admins),
             "allowed_users": frozenset(u.casefold() for u in allowed_users),
+            "public_uploads": public_uploads,
+            "upload_code": upload_code,
+            "uploads_per_day": uploads_per_day,
             "limiter": (
                 PaidCallLimiter(
                     workspace.resolve() / "data/usage/paid-calls.json",

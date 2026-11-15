@@ -26,6 +26,12 @@ async function api(path, options) {
 const postJSON = (path, body) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 function route() { const h = location.hash.replace(/^#\/?/, ''); return h.split(/[/?]/)[0] || 'home'; }
 const pageHead = (eyebrow, title, lead) => `<header class="page-head"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${lead ? `<p>${lead}</p>` : ''}</header>`;
+function toast(message) {
+  let el = document.querySelector('#toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.append(el); }
+  el.textContent = message; el.classList.add('visible');
+  clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('visible'), 4000);
+}
 const emptyBox = (title, text) => `<div class="empty"><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
 
 // ---------- data loading ----------
@@ -48,7 +54,7 @@ async function loadCorpus(force = false) {
 function renderShell() {
   const page = route();
   document.querySelectorAll('[data-route]').forEach(a => { if (a.dataset.route === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-  document.querySelectorAll('.admin-only').forEach(el => { el.hidden = !state.me?.is_admin; });
+  document.querySelectorAll('.admin-only').forEach(el => { el.hidden = !(state.me?.is_admin || state.me?.can_upload); });
   const badge = document.querySelector('#user-badge');
   const hosted = !['127.0.0.1', 'localhost'].includes(location.hostname);
   badge.innerHTML = state.me?.name
@@ -76,7 +82,7 @@ function renderHome() {
   <section class="hero">
     <div>
       <div class="eyebrow">Built for the NASA Space Apps Challenge 2026</div>
-      <h1>Ask decades of NASA microgravity-combustion research.</h1>
+      <h1>Decades of NASA microgravity-combustion research, at your fingertips.</h1>
       <p class="lead">Combustion Atlas makes NASA's spacecraft fire-safety experiments searchable and comparable: every answer quotes the original report and page, and the coverage map shows where the evidence is thin.</p>
       <form class="hero-search" id="hero-search" role="search">
         <label for="hero-q" class="visually-hidden" hidden>Question</label>
@@ -88,6 +94,14 @@ function renderHome() {
     <div class="hero-art" aria-hidden="true"></div>
   </section>
   <section class="section">
+    <div class="grid cols-${state.me?.can_upload ? 4 : 3}">
+      ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
+      ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
+      ${tile('#/predict', '≈', 'Prediction', 'Enter conditions to find the closest observed runs and a statistical estimate, or “insufficient data”.')}
+      ${state.me?.can_upload ? tile('#/upload', '+', 'Add to corpus', state.me?.is_admin ? 'Upload a NASA report or paper (PDF) and review visitor uploads.' : 'Upload a PDF and ask questions about it. It stays private until reviewed.') : ''}
+    </div>
+  </section>
+  <section class="section">
     <div class="section-head"><h2>Data sources</h2><a href="#/sources">View all sources →</a></div>
     <div class="grid cols-5">
       ${stat(count(t.documents), 'Documents')}
@@ -97,14 +111,6 @@ function renderHome() {
       ${stat(runs == null ? '—' : count(runs), 'Experiment runs')}
     </div>
     <p class="hint">Documents come from NASA's Physical Sciences Informatics repository and technical reports. Experiment runs are parsed from PSI experiment tables and are unreviewed candidates.</p>
-  </section>
-  <section class="section">
-    <div class="grid cols-${state.me?.is_admin ? 4 : 3}">
-      ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
-      ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
-      ${tile('#/predict', '≈', 'Prediction', 'Enter conditions to find the closest observed runs and a statistical estimate, or “insufficient data”.')}
-      ${state.me?.is_admin ? tile('#/upload', '+', 'Add to corpus', 'Upload a NASA report or paper (PDF). Visible to administrators only.') : ''}
-    </div>
   </section>`;
   main.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => askQuestion(b.dataset.try)));
   main.querySelector('#hero-search').addEventListener('submit', e => {
@@ -202,9 +208,10 @@ async function runAsk() {
 // Streams NDJSON progress from /api/ask/stream; falls back to /api/ask when the route is absent.
 async function streamAnswer(question, ai = true) {
   // AI off: free keyword search only, no provider calls of any kind.
+  const include_sources = myUploads().map(u => u.source_id);
   const body = ai
-    ? { question, method: 'hybrid', generate_answer: true, allow_provider_calls: true }
-    : { question, method: 'keyword', generate_answer: false, allow_provider_calls: false };
+    ? { question, method: 'hybrid', generate_answer: true, allow_provider_calls: true, include_sources }
+    : { question, method: 'keyword', generate_answer: false, allow_provider_calls: false, include_sources };
   const response = await fetch('/api/ask/stream', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (response.status === 404) return postJSON('/api/ask', body);
   if (!response.ok || !response.body) {
@@ -800,34 +807,98 @@ function renderSources() {
 }
 
 // ---------- upload (admin) ----------
+// Visitor uploads are remembered in this browser so their questions can include them.
+const UPLOADS_KEY = 'combustionAtlas.myUploads';
+function myUploads() {
+  try { return JSON.parse(localStorage.getItem(UPLOADS_KEY) || '[]').slice(-10); } catch { return []; }
+}
+function rememberUpload(source_id, filename) {
+  const list = myUploads().filter(u => u.source_id !== source_id);
+  list.push({ source_id, filename });
+  localStorage.setItem(UPLOADS_KEY, JSON.stringify(list.slice(-10)));
+}
 function renderUpload() {
-  const head = pageHead('Administrator', 'Add to corpus', 'Upload a NASA report or paper (PDF). Pages are extracted and added without changing existing documents.');
-  if (!state.me?.is_admin) { main.innerHTML = head + emptyBox('Administrator access required', 'Only the project administrator can add documents.'); return; }
+  const me = state.me || {};
+  const limits = me.upload_limits || {};
+  if (!me.can_upload) {
+    main.innerHTML = pageHead('Contribute', 'Add to corpus', 'Upload a NASA report or paper (PDF).') + emptyBox('Uploads are closed', 'Only the project administrator can add documents right now.');
+    return;
+  }
+  const visitor = !me.is_admin;
+  const head = visitor
+    ? pageHead('Contribute', 'Add a document', 'Upload a PDF and ask questions about it. It is private to you (this browser) until an administrator reviews it and adds it to the shared collection.')
+    : pageHead('Administrator', 'Add to corpus', 'Upload a NASA report or paper (PDF). Pages are extracted and added without changing existing documents.');
+  const mine = myUploads();
   main.innerHTML = head + `
   <form class="card" id="upload-form" style="max-width:720px">
-    <div class="field"><label for="u-file">PDF file (up to 80 MB)</label><input id="u-file" type="file" accept="application/pdf,.pdf" required></div>
-    <div class="field"><label for="u-inv">Investigation ID</label><input id="u-inv" required maxlength="79" placeholder="e.g. PSI-25 or SAFFIRE-II" style="width:100%"></div>
+    <div class="field"><label for="u-file">PDF file (${visitor ? `up to ${esc(limits.max_mb)} MB and ${esc(limits.max_pages)} pages` : 'up to 80 MB'})</label><input id="u-file" type="file" accept="application/pdf,.pdf" required></div>
+    ${visitor ? '' : `<div class="field"><label for="u-inv">Investigation ID</label><input id="u-inv" required maxlength="79" placeholder="e.g. PSI-25 or SAFFIRE-II" style="width:100%"></div>
     <div class="field"><label for="u-url">Source URL (optional)</label><input id="u-url" type="url" placeholder="https://ntrs.nasa.gov/citations/…" style="width:100%"></div>
-    <div class="field"><label style="font-weight:500"><input id="u-embed" type="checkbox" checked> Make it searchable by meaning (sends extracted text to OpenAI for embeddings)</label></div>
-    <button class="btn primary" type="submit">Add to corpus</button>
-    <p class="hint">Figures are not described automatically yet; text search and cited answers work immediately.</p>
+    <div class="field"><label class="check"><input id="u-embed" type="checkbox" checked><span>Enable semantic search (creates vector embeddings so passages can be found by meaning, not just keywords)</span></label></div>`}
+    ${visitor && me.upload_code_required ? '<div class="field"><label for="u-code">Upload code</label><input id="u-code" type="password" autocomplete="off" required style="width:100%"></div>' : ''}
+    <button class="btn primary" type="submit">${visitor ? 'Upload and index' : 'Add to corpus'}</button>
+    <p class="hint">${visitor
+      ? `Each visitor can upload ${esc(limits.per_day)} documents per day${limits.remaining_today != null ? ` (${esc(limits.remaining_today)} left today)` : ''}; uploads also count toward the site's daily AI limit. Text is extracted and indexed for semantic search; figures are not described.`
+      : 'Figures are not described automatically yet; text search and cited answers work immediately.'}</p>
     <div id="u-status" aria-live="polite"></div>
-  </form>`;
+  </form>
+  ${visitor && mine.length ? `<section class="card section" style="max-width:720px"><h3 style="margin-top:0">Your uploads (included in your questions)</h3><ul class="plain">${mine.map(u => `<li>${esc(u.filename || u.source_id)}</li>`).join('')}</ul><p class="hint">Only questions from this browser search these documents.</p></section>` : ''}
+  ${visitor ? '' : '<section class="section" id="pending-uploads"><p class="loading">Loading visitor uploads…</p></section>'}`;
   const form = main.querySelector('#upload-form');
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const file = form.querySelector('#u-file').files[0], status = form.querySelector('#u-status'), button = form.querySelector('button[type=submit]');
     if (!file) return;
-    if (file.size > 80 * 1024 * 1024) { status.innerHTML = '<div class="error">The PDF is larger than 80 MB.</div>'; return; }
-    const params = new URLSearchParams({ filename: file.name, investigation: form.querySelector('#u-inv').value.trim(), source_url: form.querySelector('#u-url').value.trim(), embed: form.querySelector('#u-embed').checked ? '1' : '0' });
-    button.disabled = true; status.innerHTML = '<p class="loading" style="padding:16px 0">Extracting and indexing pages… large reports can take a minute.</p>';
+    const maxBytes = (visitor ? limits.max_mb : 80) * 1024 * 1024;
+    if (file.size > maxBytes) { status.innerHTML = `<div class="error">The PDF is larger than ${visitor ? limits.max_mb : 80} MB.</div>`; return; }
+    const params = new URLSearchParams({ filename: file.name });
+    if (!visitor) {
+      params.set('investigation', form.querySelector('#u-inv').value.trim());
+      params.set('source_url', form.querySelector('#u-url').value.trim());
+      params.set('embed', form.querySelector('#u-embed').checked ? '1' : '0');
+    }
+    const headers = { 'Content-Type': 'application/pdf' };
+    const code = form.querySelector('#u-code');
+    if (code) headers['X-Upload-Code'] = code.value;
+    button.disabled = true; status.innerHTML = '<p class="loading" style="padding:16px 0">Extracting and indexing pages…</p>';
     try {
-      const r = await api(`/api/upload?${params}`, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: file });
-      await loadCorpus(true);
-      status.innerHTML = `<p class="notice">${r.status === 'unchanged' ? 'Already indexed — nothing changed.' : `Added <strong>${esc(r.filename)}</strong> (${esc(r.investigation_id)}): ${count(r.physical_pages)} pages, ${count(r.chunks_added)} passages, ${count(r.embedded_chunks)} embedded${r.sparse_pages ? `, ${count(r.sparse_pages)} sparse pages (possibly scanned)` : ''}.`}</p>`;
+      const r = await api(`/api/upload?${params}`, { method: 'POST', headers, body: file });
+      if (r.quarantined) {
+        rememberUpload(r.source_id, r.filename);
+        state.me = await api('/api/me');
+        status.innerHTML = `<p class="notice">Indexed <strong>${esc(r.filename)}</strong>: ${esc(r.physical_pages)} pages, ${esc(r.chunks_added)} passages. It is private to this browser until reviewed. ${esc(r.uploads_left_today)} upload${r.uploads_left_today === 1 ? '' : 's'} left today.</p><button class="btn" type="button" id="ask-upload">Ask about this document →</button>`;
+        status.querySelector('#ask-upload').addEventListener('click', () => { state.ask.question = ''; location.hash = '#/ask'; });
+      } else {
+        await loadCorpus(true);
+        status.innerHTML = `<p class="notice">${r.status === 'unchanged' ? 'Already indexed — nothing changed.' : `Added <strong>${esc(r.filename)}</strong> (${esc(r.investigation_id)}): ${esc(r.physical_pages)} pages, ${esc(r.chunks_added)} passages, ${esc(r.embedded_chunks)} with semantic search.`}</p>`;
+      }
     } catch (err) { status.innerHTML = `<div class="error" role="alert">${esc(err.message)}</div>`; }
     button.disabled = false;
   });
+  if (!visitor) renderPendingUploads();
+}
+async function renderPendingUploads() {
+  const box = main.querySelector('#pending-uploads');
+  if (!box) return;
+  let pending = [];
+  try { pending = (await api('/api/uploads/pending')).pending; } catch (err) { box.innerHTML = `<div class="error">${esc(err.message)}</div>`; return; }
+  box.innerHTML = `<div class="section-head"><h2>Visitor uploads awaiting review</h2><span class="muted small">${pending.length} pending</span></div>` + (pending.length
+    ? pending.map(p => `<div class="card row" style="gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:220px"><strong>${esc(p.filename)}</strong><div class="muted small">${esc(p.pages)} pages · ${esc(p.passages)} passages · uploaded ${esc(p.uploaded_at)}</div></div>
+        <input class="pend-inv" data-id="${esc(p.source_id)}" placeholder="Investigation ID, e.g. PSI-26" maxlength="79">
+        <button class="btn primary" type="button" data-approve="${esc(p.source_id)}">Approve</button>
+        <button class="btn" type="button" data-delete="${esc(p.source_id)}">Delete</button></div>`).join('')
+    : '<p class="muted">No visitor uploads are waiting.</p>');
+  box.querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', async () => {
+    const investigation = box.querySelector(`.pend-inv[data-id="${b.dataset.approve}"]`).value.trim();
+    if (!investigation) { toast('Enter an investigation ID to approve.'); return; }
+    try { await postJSON('/api/uploads/approve', { source_id: b.dataset.approve, investigation }); toast('Approved and added to the shared collection.'); await loadCorpus(true); renderPendingUploads(); }
+    catch (err) { toast(err.message); }
+  }));
+  box.querySelectorAll('[data-delete]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Delete this upload and its index entries?')) return;
+    try { await postJSON('/api/uploads/delete', { source_id: b.dataset.delete }); toast('Upload deleted.'); renderPendingUploads(); }
+    catch (err) { toast(err.message); }
+  }));
 }
 
 // ---------- start ----------

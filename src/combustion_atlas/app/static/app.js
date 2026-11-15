@@ -287,7 +287,7 @@ function renderCorpus() {
   const stat = (label, value, foot) => `<div class="stat"><div class="stat-label">${label}</div><div class="stat-number">${count(value)}</div><div class="stat-foot">${foot}</div></div>`;
   const known = [...new Set(c.documents.flatMap(d => d.investigation_ids))];
   main.innerHTML = heading('CORPUS', 'What the atlas can draw on.', 'Every indexed document, page and figure, where each topic sits, and a way to add new reports.') +
-  `<div class="stats">${stat('Documents', t.documents, `${count(t.investigations)} investigation${t.investigations === 1 ? '' : 's'}`)}${stat('Pages', t.pages, 'physical PDF pages')}${stat('Text passages', t.passages, `${count(t.embedded)} searchable by meaning`)}${stat('Figures & tables', t.figures + t.tables, `${count(t.figures)} figures · ${count(t.tables)} tables`)}</div>
+  `<div class="stats">${stat('Documents', t.documents, `${count(t.investigations)} investigation${t.investigations === 1 ? '' : 's'}`)}${stat('Pages', t.pages, 'physical PDF pages')}${stat('Text passages', t.passages, `${count(t.embedded)} with semantic search`)}${stat('Figures & tables', t.figures + t.tables, `${count(t.figures)} figures · ${count(t.tables)} tables`)}</div>
   <section class="panel"><div class="panel-head"><div><h2>Topic map</h2><p>Each mark is a text passage (●) or figure description (◆). Marks close together discuss similar topics. Position comes from the embeddings; the axes have no units or scientific meaning.</p></div></div>
     <div class="panel-body"><div class="section-filter" role="group" aria-label="Highlight a report section"></div><div class="map-wrap"><svg id="topic-map" viewBox="0 0 800 420" role="img" aria-label="Topic map of corpus passages"></svg><div id="map-tip" class="map-tip" hidden></div></div><div id="map-detail" class="map-detail form-hint">Hover a mark for its page and topic; click it to open the passage.</div></div></section>
   <section class="panel"><div class="panel-head"><div><h2>Documents</h2><p>Bar height shows how much text each page has; orange marks show figures. Click a page to open it.</p></div></div><div class="panel-body">${c.documents.length ? c.documents.map(renderDocument).join('') : empty('No documents yet', 'Add a PDF below to start building the corpus.')}</div></section>
@@ -296,7 +296,7 @@ function renderCorpus() {
       <div class="form-field"><label for="upload-file">PDF file (up to 80 MB)</label><input id="upload-file" type="file" accept="application/pdf,.pdf" required></div>
       <div class="form-field"><label for="upload-investigation">Investigation ID</label><input id="upload-investigation" list="known-investigations" required maxlength="79" placeholder="e.g. PSI-25 or SAFFIRE-II"><datalist id="known-investigations">${known.map(i => `<option value="${esc(i)}">${esc(names[i] || i)}</option>`).join('')}</datalist></div>
       <div class="form-field"><label for="upload-url">Source URL (optional)</label><input id="upload-url" type="url" placeholder="https://ntrs.nasa.gov/citations/…"></div>
-      <label><input id="upload-embed" type="checkbox" ${state.ragStatus.semantic_ready ? 'checked' : ''}> Make it searchable by meaning (sends the extracted text to OpenAI for embeddings; about a cent per few hundred pages)</label>
+      <label><input id="upload-embed" type="checkbox" ${state.ragStatus.semantic_ready ? 'checked' : ''}> Enable semantic search (creates vector embeddings so passages can be found by meaning, not just keywords)</label>
       <button class="btn primary" type="submit">Add to corpus</button>
       <p class="form-hint">Figures are not described automatically yet; text search and cited answers work immediately. Scanned PDFs without a text layer will index as sparse pages.</p>
       <div id="upload-status" aria-live="polite"></div>
@@ -324,7 +324,7 @@ async function drawTopicMap() {
   try { state.topicMap ||= await api('/api/corpus/map'); } catch (err) { svg.outerHTML = `<div class="error">${esc(err.message)}</div>`; return; }
   if (route() !== 'corpus') return;
   const points = state.topicMap.points || [];
-  if (!points.length) { svg.outerHTML = empty('No embeddings yet', 'Make documents searchable by meaning to see the topic map.'); return; }
+  if (!points.length) { svg.outerHTML = empty('No embeddings yet', 'Enable semantic search for documents to see the topic map.'); return; }
   const sections = []; const seen = new Map();
   [...points].sort((a, b) => a.page - b.page).forEach(p => { const key = `${p.filename} · ${p.section}`; if (!seen.has(key)) { seen.set(key, 0); sections.push(key); } seen.set(key, seen.get(key) + 1); });
   const multiDoc = new Set(points.map(p => p.source_id)).size > 1;
