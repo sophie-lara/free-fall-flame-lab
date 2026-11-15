@@ -13,7 +13,7 @@ from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
-from combustion_atlas.app.server import Workspace
+from combustion_atlas.review.candidates import CandidateStore
 
 from .csv_batch_runner import BASS_ID, SAFFIRE_ID, prepare
 from .mapping_contract import mapping_request
@@ -54,7 +54,7 @@ def digest(value: Any) -> str:
     ).hexdigest()
 
 
-def existing_candidates(workspace: Workspace) -> dict[tuple[str, str], set[str]]:
+def existing_candidates(workspace: CandidateStore) -> dict[tuple[str, str], set[str]]:
     existing: dict[tuple[str, str], set[str]] = {}
     for record in workspace.records():
         key = (record.investigation_id, record.test_id)
@@ -70,7 +70,7 @@ def existing_candidates(workspace: Workspace) -> dict[tuple[str, str], set[str]]
 def create_plan(root: Path, paths: dict[str, Path], budget: Decimal) -> dict[str, Any]:
     if not budget.is_finite() or budget <= 0:
         raise ValueError("Budget must be a positive finite amount")
-    existing = existing_candidates(Workspace(root))
+    existing = existing_candidates(CandidateStore(root))
     records: list[dict[str, Any]] = []
     excluded: list[dict[str, Any]] = []
     sources: list[dict[str, Any]] = []
@@ -167,13 +167,11 @@ def rebuild(root: Path, plan: dict[str, Any]) -> list[tuple[Any, ...]]:
             raise ValueError("A planned source has changed")
     prepared = []
     keys = set()
-    existing = existing_candidates(Workspace(root))
+    existing = existing_candidates(CandidateStore(root))
     for item in plan["records"]:
         r = item["record"]
         if (r["investigation_id"], r["test_id"]) in existing:
-            raise ValueError(
-                "A planned identity was added to the review workspace; create a new plan"
-            )
+            raise ValueError("A planned identity was added to data/review; create a new plan")
         key = (r["investigation_id"], r["record_number"])
         if key in keys:
             raise ValueError("Duplicate source row in plan")

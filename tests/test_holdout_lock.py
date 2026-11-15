@@ -50,7 +50,7 @@ def test_lock_requires_matching_source_and_review_binding(tmp_path: Path, monkey
             }
         )
     workspace = SimpleNamespace(records=lambda: records, preserved=lambda: [], notes=lambda: notes)
-    monkeypatch.setattr(holdout_lock, "Workspace", lambda _: workspace)
+    monkeypatch.setattr(holdout_lock, "CandidateStore", lambda _: workspace)
     table = SimpleNamespace(
         sha256="a" * 64,
         rows=[SimpleNamespace(record_number=i + 1, cells={"Test #": f"B{i}"}) for i in range(1, 5)],

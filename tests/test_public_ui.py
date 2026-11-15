@@ -18,11 +18,10 @@ ADMIN = "Sophie@Example.org"
 
 
 def start(
-    tmp_path: Path, *, mode: str, hosted: bool, admins: frozenset[str] = frozenset()
+    tmp_path: Path, *, hosted: bool, admins: frozenset[str] = frozenset()
 ) -> ThreadingHTTPServer:
     attrs = {
         "workspace": tmp_path,
-        "ui_mode": mode,
         "allowed_hosts": frozenset({PUBLIC}) if hosted else frozenset(),
         "admins": frozenset(a.casefold() for a in admins),
     }
@@ -34,10 +33,8 @@ def start(
 @pytest.fixture
 def servers(tmp_path: Path) -> Iterator[dict[str, ThreadingHTTPServer]]:
     made = {
-        "public_hosted": start(tmp_path, mode="public", hosted=True, admins=frozenset({ADMIN})),
-        "public_local": start(tmp_path, mode="public", hosted=False),
-        "workspace_local": start(tmp_path, mode="workspace", hosted=False),
-        "workspace_hosted": start(tmp_path, mode="workspace", hosted=True),
+        "hosted": start(tmp_path, hosted=True, admins=frozenset({ADMIN})),
+        "local": start(tmp_path, hosted=False),
     }
     yield made
     for server in made.values():
@@ -64,8 +61,8 @@ def call(
     return response.status, json.loads(raw) if kind.startswith("application/json") else raw, kind
 
 
-def test_public_mode_serves_public_ui_and_hides_workspace(servers) -> None:
-    hosted = servers["public_hosted"]
+def test_public_ui_is_served_at_the_root_everywhere(servers) -> None:
+    hosted = servers["hosted"]
     status, body, kind = call(hosted, "/", hosted=True)
     assert status == 200 and kind.startswith("text/html") and b"/p/app.js" in body
     assert call(hosted, "/p/app.js", hosted=True)[0] == 200
@@ -73,111 +70,68 @@ def test_public_mode_serves_public_ui_and_hides_workspace(servers) -> None:
     assert call(hosted, "/p/logo.svg", hosted=True)[2] == "image/svg+xml"
     assert call(hosted, "/p/flame-story.js", hosted=True)[2].startswith("text/javascript")
     assert call(hosted, "/p/flame-story.css", hosted=True)[2].startswith("text/css")
-    assert call(hosted, "/workspace", hosted=True)[0] == 403  # not signed in as admin
     admin = {"X-MS-CLIENT-PRINCIPAL-NAME": "sophie@example.org"}
-    status, body, _ = call(hosted, "/workspace", hosted=True, headers=admin)
-    assert status == 200 and b"/app.js" in body and b"/p/app.js" not in body
-
-
-def test_workspace_mode_unchanged_with_public_preview(servers) -> None:
-    local = servers["workspace_local"]
-    status, body, _ = call(local, "/")
-    assert status == 200 and b"/p/app.js" not in body  # internal review UI
-    status, body, _ = call(local, "/public")
+    for gone in ("/workspace", "/public", "/app.js", "/styles.css"):
+        assert call(hosted, gone, hosted=True, headers=admin)[0] == 404
+    status, body, _ = call(servers["local"], "/")
     assert status == 200 and b"/p/app.js" in body
 
 
 def test_identity_trusts_easy_auth_header_only_when_hosted(servers) -> None:
     spoof = {"X-MS-CLIENT-PRINCIPAL-NAME": "intruder@example.org"}
     # Loopback without allowed hosts: header ignored, local user is admin.
-    identity = lambda me: {k: me[k] for k in ("name", "is_admin", "mode")}  # noqa: E731
-    assert identity(call(servers["public_local"], "/api/me", headers=spoof)[1]) == {
+    identity = lambda me: {k: me[k] for k in ("name", "is_admin")}  # noqa: E731
+    assert identity(call(servers["local"], "/api/me", headers=spoof)[1]) == {
         "name": None,
         "is_admin": True,
-        "mode": "public",
     }
-    hosted = servers["public_hosted"]
+    hosted = servers["hosted"]
     assert call(hosted, "/api/me", hosted=True, headers=spoof)[1]["is_admin"] is False
-    assert identity(call(hosted, "/api/me", hosted=True)[1]) == {
-        "name": None,
-        "is_admin": False,
-        "mode": "public",
-    }
+    assert identity(call(hosted, "/api/me", hosted=True)[1]) == {"name": None, "is_admin": False}
     me = call(hosted, "/api/me", hosted=True, headers={"X-MS-CLIENT-PRINCIPAL-NAME": ADMIN})[1]
-    assert identity(me) == {"name": ADMIN, "is_admin": True, "mode": "public"}
-    # Hosted workspace mode with no admins configured: nobody is admin.
-    assert call(servers["workspace_hosted"], "/api/me", hosted=True)[1]["is_admin"] is False
+    assert identity(me) == {"name": ADMIN, "is_admin": True}
 
 
-def test_upload_requires_admin_in_every_mode(servers) -> None:
+def test_upload_requires_admin_when_visitor_uploads_are_off(servers) -> None:
     pdf = {"Content-Type": "application/pdf"}
-    for name in ("public_hosted", "workspace_hosted"):
-        status, body, _ = call(
-            servers[name],
-            "/api/upload?investigation=X",
-            method="POST",
-            headers=pdf,
-            body=b"%PDF-1.4",
-            hosted=True,
-        )
-        assert status == 403 and "Administrator" in body["error"]
-    # Local loopback user is admin: request reaches validation (not a PDF -> 400).
-    status, _, _ = call(
-        servers["workspace_local"],
+    status, body, _ = call(
+        servers["hosted"],
         "/api/upload?investigation=X",
         method="POST",
         headers=pdf,
-        body=b"not a pdf",
+        body=b"%PDF-1.4",
+        hosted=True,
+    )
+    assert status == 403 and "Administrator" in body["error"]
+    # Local loopback user is admin: request reaches validation (not a PDF -> 400).
+    status, _, _ = call(
+        servers["local"], "/api/upload?investigation=X", method="POST", headers=pdf, body=b"x"
     )
     assert status == 400
 
 
-def test_review_posts_admin_only_in_public_mode(servers) -> None:
-    note = json.dumps({"investigation_id": "X"}).encode()
-    headers = {"Content-Type": "application/json"}
+def test_removed_endpoints_are_gone(servers) -> None:
+    hosted = servers["hosted"]
+    same_origin = {"Content-Type": "application/json", "Origin": f"https://{PUBLIC}"}
+    for path in ("/api/reviews", "/api/review-notes", "/api/predict", "/api/directions"):
+        status, _, _ = call(
+            hosted, path, method="POST", hosted=True, headers=same_origin, body=b"{}"
+        )
+        assert status == 404
+    for path in ("/api/predict/options", "/api/overview", "/api/corpus/map", "/api/search"):
+        assert call(hosted, path, hosted=True)[0] == 404
+
+
+def test_coverage_falls_back_when_module_missing(servers, monkeypatch) -> None:
+    monkeypatch.setitem(sys.modules, "combustion_atlas.analysis.coverage", None)
+    status, body, _ = call(servers["hosted"], "/api/coverage", hosted=True)
+    assert status == 503 and body["error"] == "Analysis not available yet"
+
+
+def test_ask_rejects_cross_origin(servers) -> None:
     status, _, _ = call(
-        servers["public_hosted"],
-        "/api/review-notes",
-        method="POST",
-        headers=headers,
-        body=note,
-        hosted=True,
-    )
-    assert status == 403
-    # Workspace mode keeps prior behavior: validation error, not a permission error.
-    status, _, _ = call(
-        servers["workspace_hosted"],
-        "/api/review-notes",
-        method="POST",
-        headers=headers,
-        body=note,
-        hosted=True,
-    )
-    assert status == 400
-
-
-def test_analysis_endpoints_fall_back_when_module_missing(servers, monkeypatch) -> None:
-    for name in ("combustion_atlas.analysis.coverage", "combustion_atlas.analysis.prediction"):
-        monkeypatch.setitem(sys.modules, name, None)  # import raises ModuleNotFoundError
-    hosted = servers["public_hosted"]
-    for path in ("/api/coverage", "/api/predict/options"):
-        status, body, _ = call(hosted, path, hosted=True)
-        assert status == 503 and body["error"] == "Analysis not available yet"
-    status, body, _ = call(
-        hosted,
-        "/api/predict",
-        method="POST",
-        hosted=True,
-        headers={"Content-Type": "application/json", "Origin": f"https://{PUBLIC}"},
-        body=json.dumps({"target": "x", "inputs": {}}).encode(),
-    )
-    assert status == 503
-
-
-def test_predict_rejects_cross_origin(servers) -> None:
-    status, _, _ = call(
-        servers["public_hosted"],
-        "/api/predict",
+        servers["hosted"],
+        "/api/ask",
         method="POST",
         hosted=True,
         headers={"Content-Type": "application/json", "Origin": "https://evil.example"},
@@ -221,7 +175,7 @@ def test_ask_stream_emits_progress_then_result(tmp_path: Path, monkeypatch) -> N
             )
 
     monkeypatch.setattr(openai_answers, "OpenAIAnswerProvider", FakeProvider)
-    server = start(tmp_path, mode="public", hosted=False)
+    server = start(tmp_path, hosted=False)
     try:
         headers = {"Content-Type": "application/json"}
         body = json.dumps(
@@ -259,16 +213,6 @@ def test_ask_stream_emits_progress_then_result(tmp_path: Path, monkeypatch) -> N
         server.server_close()
 
 
-def test_both_interfaces_carry_the_ui_switch() -> None:
-    from pathlib import Path
-
-    app = Path(__file__).resolve().parents[1] / "src/combustion_atlas/app"
-    for ui in ("static", "public"):
-        assert 'id="ui-switch-slot"' in (app / ui / "index.html").read_text(encoding="utf-8")
-        script = (app / ui / "app.js").read_text(encoding="utf-8")
-        assert "function uiSwitchHTML" in script and 'role="switch"' in script
-
-
 def test_admin_identity_falls_back_to_email_claim_when_hosted(tmp_path) -> None:
     import base64
     import http.client
@@ -287,7 +231,6 @@ def test_admin_identity_falls_back_to_email_claim_when_hosted(tmp_path) -> None:
             {
                 "workspace": tmp_path,
                 "allowed_hosts": hosted,
-                "ui_mode": "public",
                 "admins": frozenset({"admin@example.edu"}),
             },
         )
@@ -319,7 +262,6 @@ def test_hosted_allowlist_blocks_other_signed_in_accounts(tmp_path) -> None:
         {
             "workspace": tmp_path,
             "allowed_hosts": frozenset({"atlas.example.net"}),
-            "ui_mode": "public",
             "admins": frozenset({"owner-gh"}),
             "allowed_users": frozenset({"friend-gh"}),
         },
@@ -370,7 +312,7 @@ def test_ask_stream_keeps_results_when_the_answer_fails(tmp_path: Path, monkeypa
             raise ValueError("Configure an OpenAI answer provider and answer model locally")
 
     monkeypatch.setattr(openai_answers, "OpenAIAnswerProvider", Unconfigured)
-    server = start(tmp_path, mode="public", hosted=False)
+    server = start(tmp_path, hosted=False)
     try:
         headers = {"Content-Type": "application/json"}
         with_ai = {

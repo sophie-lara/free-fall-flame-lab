@@ -49,7 +49,7 @@ Table 13's three captured FLEX rows
 have already been used; select a different source/table and review it before
 claiming an independent FLEX holdout. Keep references out of model requests.
 
-The review workspace loads the BASS candidates from
+The review tooling loads the BASS candidates from
 `data/review/additional-candidates/holdout-bass.json` and the source-faithful Saffire
 strings from `data/review/holdout-evidence.json`. The latter deliberately retains
 compound and ambiguous cells as strings rather than inventing numeric conversions.
@@ -97,7 +97,7 @@ four-row evaluation runner.
 ## Bounded CSV batches
 
 `ingestion.csv_batch_runner` accepts explicitly selected CSV record numbers from
-the workspace's `data/raw`, in groups of at most 11. It supports the BASS-II B-series
+the project's `data/raw`, in groups of at most 11. It supports the BASS-II B-series
 and Saffire-II `2-*` experiment identities and rejects unsupported rows, including
 documentation rows. It does not silently turn them into experiments. Example dry run:
 
@@ -122,7 +122,7 @@ source-checking adapter:
 It verifies the file hash, row identity and all raw cells, preserves model notes,
 flags and original result hashes, and creates unreviewed evidence candidates.
 It refuses duplicate candidate identities and won't overwrite an existing file.
-The review workspace loads these candidates and binds saved notes to their
+The review tooling loads these candidates and binds saved notes to their
 fingerprints. New `model-review-candidates-v2` envelopes also preserve each model
 field's complete source-cell links, mapping status, missingness, qualifier and
 source context in a sidecar. Older candidate envelopes require the original result

@@ -9,10 +9,10 @@ import re
 from pathlib import Path
 from typing import Any
 
-from combustion_atlas.app.server import Workspace
 from combustion_atlas.ingestion.llm_handoff import SourceBatch
 from combustion_atlas.ingestion.mapping_contract import MappedRow, validate_mapping
 from combustion_atlas.ingestion.table_parser import read_csv_losslessly
+from combustion_atlas.review.candidates import CandidateStore
 
 from .evidence_schema import EvidenceCandidate
 
@@ -350,12 +350,12 @@ def main() -> None:
         )
         for item in adapted
     ]
-    workspace = Workspace(root)
+    workspace = CandidateStore(root)
     existing = {(r.investigation_id, r.test_id) for r in workspace.records()} | {
         (r["identity"]["investigation_id"], r["identity"]["test_id"]) for r in workspace.preserved()
     }
     if len(set(keys)) != len(keys) or set(keys) & existing:
-        raise ValueError("Candidate identity already exists in the review workspace")
+        raise ValueError("Candidate identity already exists in data/review")
     output_root = (root / "data/review/model-candidates").resolve()
     target = args.output.resolve()
     if not target.is_relative_to(output_root) or target.suffix != ".json":

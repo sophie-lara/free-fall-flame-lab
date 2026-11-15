@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from pypdf import PdfWriter
 
-from combustion_atlas.app.server import AtlasHandler, Workspace
+from combustion_atlas.app.server import AtlasHandler
 from combustion_atlas.app.usage import PaidCallLimiter
 from combustion_atlas.rag.chunk import chunk_page
 from combustion_atlas.rag.corpus import corpus_summary
@@ -60,7 +60,6 @@ def hosted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Threadin
         {
             "workspace": tmp_path,
             "allowed_hosts": frozenset({HOST}),
-            "ui_mode": "public",
             "admins": frozenset({ADMIN}),
             "public_uploads": True,
             "uploads_per_day": 3,
@@ -207,4 +206,3 @@ def test_upload_code_and_site_limit(hosted: ThreadingHTTPServer) -> None:
     assert post(hosted, "/api/upload?filename=x.pdf", pdf(text=b"x"), ip="9.9.9.9")[0] == 201
     limited = post(hosted, "/api/upload?filename=y.pdf", pdf(text=b"y"), ip="8.8.8.8")
     assert limited[0] == 429 and "uploads" in limited[1]["error"]
-    _ = Workspace  # imported for type context

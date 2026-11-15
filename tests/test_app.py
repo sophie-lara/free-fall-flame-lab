@@ -10,7 +10,7 @@ from typing import Any
 
 import pytest
 
-from combustion_atlas.app.server import AtlasHandler, Workspace
+from combustion_atlas.app.server import Atlas, AtlasHandler
 from combustion_atlas.artifacts import CandidateBatch, SourceIdentity
 from combustion_atlas.normalization.schema import (
     Conditions,
@@ -21,10 +21,11 @@ from combustion_atlas.normalization.schema import (
 from combustion_atlas.rag.chunk import chunk_page
 from combustion_atlas.rag.models import PageRecord
 from combustion_atlas.rag.store import DocumentStore
+from combustion_atlas.review.candidates import CandidateStore, ReviewNote
 
 
 @pytest.fixture
-def workspace(tmp_path: Path) -> Workspace:
+def workspace(tmp_path: Path) -> Atlas:
     raw = tmp_path / "data/raw/fixture.csv"
     raw.parent.mkdir(parents=True)
     raw.write_text("Test #,Oxygen\nT1,22.2\n", encoding="utf-8")
@@ -61,11 +62,11 @@ def workspace(tmp_path: Path) -> Workspace:
     dest = tmp_path / "data/review/fixture-b1-b5.json"
     dest.parent.mkdir(parents=True)
     dest.write_text(batch.model_dump_json(), encoding="utf-8")
-    return Workspace(tmp_path)
+    return Atlas(tmp_path)
 
 
 @pytest.fixture
-def server(workspace: Workspace) -> Iterator[ThreadingHTTPServer]:
+def server(workspace: Atlas) -> Iterator[ThreadingHTTPServer]:
     handler = type("TestHandler", (AtlasHandler,), {"workspace": workspace.root})
     instance = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     thread = threading.Thread(target=instance.serve_forever, daemon=True)
@@ -98,29 +99,19 @@ def request(
     return response.status, result
 
 
-def test_workspace_endpoints_and_candidate_schema(server: ThreadingHTTPServer) -> None:
-    assert request(server, "/api/overview")[1]["experiments"] == 1
-    data = request(server, "/api/experiments")[1]
-    assert data["records"][0]["test_id"] == "T1"
-    assert data["records"][0]["conditions"]["oxygen_pct"]["original_value"] == "22.2"
-    assert data["record_sources"]["FIXTURE/T1"]["file_name"] == "fixture.csv"
-    assert "local_path" not in data["record_sources"]["FIXTURE/T1"]
-    assert request(server, "/api/structured-search?material=Test%20material")[1]["total"] == 1
-    assert request(server, "/api/structured-search?oxygen_min_pct=23")[1]["total"] == 0
-    assert request(server, "/api/structured-search?oxygen_min_pct=nan")[0] == 400
-    assert request(server, "/api/structured-search?oxygen_min_pct=30&oxygen_max_pct=20")[0] == 400
-    assert request(server, "/api/structured-search?unknown=1")[0] == 400
-    assert request(server, "/api/search?q=oxygen")[0] == 503
+def test_status_endpoints_and_static_paths(server: ThreadingHTTPServer) -> None:
     readiness = request(server, "/api/rag-status")[1]
     assert readiness["indexed_chunks"] == 0 and readiness["embedded_chunks"] == 0
     assert not readiness["semantic_ready"]
     assert request(server, "/")[0] == 200
     assert request(server, "/../pyproject.toml")[0] == 404
+    assert request(server, "/api/corpus", headers={"Host": "example.org"})[0] == 403
+    for removed in ("/api/overview", "/api/experiments", "/api/sources", "/workspace"):
+        assert request(server, removed)[0] == 404
 
 
-def test_review_notes_are_bound_and_drafts_only(
-    server: ThreadingHTTPServer, workspace: Workspace
-) -> None:
+def test_review_notes_are_bound_and_drafts_only(workspace: Atlas) -> None:
+    store = CandidateStore(workspace.root)
     candidate = workspace.data / "review/fixture-b1-b5.json"
     before = candidate.read_bytes()
     note = {
@@ -131,38 +122,39 @@ def test_review_notes_are_bound_and_drafts_only(
         "note": "Fixture checked",
         "evidence": "Fixture record 2",
     }
-    status, saved = request(server, "/api/reviews", note)
-    assert status == 201 and saved["status"] == "draft"
-    assert request(server, "/api/experiments")[1]["notes"][0]["note"] == "Fixture checked"
-    assert request(server, "/api/experiments")[1]["notes"][0]["binding_status"] == "matched"
+    saved = store.save_note(ReviewNote(**note))
+    assert saved["status"] == "draft"
+    assert store.notes()[0]["binding_status"] == "matched"
     assert candidate.read_bytes() == before
-    assert request(server, "/api/reviews", {**note, "test_id": "unknown"})[0] == 400
-    assert request(server, "/api/reviews", {**note, "reviewer": "   "})[0] == 400
-    assert request(server, "/api/reviews", {**note, "approved": True})[0] == 400
-    assert (
-        request(server, "/api/reviews", note, headers={"Origin": "https://example.org"})[0] == 403
-    )
-    assert request(server, "/api/overview", headers={"Host": "example.org"})[0] == 403
+    with pytest.raises(ValueError, match="Unknown candidate"):
+        store.save_note(ReviewNote(**{**note, "test_id": "unknown"}))
+    with pytest.raises(ValueError):
+        ReviewNote(**{**note, "reviewer": "   "})
     changed = json.loads(candidate.read_text(encoding="utf-8"))
     changed["records"][0]["raw_cells"]["Oxygen"] = "changed"
     candidate.write_text(json.dumps(changed), encoding="utf-8")
-    assert request(server, "/api/experiments")[1]["notes"][0]["binding_status"] == "stale"
+    assert store.notes()[0]["binding_status"] == "stale"
 
 
-def test_captured_sources_require_matching_local_bytes(
-    server: ThreadingHTTPServer, workspace: Workspace
+def test_documents_require_matching_local_bytes(
+    server: ThreadingHTTPServer, workspace: Atlas
 ) -> None:
-    source = request(server, "/api/sources")[1]["sources"][0]
-    assert source["available_locally"]
-    path = "/api/documents/" + source["source_id"]
-    assert request(server, path)[1] == (workspace.data / "raw/fixture.csv").read_bytes()
-    (workspace.data / "raw/fixture.csv").write_text("changed")
+    raw = workspace.data / "raw/fixture.csv"
+    sha = hashlib.sha256(raw.read_bytes()).hexdigest()
+    page = PageRecord(
+        source_id=sha[:16], filename="fixture.csv", sha256=sha, physical_page=1, text="T1 22.2"
+    )
+    with DocumentStore(workspace.database) as store:
+        store.replace([page], chunk_page(page))
+    path = "/api/documents/" + sha[:16]
+    assert request(server, path)[1] == raw.read_bytes()
+    raw.write_text("changed")
     assert request(server, path)[0] == 404
     assert request(server, "/api/documents/unknown")[0] == 404
 
 
-def test_search_preserves_native_chunk_citations(
-    server: ThreadingHTTPServer, workspace: Workspace
+def test_ask_preserves_native_chunk_citations(
+    server: ThreadingHTTPServer, workspace: Atlas
 ) -> None:
     page = PageRecord(
         source_id="toy",
@@ -174,12 +166,9 @@ def test_search_preserves_native_chunk_citations(
     )
     with DocumentStore(workspace.database) as store:
         store.replace([page], chunk_page(page))
-    result = request(server, "/api/search?q=seed%20storage&investigation=FIXTURE&k=1")[1]
-    assert result["results"][0]["physical_page"] == 3
-    assert result["results"][0]["sha256"] == "a" * 64
-    assert request(server, "/api/overview")[1]["documents"] == 1
     status, payload = request(server, "/api/ask", {"question": "seed storage"})
     assert status == 200 and payload["results"][0]["physical_page"] == 3
+    assert payload["results"][0]["sha256"] == "a" * 64
     assert request(server, "/api/ask", {"question": "   "})[0] == 400
     assert request(server, "/api/ask", {"question": "seed", "method": "hybrid"})[0] == 400
     assert request(server, "/api/ask", {"question": "seed", "generate_answer": True})[0] == 400
@@ -191,15 +180,13 @@ def test_search_preserves_native_chunk_citations(
     )
 
 
-def test_empty_workspace_has_no_invented_records(tmp_path: Path) -> None:
-    workspace = Workspace(tmp_path)
-    assert workspace.overview()["experiments"] == 0
-    assert workspace.source_rows() == [] and workspace.notes() == []
+def test_empty_root_has_no_invented_records(tmp_path: Path) -> None:
+    assert Atlas(tmp_path).source_rows() == []
+    store = CandidateStore(tmp_path)
+    assert store.records() == [] and store.notes() == [] and store.preserved() == []
 
 
-def test_visual_crop_endpoint_is_hash_bound(
-    server: ThreadingHTTPServer, workspace: Workspace
-) -> None:
+def test_visual_crop_endpoint_is_hash_bound(server: ThreadingHTTPServer, workspace: Atlas) -> None:
     from PIL import Image
 
     from combustion_atlas.rag.visual_models import (
@@ -274,7 +261,8 @@ def test_visual_crop_endpoint_is_hash_bound(
     assert request(server, endpoint)[0] == 400
 
 
-def test_preserved_candidates_and_notes_remain_exact(workspace: Workspace) -> None:
+def test_preserved_candidates_and_notes_remain_exact(workspace: Atlas) -> None:
+    store = CandidateStore(workspace.root)
     root = workspace.data / "review/preserved-review"
     root.mkdir(parents=True)
     candidate = {
@@ -300,6 +288,6 @@ def test_preserved_candidates_and_notes_remain_exact(workspace: Workspace) -> No
     note_path = root / "human-notes.jsonl"
     note_path.write_text(json.dumps(note) + "\n", encoding="utf-8")
     before = note_path.read_bytes()
-    assert workspace.preserved() == [candidate]
-    assert workspace.notes() == [{**note, "binding_status": "unbound"}]
+    assert store.preserved() == [candidate]
+    assert store.notes() == [{**note, "binding_status": "unbound"}]
     assert note_path.read_bytes() == before

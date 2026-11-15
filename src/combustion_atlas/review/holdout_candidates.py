@@ -1,4 +1,4 @@
-"""Prepare selected, unreviewed CSV records for the local review workspace."""
+"""Prepare selected, unreviewed CSV records for review in data/review."""
 
 from __future__ import annotations
 

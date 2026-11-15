@@ -13,7 +13,7 @@ on the Azure web app's disk at `/home/site/data`. Sizes are approximate.
 | `data/raw/ntrs/` | 13 NTRS papers/reports (6 BASS-II, 3 FLEX incl. the 314-page FLEX results TP, 4 Saffire), plus `manifest.jsonl` | 75 MB | `ingestion.ntrs <ids> --download` |
 | `data/processed/visuals/*.png` | 392 full-page figure crops (hash-bound to the descriptions) | ~100 MB | `rag.visuals extract` |
 | `data/processed/visuals/*.jsonl` | Figure capture manifests and `gpt-6-luna` descriptions (prompt v2) | 1.9 MB | `rag.visuals describe` |
-| `data/processed/rag/` | Per-source page/chunk JSONL, topic-map cache | 3 MB | `rag add`, Corpus page |
+| `data/processed/rag/` | Per-source page/chunk JSONL, evidence landscape (`landscape.json`) | 3 MB | `rag add`, Explore → Evidence landscape |
 
 Indexed documents by investigation: BASS-II (PSI-25) report + SRD + 6 NTRS papers;
 BASS (PSI-26) 9 docs (engineering drawings and SPICE/SLICE files skipped);

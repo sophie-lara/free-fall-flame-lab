@@ -55,7 +55,7 @@ PDF physical page numbers differ from printed report page numbers.
 
 The pilot generated 159 actual OpenAI `text-embedding-3-small` vectors, each with
 1,536 dimensions, in the ignored local SQLite database. Local answer generation
-uses `gpt-4.1-mini`; configure your own `.env` when setting up another workspace.
+uses `gpt-4.1-mini`; configure your own `.env` when setting up another checkout.
 Keys, reports, generated answers, and vector artifacts are not versioned.
 
 Reproduce a bounded live search and cited answer after building the index and
@@ -247,31 +247,14 @@ uv run python -m combustion_atlas.review apply \
 
 ## Local interface
 
-The home page (`#ask`) answers questions across the indexed corpus with cited
-passages. `#corpus` shows per-document page strips (text density, figures,
-sections from top-level headings), a topic map (2-D principal-component
-projection of stored embeddings, cached in `data/processed/rag/topic-map.json`;
-axes have no units), and a PDF upload that saves to `data/raw/uploads/` and runs
-`rag add` (optionally embedding the new passages). Review pages (overview, experiments, conditions, sources) are
-under "Review workspace" in the sidebar.
-
-For the local text-RAG POC, open `http://127.0.0.1:8765/#search` after launching
-the app below. With matching stored embeddings and a configured answer model,
-the UI selects hybrid search and cited answers. Each submitted query uses OpenAI;
-the settings panel shows the selected behavior and permits local keyword-only search.
-The readiness banner shows the number of stored embeddings.
-
-Try the built-in questions about BASS-II variables and test counts. Then try
-the titanium/Martian-pressure question to check insufficient-evidence behavior.
-Use **View supporting passage** and **Open cited page** to inspect answers.
-Check relevance, citation correctness, qualifications and numerical values.
-Tables and figures do not yet have dedicated extraction in this POC.
-
 ```sh
 uv run python -m combustion_atlas.app --port 8765
 ```
 
-Open `http://127.0.0.1:8765`. The server binds only to the loopback interface.
+Open `http://127.0.0.1:8765`. The server binds only to the loopback interface and
+serves the same public UI as the hosted site: Ask (chat with cited answers), Explore
+(experiment coverage and the evidence landscape), Sources and Add to corpus. The local
+user is treated as an administrator, so AI answers are not counted against limits.
 
 ## Verification
 
@@ -280,6 +263,6 @@ uv run ruff format --check .
 uv run ruff check .
 uv run mypy src
 uv run pytest
-node --check src/combustion_atlas/app/static/app.js
+node --input-type=module --check < src/combustion_atlas/app/public/app.js
 uv build
 ```

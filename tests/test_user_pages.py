@@ -1,4 +1,4 @@
-"""Corpus overview, topic map, PDF upload and research-direction checks (offline)."""
+"""Corpus overview and PDF upload checks (offline)."""
 
 import http.client
 import json
@@ -10,7 +10,7 @@ from test_app import request, server, workspace  # noqa: F401  (pytest fixtures)
 
 from combustion_atlas.app.server import ingest_upload
 from combustion_atlas.rag.chunk import chunk_page
-from combustion_atlas.rag.corpus import corpus_summary, page_sections, topic_map
+from combustion_atlas.rag.corpus import corpus_summary, page_sections
 from combustion_atlas.rag.models import PageRecord
 from combustion_atlas.rag.store import DocumentStore
 
@@ -64,17 +64,6 @@ def test_sections_skip_contents_pages_and_carry_forward(tmp_path: Path) -> None:
     doc = summary["documents"][0]
     assert summary["totals"]["documents"] == 1 and doc["pages"] == 4 and doc["embedded"] == 4
     assert [p["section"] for p in doc["page_strip"]][1:3] == ["2.0 First Report: Ames"] * 2
-
-
-def test_topic_map_is_deterministic_and_cached(tmp_path: Path) -> None:
-    populated(tmp_path / "rag.sqlite3")
-    with DocumentStore(tmp_path / "rag.sqlite3") as store:
-        first = topic_map(store, model_key="m:3", cache_dir=tmp_path / "cache")
-        second = topic_map(store, model_key="m:3", cache_dir=tmp_path / "cache")
-        assert topic_map(store, model_key="missing", cache_dir=tmp_path)["points"] == []
-    assert len(first["points"]) == 4 and first == second
-    assert {p["section"] for p in first["points"]} >= {"2.0 First Report: Ames"}
-    assert (tmp_path / "cache/topic-map.json").is_file()
 
 
 def pdf_bytes() -> bytes:

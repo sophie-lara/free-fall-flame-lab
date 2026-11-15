@@ -8,15 +8,15 @@ import json
 from pathlib import Path
 from typing import Any
 
-from combustion_atlas.app.server import Workspace
 from combustion_atlas.ingestion.table_parser import read_csv_losslessly
+from combustion_atlas.review.candidates import CandidateStore
 
 
 def prepare(root: Path) -> dict[str, Any]:
     selection = json.loads(
         (root / "data/processed/holdout-selection-v1.json").read_text(encoding="utf-8")
     )["rows"]
-    workspace = Workspace(root)
+    workspace = CandidateStore(root)
     native = {
         (r.investigation_id, r.test_id): r.model_dump(mode="json") for r in workspace.records()
     }

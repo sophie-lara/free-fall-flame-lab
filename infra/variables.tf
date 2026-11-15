@@ -129,7 +129,7 @@ variable "allowed_users" {
 }
 
 variable "public_access" {
-  description = "Let anyone use the site without signing in (admins still sign in for uploads and the workspace)."
+  description = "Let anyone use the site without signing in (admins still sign in to manage uploads)."
   type        = bool
   default     = false
 }

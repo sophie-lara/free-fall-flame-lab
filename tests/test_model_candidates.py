@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from combustion_atlas.app.server import ReviewNote, Workspace
 from combustion_atlas.ingestion.llm_handoff import csv_batch
+from combustion_atlas.review.candidates import CandidateStore, ReviewNote
 from combustion_atlas.review.model_candidates import convert
 
 
@@ -62,7 +62,7 @@ def test_unreviewed_conversion_preserves_source_and_flags(tmp_path: Path) -> Non
     (candidate_dir / "batch.json").write_text(
         json.dumps({"records": [candidate]}), encoding="utf-8"
     )
-    workspace = Workspace(tmp_path)
+    workspace = CandidateStore(tmp_path)
     workspace.save_note(
         ReviewNote(
             investigation_id="PSI-25",
@@ -174,7 +174,7 @@ def test_index_import_selects_flags_and_audit_only(tmp_path: Path, monkeypatch) 
     monkeypatch.setattr(model_candidates, "convert", convert_fake)
     monkeypatch.setattr(
         model_candidates,
-        "Workspace",
+        "CandidateStore",
         lambda _: SimpleNamespace(records=lambda: [], preserved=lambda: []),
     )
     output = tmp_path / "data/review/model-candidates/out.json"

@@ -31,13 +31,6 @@ def main(argv: list[str] | None = None) -> int:
         help="Public host name to accept (repeatable), e.g. atlas.azurewebsites.net",
     )
     parser.add_argument(
-        "--ui",
-        choices=["workspace", "public"],
-        default=env.get("COMBUSTION_ATLAS_UI", "workspace"),
-        help="workspace = internal review UI at /; public = public UI at / (workspace at "
-        "/workspace for administrators)",
-    )
-    parser.add_argument(
         "--admin",
         action="append",
         default=[a.strip() for a in env.get("COMBUSTION_ATLAS_ADMINS", "").split(",") if a.strip()],
@@ -91,7 +84,6 @@ def main(argv: list[str] | None = None) -> int:
         port=args.port,
         host=args.host,
         allowed_hosts=frozenset(args.allowed_host),
-        ui_mode=args.ui,
         admins=frozenset(args.admin),
         allowed_users=frozenset(args.allowed_user),
         paid_daily_limit=args.paid_daily_limit,

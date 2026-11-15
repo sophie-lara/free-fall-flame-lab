@@ -1,6 +1,6 @@
 # Combustion Atlas
 
-Combustion Atlas is an evidence-preserving research workspace for NASA microgravity-combustion experiments. It keeps raw source values and provenance intact while producing run-level records suitable for audited structured retrieval.
+Combustion Atlas is an evidence-preserving research site for NASA microgravity-combustion experiments. It keeps raw source values and provenance intact while producing run-level records suitable for audited structured retrieval.
 
 ## What it does
 
@@ -17,9 +17,7 @@ Live at **https://combustion-atlas.azurewebsites.net**.
 NASA data, generated artifacts, model caches and credentials are not stored in this
 repository; see [`docs/local_artifacts.md`](docs/local_artifacts.md).
 
-Architecture, scientific review notes and operating instructions are in [`docs/`](docs/):
-the [review workspace guide](docs/review_ui.md) covers experiment field inspection, review
-notes, condition filters, cited search and source browsing, and
+Architecture, scientific review notes and operating instructions are in [`docs/`](docs/);
 [`docs/deploy_azure.md`](docs/deploy_azure.md) covers hosting.
 
 ## Local setup

@@ -26,7 +26,7 @@ def test_plan_covers_series_and_preserves_saffire_notes(tmp_path: Path, monkeypa
     )
     monkeypatch.setattr(
         full_csv_run,
-        "Workspace",
+        "CandidateStore",
         lambda _: SimpleNamespace(records=lambda: [reviewed], preserved=lambda: []),
     )
     monkeypatch.setattr(full_csv_run, "environment", lambda _: {"code": "fixture"})

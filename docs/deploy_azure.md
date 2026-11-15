@@ -16,11 +16,11 @@ Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, 
                            └─ calls OpenAI (embeddings for questions, gpt-6-luna answers)
 ```
 
-- **Public mode** (`COMBUSTION_ATLAS_UI=public`): `/` is the public UI. Anyone can
-  ask, browse coverage, prediction and sources without signing in.
+- **Public UI** at `/`: anyone can ask questions, explore coverage and the evidence
+  landscape, and browse sources without signing in.
 - **Admins** (`COMBUSTION_ATLAS_ADMINS`, e.g. the GitHub username `sophie-lara`) sign
-  in via *Admin sign-in* (`/.auth/login/github`). Only admins can open `/workspace`,
-  upload documents, or post review notes; their AI answers are not counted.
+  in via *Admin sign-in* (`/.auth/login/github`). Admins approve or delete visitor
+  uploads and add documents directly; their AI answers are not counted.
 - **AI answer limit** for visitors: `COMBUSTION_ATLAS_PAID_DAILY_LIMIT` (24) per UTC
   day and `COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S` (60) between answers, site-wide,
   persisted in `/home/site/data/usage`. Over the limit, answers fall back to free
@@ -29,7 +29,7 @@ Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, 
   pages; 3 per person per UTC day, keyed by signed-in name or hashed client IP; each
   upload also uses one site-wide AI call). Uploads are indexed under the reserved
   investigation `VISITOR-UPLOAD`: searchable only by the uploading browser and hidden
-  from shared search, corpus counts and the topic map until an admin approves them on
+  from shared search and corpus counts until an admin approves them on
   the *Add to corpus* page (Approve assigns an investigation ID; Delete removes the
   document, vectors and file). Optional `upload_code` (via `TF_VAR_upload_code`) makes
   visitors enter a code. **Review or approve pending uploads before re-uploading the

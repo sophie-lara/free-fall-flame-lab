@@ -77,7 +77,6 @@ resource "azurerm_linux_web_app" "main" {
     COMBUSTION_ATLAS_ANSWER_PROVIDER         = "openai"
     COMBUSTION_ATLAS_ANSWER_MODEL            = var.answer_model
     COMBUSTION_ATLAS_ALLOWED_HOSTS           = local.app_host
-    COMBUSTION_ATLAS_UI                      = "public"
     COMBUSTION_ATLAS_ADMINS                  = join(",", var.admin_emails)
     COMBUSTION_ATLAS_WORKSPACE               = local.workspace
     SCM_DO_BUILD_DURING_DEPLOYMENT           = "true"

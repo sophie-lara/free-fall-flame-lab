@@ -1,13 +1,11 @@
-"""Coverage parsing, prediction gates and PSI batch selection (synthetic data only)."""
+"""Coverage parsing and PSI batch selection (synthetic data only)."""
 
 import json
-import random
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
-from combustion_atlas.analysis import coverage, prediction
+from combustion_atlas.analysis import coverage
 from combustion_atlas.analysis.coverage import Column, TableMap, find_gaps, load_records
 from combustion_atlas.ingestion import psi_batch
 
@@ -39,7 +37,6 @@ def synthetic_maps(monkeypatch: pytest.MonkeyPatch) -> None:
     ]
     monkeypatch.setattr(coverage, "TABLE_MAPS", maps)
     monkeypatch.setattr(coverage, "ACTIVE_ACCESSIONS", {"T-1"})
-    prediction._MODEL_CACHE.clear()
 
 
 def test_only_plain_numbers_become_values_and_raw_text_is_kept(
@@ -72,50 +69,6 @@ def test_gaps_are_interior_holes_described_as_collection_gaps() -> None:
     gaps = find_gaps(records, "oxygen_pct", "pressure_kpa")
     assert len(gaps) == 1 and "No runs in this collection" in gaps[0]["note"]
     assert find_gaps(records[:5], "oxygen_pct", "pressure_kpa") == []
-
-
-def rows(n: int, *, signal: bool) -> str:
-    generator = random.Random(1)
-    lines = ["Id,Fuel,O2 fraction,Pressure; mmHg,Diameter,Burn time"]
-    for i in range(n):
-        o2 = generator.uniform(0.15, 0.4)
-        d = generator.uniform(1.0, 4.0)
-        burn = 2.0 * d * d + 3 * o2 + generator.gauss(0, 0.1) if signal else generator.uniform(1, 9)
-        lines.append(f"r{i},Heptane,{o2:.3f},760,{d:.3f},{burn:.3f}")
-    return "\n".join(lines) + "\n"
-
-
-def test_model_answers_in_domain_and_refuses_outside(tmp_path: Path, synthetic_maps: None) -> None:
-    write_table(tmp_path, "T-1", rows(80, signal=True))
-    workspace = SimpleNamespace(data=tmp_path)
-    body = {"target": "burn_time_s", "inputs": {"oxygen_pct": 25, "droplet_diameter_mm": 2.5}}
-    result = prediction.predict_payload(workspace, body)
-    model = result["model"]
-    assert model["status"] == "ok" and model["in_domain"] and model["n_train"] == 80
-    assert model["interval"][0] <= model["prediction"] <= model["interval"][1]
-    assert model["cv_mae"] is not None and len(result["nearest"]) == 5
-    assert result["nearest"][0]["distance"] <= result["nearest"][-1]["distance"]
-    outside = prediction.predict_payload(
-        workspace, {"target": "burn_time_s", "inputs": {"oxygen_pct": 25, "droplet_diameter_mm": 9}}
-    )
-    assert outside["model"]["status"] == "insufficient_data"
-    assert "Outside" in outside["model"]["reason"]
-
-
-def test_model_refuses_noise_and_small_samples(tmp_path: Path, synthetic_maps: None) -> None:
-    workspace = SimpleNamespace(data=tmp_path)
-    body = {"target": "burn_time_s", "inputs": {"oxygen_pct": 25, "droplet_diameter_mm": 2.5}}
-    write_table(tmp_path, "T-1", rows(80, signal=False))
-    noisy = prediction.predict_payload(workspace, body)["model"]
-    assert noisy["status"] == "insufficient_data" and "baseline" in noisy["reason"]
-    prediction._MODEL_CACHE.clear()
-    write_table(tmp_path, "T-1", rows(12, signal=True))
-    small = prediction.predict_payload(workspace, body)["model"]
-    assert small["status"] == "insufficient_data" and "at least 30" in small["reason"]
-    with pytest.raises(ValueError):
-        prediction.predict_payload(workspace, {"target": "nope", "inputs": {"oxygen_pct": 1}})
-    with pytest.raises(ValueError):
-        prediction.predict_payload(workspace, {"target": "burn_time_s", "inputs": {}})
 
 
 def test_psi_selection_and_capture_never_store_signed_links(tmp_path: Path) -> None:

@@ -191,7 +191,7 @@ evaluation references must detect stale chunk identities after a rebuild.
 
 ### P2: Review UI and evaluation are not yet a closed scientific feedback loop
 
-Locations: `app/server.py`, `app/static/app.js`, `evaluation/lexical.py`.
+Locations: `app/server.py`, `app/public/app.js`, `evaluation/lexical.py`.
 
 UI notes are correctly separate from candidate mutation, but bind only to
 investigation/test IDs, not the exact candidate fingerprint. Regenerating a
@@ -226,7 +226,7 @@ scientific comparability.
   and restricts captured-file serving to matching raw-directory bytes. Keep it
   local until deployment/authentication/multi-user requirements are defined.
 - Candidate loading follows filename conventions and scans supplemental batch
-  artifacts. Prefer a documented workspace manifest as the set of investigations
+  artifacts. Prefer a documented project manifest as the set of investigations
   and reviewed batches grows.
 - Embedding and answer provider configuration are separate. The implemented
   provider performs embeddings; answer-provider settings alone do not implement

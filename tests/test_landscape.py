@@ -161,7 +161,7 @@ def test_api_serves_cached_landscape_read_only(tmp_path: Path) -> None:
     handler = type(
         "H",
         (AtlasHandler,),
-        {"workspace": tmp_path, "ui_mode": "public", "allowed_hosts": frozenset()},
+        {"workspace": tmp_path, "allowed_hosts": frozenset()},
     )
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
