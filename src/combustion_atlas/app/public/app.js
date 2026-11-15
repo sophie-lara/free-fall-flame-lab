@@ -3,12 +3,11 @@ const main = document.querySelector('#main');
 const state = {
   me: null, corpus: null, coverage: null, coverageError: '', options: null, optionsError: '',
   ask: { mode: 'answer', question: '', loading: false, error: '', result: null, progress: [], ai: localStorage.getItem('atlas-ai') !== 'off' },
-  cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'heatmap', grid: 'flex', facets: {}, cell: null, detail: null, initialized: false },
+  cov: { grid: 'flex', facets: {}, cell: null, detail: null },
   predict: { target: '', inputs: {}, loading: false, error: '', result: null },
   land: { data: null, error: '', slots: [null, null, null], view: 'chart', selected: null, initialized: false },
 };
 const NAMES = { 'PSI-25': 'BASS-II', 'PSI-26': 'BASS', 'PSI-69': 'FLEX', 'PSI-68': 'FLEX-2', 'PSI-98': 'Saffire-I', 'PSI-99': 'Saffire-II', 'PSI-100': 'Saffire-III', 'PSI-102': 'SAME', 'PSI-101': 'SAME-R' };
-const SHAPES = ['circle', 'square', 'triangle'];
 
 // ---------- helpers ----------
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -415,15 +414,7 @@ document.addEventListener('click', e => {
   document.querySelector(`#claim-${a.dataset.claim}`)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
 });
 
-// ---------- coverage ----------
-function niceTicks(lo, hi, n = 6) {
-  if (!(Number.isFinite(lo) && Number.isFinite(hi))) return [];
-  if (lo === hi) { lo -= 1; hi += 1; }
-  const raw = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || mag * 10;
-  const ticks = [];
-  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) ticks.push(+v.toFixed(10));
-  return ticks;
-}
+// Mark shapes shared by charts (the topic map uses them).
 function shapeSVG(shape, x, y, r, cls, fill) {
   const style = fill ? ` style="fill:${fill}"` : '';
   if (shape === 'square') return `<rect class="${cls}" x="${(x - r).toFixed(1)}" y="${(y - r).toFixed(1)}" width="${2 * r}" height="${2 * r}" rx="1.5"${style}/>`;
@@ -431,69 +422,14 @@ function shapeSVG(shape, x, y, r, cls, fill) {
   return `<circle class="${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"${style}/>`;
 }
 const legendShape = (shape, color) => `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">${shapeSVG(shape, 8, 8, 5.5, '', color)}</svg>`;
-function slotOf(family) { return state.cov.slots.indexOf(family); }
-function initCoverageSelection() {
-  const cov = state.coverage, c = state.cov;
-  if (c.initialized || !cov) return;
-  const fields = (cov.fields || []).filter(f => f.count > 0).map(f => f.key);
-  const joint = (a, b) => cov.records.filter(r => Number.isFinite(r[a]) && Number.isFinite(r[b])).length;
-  // Prefer O₂ vs flow, but fall back to the axis pair with the most runs plotted together.
-  if (!fields.includes(c.x) || !fields.includes(c.y) || joint(c.x, c.y) < 20) {
-    let best = [c.x, c.y, -1];
-    for (const a of fields) for (const b of fields) if (a !== b) {
-      const n = joint(a, b) + (a === 'oxygen_pct' ? 0.5 : 0); // tie-break: O₂ on the horizontal axis
-      if (n > best[2]) best = [a, b, n];
-    }
-    if (best[2] > 0) [c.x, c.y] = best;
-  }
-  const fams = [...(cov.families || [])].sort((a, b) => b.count - a.count).slice(0, 3);
-  fams.forEach((f, i) => { c.slots[i] = f.key; });
-  c.initialized = true;
-}
+
+// ---------- coverage ----------
 function renderCoverage() {
   if (!state.coverage && !state.coverageError) { main.innerHTML = '<p class="loading">Loading experiment coverage…</p>'; loadCoverage().then(() => route() === 'coverage' && renderCoverage()); return; }
   const head = pageHead('Coverage', 'Experiment coverage', 'Where have experiments actually been run? Each heatmap cell counts the runs whose test conditions fall in that range. An empty cell means no runs in this collection, not that a condition is unstudied.');
   if (state.coverageError) { main.innerHTML = head + emptyBox('Not available yet', state.coverageError); return; }
-  initCoverageSelection();
-  const cov = state.coverage, c = state.cov;
-  // Points and Table views are hidden for now (code kept); the heatmap is the only view.
-  const viewSwitch = '';
-  c.view = 'heatmap';
-  if (c.view === 'heatmap' && (cov.grids || []).length) { renderHeatmapPage(head, viewSwitch); return; }
-  const fields = (cov.fields || []).filter(f => f.count > 0);
-  const fieldOpt = sel => fields.map(f => `<option value="${esc(f.key)}" ${sel === f.key ? 'selected' : ''}>${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''} · ${count(f.count)}</option>`).join('');
-  const reviewed = cov.records.filter(r => r.review_status === 'reviewed').length;
-  const famChips = (cov.families || []).map(f => {
-    const slot = slotOf(f.key);
-    const sw = slot >= 0 ? legendShape(SHAPES[slot], `var(--s${slot + 1})`) : legendShape('circle', 'var(--neutral)');
-    return `<button type="button" class="chip" data-family="${esc(f.key)}" aria-pressed="${slot >= 0}">${sw}${esc(f.label)} <span class="muted">${count(f.count)}</span></button>`;
-  }).join('');
-  main.innerHTML = head + `
-  <div class="row" style="margin-bottom:16px">${reviewed ? `<span class="pill ok">${count(reviewed)} reviewed</span>` : ''}${(cov.notes || []).filter(n => !/not been reviewed/.test(n)).map(n => `<span class="muted small">${esc(n)}</span>`).join('')}</div>
-  <section class="card">
-    <div class="controls">
-      <div class="field"><label for="cov-x">Horizontal axis</label><select id="cov-x">${fieldOpt(c.x)}</select></div>
-      <div class="field"><label for="cov-y">Vertical axis</label><select id="cov-y">${fieldOpt(c.y)}</select></div>
-      <span class="spacer"></span>
-      ${(cov.proposed || []).length ? `<label class="small" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="cov-proposed" ${c.showProposed === false ? '' : 'checked'}> Show ${count(cov.proposed.length)} proposed FLEX tests</label>` : ''}
-      ${viewSwitch}
-    </div>
-    <div><label>Highlight up to three families</label><div class="chips family-chips" role="group" aria-label="Families">${famChips || '<span class="muted">No families yet.</span>'}</div></div>
-    <div id="cov-view" style="margin-top:16px"></div>
-  </section>
-  <div id="cov-detail" class="section" aria-live="polite"></div>`;
-  main.querySelector('#cov-x').addEventListener('change', e => { c.x = e.target.value; drawCoverageView(); });
-  main.querySelector('#cov-y').addEventListener('change', e => { c.y = e.target.value; drawCoverageView(); });
-  main.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { c.view = b.dataset.view; renderCoverage(); }));
-  main.querySelector('#cov-proposed')?.addEventListener('change', e => { c.showProposed = e.target.checked; drawCoverageView(); });
-  main.querySelectorAll('[data-family]').forEach(b => b.addEventListener('click', () => {
-    const key = b.dataset.family, slot = slotOf(key);
-    if (slot >= 0) c.slots[slot] = null; // freeing a slot never repaints the others
-    else { const free = c.slots.indexOf(null); if (free < 0) { toastInline('Three families are highlighted. Deselect one first.'); return; } c.slots[free] = key; }
-    renderCoverage();
-  }));
-  drawCoverageView();
-  renderCoverageDetail();
+  if (!(state.coverage.grids || []).length) { main.innerHTML = head + emptyBox('No coverage yet', 'Experiment runs will appear here once parsed.'); return; }
+  renderHeatmapPage(head);
 }
 // ---------- coverage heatmap (bins and cell classes come from the server) ----------
 const extLink = (url, text) => url ? `<a href="${safeURL(url)}" target="_blank" rel="noopener noreferrer">${esc(text)} ↗</a>` : esc(text);
@@ -517,7 +453,7 @@ const swatch = cls => `<svg width="22" height="16" aria-hidden="true"><rect clas
 // The selection is one cell or a whole gap band: { grid, cells: [[x, y], ...], gap? }.
 const selectedCells = (c, g) => c.cell && c.cell.grid === g.key ? c.cell.cells : [];
 
-function renderHeatmapPage(head, viewSwitch) {
+function renderHeatmapPage(head) {
   const cov = state.coverage, c = state.cov, g = currentGrid();
   const tabs = (cov.grids || []).map(x => `<button type="button" data-grid="${esc(x.key)}" aria-pressed="${x.key === g.key}">${esc(x.label)}</button>`).join('');
   const facets = g.facets.map(f => `<div class="field"><label for="facet-${esc(f.key)}">${esc(f.label)}</label><select id="facet-${esc(f.key)}" data-facet="${esc(f.key)}">${f.options.map(o => `<option value="${esc(o.key)}" ${(gridFacets(g)[f.key] || 'all') === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div>`).join('');
@@ -526,15 +462,12 @@ function renderHeatmapPage(head, viewSwitch) {
     <div class="controls">
       <div class="field"><label>Investigation family</label><div class="segmented" role="group" aria-label="Investigation family">${tabs}</div></div>
       ${facets}
-      <span class="spacer"></span>
-      ${viewSwitch}
     </div>
     <p class="muted" style="margin:0 0 12px">${esc(g.description)}</p>
     <div id="cov-view"></div>
   </section>
   <div id="cov-cell" class="section" aria-live="polite"></div>
   <div id="cov-detail" aria-live="polite"></div>`;
-  main.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { c.view = b.dataset.view; renderCoverage(); }));
   main.querySelectorAll('[data-grid]').forEach(b => b.addEventListener('click', () => { c.grid = b.dataset.grid; c.cell = null; c.detail = null; renderCoverage(); }));
   main.querySelectorAll('[data-facet]').forEach(s => s.addEventListener('change', e => { gridFacets(g)[s.dataset.facet] = e.target.value; c.detail = null; if (c.cell?.gap) c.cell = null; drawHeatmap(); renderCellDetail(); renderCoverageDetail(); }));
   drawHeatmap();
@@ -625,7 +558,7 @@ function renderCellDetail() {
     ['Outcome', outcomeOf],
   ].filter(([, f]) => runs.some(r => f(r)));
   const runTable = runs.length ? `<div class="table-scroll" style="max-height:360px"><table><thead><tr><th>Run</th><th>Investigation</th>${cols.map(([h, , n]) => `<th${n ? ' class="num"' : ''}>${esc(h)}</th>`).join('')}<th>Source</th></tr></thead><tbody>
-    ${runs.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(r.test_id)}${r.review_status === 'reviewed' ? ' <span class="pill ok">Reviewed</span>' : ''}</td><td>${esc(invName(r.investigation_id))}</td>${cols.map(([, f, n]) => `<td${n ? ' class="num"' : ''}>${esc(f(r) || '—')}</td>`).join('')}<td class="small">${runSource(r)}</td></tr>`).join('')}
+    ${runs.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(r.test_id)}</td><td>${esc(invName(r.investigation_id))}</td>${cols.map(([, f, n]) => `<td${n ? ' class="num"' : ''}>${esc(f(r) || '—')}</td>`).join('')}<td class="small">${runSource(r)}</td></tr>`).join('')}
   </tbody></table></div>` : `<p class="muted">No runs in this collection fall in ${gap ? 'this range' : 'this cell'}.</p>`;
   const proposed = cell.planned_ids.map(i => state.coverage.proposed?.[i]).filter(Boolean);
   const plannedTable = proposed.length ? `<h4 style="margin:20px 0 8px">Planned tests · ${count(proposed.length)}</h4><p class="muted small" style="margin:0 0 8px">From the FLEX EIRD test matrices: planned conditions, not runs, with no results.</p>
@@ -636,7 +569,7 @@ function renderCellDetail() {
   const title = gap ? gap.label : `${g.x.label} ${binText(g.x, g.x.bins[cell.x])} · ${g.y.label} ${binText(g.y, g.y.bins[cell.y])}`;
   const pill = gap ? `<span class="pill">Possible gap · ${gap.status === 'planned' ? 'planned, not run' : 'not planned'}</span>` : `<span class="pill">${swatch(cell.class)}${esc(CLASS_LABEL[cell.class])}</span>`;
   // A gap band is described by its overall range on each axis, not cell by cell.
-  const span = (axis, idx) => { const bins = [...new Set(idx)].sort((a, b) => a - b).map(k => axis.bins[k]); return bins.every(b => b.lo != null) ? `${axis.label} ${bins[0].lo}–${bins[bins.length - 1].hi}${axis.unit ? ` ${axis.unit}` : ''}` : bins.map(b => b.label).join(', '); };
+  const span = (axis, idx) => { const bins = [...new Set(idx)].sort((a, b) => a - b).map(k => axis.bins[k]); const last = bins[bins.length - 1], top = last.label.endsWith('+') ? '+' : `–${last.hi}`; return bins.every(b => b.lo != null) ? `${axis.label} ${bins[0].lo}${top}${axis.unit ? ` ${axis.unit}` : ''}` : bins.map(b => b.label).join(', '); };
   const sub = gap
     ? `${esc(span(g.x, members.map(m => m.x)))} · ${esc(span(g.y, members.map(m => m.y)))}${gap.planned ? ` · ${count(gap.planned)} planned test${gap.planned === 1 ? '' : 's'}, no runs` : ' · no runs or planned tests'}`
     : esc(state.coverage.cell_classes?.[cell.class] || '');
@@ -648,84 +581,7 @@ function renderCellDetail() {
   el.querySelector('#close-cell').addEventListener('click', () => { c.cell = null; c.detail = null; drawHeatmap(); renderCellDetail(); renderCoverageDetail(); });
   bindRows(el);
 }
-function toastInline(msg) { const el = main.querySelector('#cov-detail'); if (el) el.innerHTML = `<p class="notice">${esc(msg)}</p>`; }
-function fieldMeta(key) { return (state.coverage.fields || []).find(f => f.key === key) || { key, label: key, unit: null }; }
 const familyLabel = key => (state.coverage.families || []).find(f => f.key === key)?.label || key;
-function drawCoverageView() {
-  const el = main.querySelector('#cov-view'); if (!el) return;
-  const c = state.cov, cov = state.coverage;
-  const fx = fieldMeta(c.x), fy = fieldMeta(c.y);
-  const plotted = cov.records.filter(r => Number.isFinite(r[c.x]) && Number.isFinite(r[c.y]));
-  const missing = cov.records.length - plotted.length;
-  // Proposed FLEX tests: a separate layer that never affects gaps.
-  const proposed = c.showProposed === false ? [] : (cov.proposed || []).filter(p => Number.isFinite(p.fields?.[c.x]) && Number.isFinite(p.fields?.[c.y]));
-  if (c.view === 'table') { el.innerHTML = coverageTable(cov.records); bindRows(el); return; }
-  if (!plotted.length) { el.innerHTML = emptyBox('Nothing to plot', `No runs have both ${fx.label} and ${fy.label}. Try other axes or the table view.`); return; }
-  const W = 880, H = 500, m = { l: 64, r: 20, t: 16, b: 56 };
-  const gaps = (cov.gaps || []).filter(g => (g.x_field === c.x && g.y_field === c.y) || (g.x_field === c.y && g.y_field === c.x))
-    .map(g => g.x_field === c.x ? g : { ...g, x_range: g.y_range, y_range: g.x_range });
-  const xs = [...plotted.map(r => r[c.x]), ...proposed.map(p => p.fields[c.x]), ...gaps.flatMap(g => g.x_range)], ys = [...plotted.map(r => r[c.y]), ...proposed.map(p => p.fields[c.y]), ...gaps.flatMap(g => g.y_range)];
-  const pad = (lo, hi) => { const d = (hi - lo) || Math.abs(hi) || 1; return [lo - d * .06, hi + d * .06]; };
-  const [x0, x1] = pad(Math.min(...xs), Math.max(...xs)), [y0, y1] = pad(Math.min(...ys), Math.max(...ys));
-  const sx = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r), sy = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
-  const xt = niceTicks(x0, x1), yt = niceTicks(y0, y1);
-  const grid = `<g class="grid">${xt.map(v => `<line x1="${sx(v)}" x2="${sx(v)}" y1="${m.t}" y2="${H - m.b}"/>`).join('')}${yt.map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(v)}" y2="${sy(v)}"/>`).join('')}</g>`;
-  const axes = `<line class="axis-line" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/><line class="axis-line" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}"/>
-    ${xt.map(v => `<text x="${sx(v)}" y="${H - m.b + 18}" text-anchor="middle">${fmt(v)}</text>`).join('')}
-    ${yt.map(v => `<text x="${m.l - 8}" y="${sy(v) + 4}" text-anchor="end">${fmt(v)}</text>`).join('')}
-    <text class="axis-title" x="${(m.l + W - m.r) / 2}" y="${H - 12}" text-anchor="middle">${esc(fx.label)}${fx.unit ? ` (${esc(fx.unit)})` : ''}</text>
-    <text class="axis-title" transform="translate(16 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">${esc(fy.label)}${fy.unit ? ` (${esc(fy.unit)})` : ''}</text>`;
-  const gapSVG = gaps.map((g, i) => { const xa = sx(g.x_range[0]), xb = sx(g.x_range[1]), ya = sy(g.y_range[1]), yb = sy(g.y_range[0]); return `<rect class="gap-rect" x="${Math.min(xa, xb)}" y="${Math.min(ya, yb)}" width="${Math.abs(xb - xa)}" height="${Math.abs(yb - ya)}" rx="4"/><text class="gap-label" x="${Math.min(xa, xb) + 6}" y="${Math.min(ya, yb) + 16}">Gap ${i + 1}</text>`; }).join('');
-  const order = [...plotted].sort((a, b) => (slotOf(a.family) >= 0) - (slotOf(b.family) >= 0)); // highlighted on top
-  const marks = order.map(r => {
-    const slot = slotOf(r.family), x = sx(r[c.x]), y = sy(r[c.y]);
-    const cls = `pt${r.review_status === 'reviewed' ? ' reviewed' : ''}`;
-    const shape = slot >= 0 ? shapeSVG(SHAPES[slot], x, y, 5.5, cls, `var(--s${slot + 1})`) : shapeSVG('circle', x, y, 4, cls, 'var(--neutral)');
-    return `<g class="hit" tabindex="0" role="button" data-id="${esc(r.id)}" aria-label="${esc(`${familyLabel(r.family)} ${r.test_id}: ${fx.label} ${fmt(r[c.x])}, ${fy.label} ${fmt(r[c.y])}`)}">${shape}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="transparent"/></g>`;
-  }).join('');
-  const diamond = (x, y, r) => `${x},${(y - r).toFixed(1)} ${(x + r).toFixed(1)},${y} ${x},${(y + r).toFixed(1)} ${(x - r).toFixed(1)},${y}`;
-  const proposedSVG = proposed.map((p, i) => { const x = sx(p.fields[c.x]), y = sy(p.fields[c.y]); return `<g class="hit-proposed" tabindex="0" role="button" data-pid="${i}" aria-label="${esc(`Proposed test ${p.test_id}, not run as listed: ${fx.label} ${fmt(p.fields[c.x])}, ${fy.label} ${fmt(p.fields[c.y])}`)}"><polygon class="proposed-mark" points="${diamond(x, y, 6)}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="transparent"/></g>`; }).join('');
-  const legendItems = state.cov.slots.map((k, i) => k ? `<span>${legendShape(SHAPES[i], `var(--s${i + 1})`)}${esc(familyLabel(k))}</span>` : '').join('') + `<span>${legendShape('circle', 'var(--neutral)')}Other families</span><span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="var(--neutral)" stroke="var(--ink)" stroke-width="2"/></svg>Reviewed (dark ring)</span>${gaps.length ? '<span><svg width="22" height="14" aria-hidden="true"><rect x="1" y="1" width="20" height="12" rx="3" fill="none" stroke="var(--ink-2)" stroke-dasharray="4 3"/></svg>No runs in this collection</span>' : ''}${proposed.length ? '<span><svg width="16" height="16" aria-hidden="true"><polygon class="proposed-mark" points="8,2 14,8 8,14 2,8"/></svg>Proposed FLEX test (planned, not run as listed; no results)</span>' : ''}`;
-  el.innerHTML = `<div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Scatter of ${plotted.length} runs: ${fy.label} against ${fx.label}`)}">${grid}${gapSVG}${axes}${proposedSVG}${marks}</svg><div class="tooltip" id="cov-tip" hidden></div></div>
-    <div class="legend" aria-label="Legend">${legendItems}</div>
-    ${missing ? `<p class="hint">${count(missing)} runs lack ${esc(fx.label)} or ${esc(fy.label)} and are not plotted; they appear in the table view.</p>` : ''}
-    ${gaps.length ? `<ol class="small" style="margin-top:12px">${gaps.map(g => `<li>${esc(g.note)}</li>`).join('')}</ol>` : ''}`;
-  const tip = el.querySelector('#cov-tip'), svg = el.querySelector('svg');
-  const byId = Object.fromEntries(cov.records.map(r => [String(r.id), r]));
-  el.querySelectorAll('.hit').forEach(g => {
-    const r = byId[g.dataset.id];
-    const show = ev => {
-      const box = svg.getBoundingClientRect();
-      tip.innerHTML = `<strong>${esc(familyLabel(r.family))} · ${esc(r.test_id)}</strong><br>${esc(fx.label)}: ${fmt(r[c.x])}${fx.unit ? ` ${esc(fx.unit)}` : ''}<br>${esc(fy.label)}: ${fmt(r[c.y])}${fy.unit ? ` ${esc(fy.unit)}` : ''}${r.material ? `<br>Material: ${esc(r.material)}` : ''}<br><span class="muted">${r.review_status === 'reviewed' ? 'Reviewed · ' : ''}click for details</span>`;
-      tip.hidden = false;
-      const rect = g.getBoundingClientRect();
-      const px = (ev?.clientX ?? rect.left + rect.width / 2) - box.left, py = (ev?.clientY ?? rect.top) - box.top;
-      tip.style.left = `${Math.max(0, Math.min(px + 14, box.width - 300))}px`; tip.style.top = `${py + 14}px`;
-    };
-    g.addEventListener('mousemove', show); g.addEventListener('focus', () => show());
-    g.addEventListener('mouseleave', () => { tip.hidden = true; }); g.addEventListener('blur', () => { tip.hidden = true; });
-    const open = () => { state.cov.detail = r.id; renderCoverageDetail(); };
-    g.addEventListener('click', open); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
-  });
-  el.querySelectorAll('.hit-proposed').forEach(g => {
-    const p = proposed[Number(g.dataset.pid)];
-    const show = ev => {
-      const box = svg.getBoundingClientRect(), rect = g.getBoundingClientRect();
-      tip.innerHTML = `<strong>Proposed test · ${esc(p.test_id)}</strong> (EIRD Table ${esc(p.table)}, page ${esc(p.page)})<br>${esc(fx.label)}: ${fmt(p.fields[c.x])}${fx.unit ? ` ${esc(fx.unit)}` : ''}<br>${esc(fy.label)}: ${fmt(p.fields[c.y])}${fy.unit ? ` ${esc(fy.unit)}` : ''}${p.fuel ? `<br>Fuel: ${esc(p.fuel)}` : ''}${p.suppressant ? ` · suppressant: ${esc(p.suppressant)}` : ''}<br><span class="muted">${esc(p.conversions.join('; '))}</span><br><span class="muted">Planned in a test matrix, not run as listed; no results.</span>`;
-      tip.hidden = false;
-      const px = (ev?.clientX ?? rect.left + rect.width / 2) - box.left, py = (ev?.clientY ?? rect.top) - box.top;
-      tip.style.left = `${Math.max(0, Math.min(px + 14, box.width - 300))}px`; tip.style.top = `${py + 14}px`;
-    };
-    g.addEventListener('mousemove', show); g.addEventListener('focus', () => show());
-    g.addEventListener('mouseleave', () => { tip.hidden = true; }); g.addEventListener('blur', () => { tip.hidden = true; });
-  });
-}
-function coverageTable(records) {
-  const cols = ['oxygen_pct', 'flow_cm_s', 'pressure_kpa'].map(fieldMeta);
-  return `<div class="table-scroll"><table><caption class="visually-hidden" hidden>Experiment runs</caption><thead><tr><th>Family</th><th>Test</th><th>Material</th>${cols.map(f => `<th class="num">${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''}</th>`).join('')}<th>Gravity</th><th>Status</th><th>Source</th></tr></thead><tbody>
-    ${records.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(familyLabel(r.family))}</td><td>${esc(r.test_id)}</td><td>${esc(r.material || '—')}</td>${cols.map(f => `<td class="num">${fmt(r[f.key])}</td>`).join('')}<td>${esc(r.gravity || '—')}</td><td>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}</td><td class="small">${runSource(r)}</td></tr>`).join('')}
-  </tbody></table></div>`;
-}
 function bindRows(el) { el.querySelectorAll('[data-row]').forEach(tr => { const open = e => { if (e.target.closest('a')) return; state.cov.detail = tr.dataset.row; renderCoverageDetail(); }; tr.addEventListener('click', open); tr.addEventListener('keydown', e => { if (e.key === 'Enter') open(e); }); }); }
 function renderCoverageDetail() {
   const el = main.querySelector('#cov-detail'); if (!el) return;
@@ -733,7 +589,7 @@ function renderCoverageDetail() {
   if (!r) { el.innerHTML = ''; return; }
   const row = (k, v) => v == null || v === '' ? '' : `<dt>${esc(k)}</dt><dd>${v}</dd>`;
   const outcomes = Object.entries(r.outcomes || {});
-  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(familyLabel(r.family))} · ${esc(r.test_id)}</h3>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}<span class="spacer"></span><button class="btn small" type="button" id="close-detail">Close</button></div>
+  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(familyLabel(r.family))} · ${esc(r.test_id)}</h3><span class="spacer"></span><button class="btn small" type="button" id="close-detail">Close</button></div>
     <dl class="kv" style="margin-top:16px">${row('Investigation', esc(invName(r.investigation_id)))}${row('Material', esc(r.material))}${row('Geometry', esc(r.geometry))}${row('Oxygen', r.oxygen_pct != null ? `${fmt(r.oxygen_pct)} %` : null)}${row('Flow', r.flow_cm_s != null ? `${fmt(r.flow_cm_s)} cm/s` : null)}${row('Pressure', r.pressure_kpa != null ? `${fmt(r.pressure_kpa)} kPa` : null)}${row('Gravity', esc(r.gravity))}
     ${outcomes.map(([k, o]) => row(k.replaceAll('_', ' '), `${o.value != null ? fmt(o.value) : '—'}${o.unit ? ` ${esc(o.unit)}` : ''} <span class="muted small">(source text: “${esc(o.raw)}”)</span>`)).join('')}
     ${row('Source', runSource(r))}</dl></section>`;

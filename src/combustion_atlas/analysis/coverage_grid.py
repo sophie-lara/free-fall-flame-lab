@@ -98,6 +98,8 @@ class GridSpec:
     include: Callable[[dict[str, Any]], bool] = lambda r: True
     outcome: Callable[[dict[str, Any]], str | None] = lambda r: None
     notes: list[str] = field(default_factory=list)
+    # Also report categorical rows (materials) tested at no or only one range of x.
+    row_coverage_gaps: bool = False
 
 
 # ---------- shared bins ----------
@@ -138,6 +140,21 @@ def _band_labels(bands: list[tuple[str, str, float]]) -> dict[str, str]:
 
 def _oxygen_bins() -> list[Bin]:
     return _banded(_range_bins(OXYGEN_EDGES, "%"), OXYGEN_BANDS)
+
+
+# BASS runs stop near 22 % O₂, so everything above 25 % is one "25+" column, and the high
+# band starts at 22.5 % so both upper columns read as "high O₂".
+BASS_OXYGEN_BANDS = [
+    ("low", "Low O₂ (<17.5 %)", 17.5),
+    ("mid", "Mid O₂ (17.5–22.5 %)", 22.5),
+    ("high", "High O₂ (≥22.5 %)", float("inf")),
+]
+
+
+def _bass_oxygen_bins() -> list[Bin]:
+    bins = _range_bins([10, 12.5, 15, 17.5, 20, 22.5, 25], "%")
+    bins.append(Bin("25-plus", "25+", 25.0, 100.0))
+    return _banded(bins, BASS_OXYGEN_BANDS)
 
 
 # ---------- material classes (explicit, reviewable) ----------
@@ -308,11 +325,11 @@ def grid_specs() -> list[GridSpec]:
                 "oxygen_pct",
                 "Initial oxygen",
                 "% vol",
-                [*_oxygen_bins(), Bin(NOT_RECORDED, NOT_RECORDED)],
+                [*_bass_oxygen_bins(), Bin(NOT_RECORDED, NOT_RECORDED)],
                 ordered=True,
                 value=_numeric("oxygen_pct"),
                 missing_bin=True,
-                bands=_band_labels(OXYGEN_BANDS),
+                bands=_band_labels(BASS_OXYGEN_BANDS),
             ),
             y=Axis(
                 "material", "Sample material", None, bass_rows, ordered=False, value=bass_material
@@ -320,6 +337,7 @@ def grid_specs() -> list[GridSpec]:
             include=lambda r: (
                 not NOT_A_BURN.search(str((r.get("raw") or {}).get("Fuel Sample Material") or ""))
             ),
+            row_coverage_gaps=True,
             notes=[
                 "BASS-II airflow was recorded as uncalibrated fan/air display settings, so flow "
                 "is not an axis.",
@@ -333,7 +351,7 @@ def grid_specs() -> list[GridSpec]:
             families={"FLEX"},
             description=(
                 "Droplet combustion runs by ambient oxygen and pressure. Planned tests from the "
-                "EIRD test matrices are hatched and never count as runs."
+                "EIRD test matrices are shown in violet (◇ counts) and never count as runs."
             ),
             x=Axis(
                 "oxygen_pct",
@@ -533,7 +551,36 @@ def _gap_groups(
     out.sort(key=lambda g: (g["status"] != "planned", g["_order"]))
     for g in out:
         del g["_order"]
+    if spec.row_coverage_gaps:
+        out += _row_coverage_gaps(spec, cells, xs)
     return out
+
+
+def _row_coverage_gaps(
+    spec: GridSpec, cells: dict[tuple[int, int], dict[str, Any]], xs: list[int]
+) -> list[dict[str, Any]]:
+    """Rows (materials) with runs, but at no recorded x value or within a single x range."""
+    rows = [j for j in range(len(spec.y.bins)) if spec.y.bins[j].key != NOT_RECORDED]
+    found: dict[int, list[int]] = {0: [], 1: []}
+    for j in rows:
+        if not any(cells[(i, j)]["observed"] for i in range(len(spec.x.bins))):
+            continue
+        covered = sum(1 for i in xs if cells[(i, j)]["observed"])
+        if covered in found:
+            found[covered].append(j)
+    what = spec.x.label.lower()
+    labels = {0: f"No runs at a recorded {what}", 1: f"Only one {what} range tested"}
+    return [
+        {
+            "status": "unplanned",
+            "label": labels[n],
+            "detail": ", ".join(spec.y.bins[j].label for j in found[n]),
+            "cells": [[i, j] for j in found[n] for i in xs],
+            "planned": 0,
+        }
+        for n in (0, 1)
+        if found[n]
+    ]
 
 
 def _view(

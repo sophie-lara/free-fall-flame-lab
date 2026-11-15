@@ -176,14 +176,21 @@ def test_bass_material_classes_and_not_recorded_column() -> None:
     assert cell(g, "all", "Not recorded", "PMMA sphere")["observed"] == 1
     assert cell(g, "all", "15–17.5", "PMMA rod")["observed"] == 1
     assert g["views"]["all"]["totals"]["observed"] == 5  # soot cleaning is not a burn
-    # Materials whose runs all lack oxygen (sphere, wax) are not listed as oxygen gaps.
+    # Materials whose runs all lack oxygen (sphere, wax) are listed apart from the bands.
     labels = gap_labels(g, "all")
     assert labels["planned"] == []
     assert labels["unplanned"] == [
         "Low O₂ (<17.5 %) | SIBAL fabric",
-        "Mid O₂ (17.5–25 %) | PMMA rod, PMMA film",
-        "High O₂ (≥25 %) | every sample material",
+        "Mid O₂ (17.5–22.5 %) | PMMA rod, PMMA film",
+        "High O₂ (≥22.5 %) | every sample material",
+        "No runs at a recorded initial oxygen | PMMA sphere, Wax / candle",
+        "Only one initial oxygen range tested | SIBAL fabric, PMMA rod, PMMA film",
     ]
+    # BASS folds everything above 25 % into one "25+" column.
+    oxygen = [b["label"] for b in g["x"]["bins"]]
+    assert oxygen[-3:] == ["22.5–25", "25+", "Not recorded"]
+    spec = next(s for s in cg.grid_specs() if s.key == "bass")
+    assert spec.x.bins[spec.x.locate(31.0)].label == "25+"
 
 
 def test_saffire_gaps_list_untested_materials_per_flow() -> None:

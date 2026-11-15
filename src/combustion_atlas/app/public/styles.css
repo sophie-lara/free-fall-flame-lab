@@ -163,7 +163,6 @@ blockquote { margin: 8px 0; padding: 8px 12px; background: var(--plane); border-
 /* Coverage chart */
 .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 16px; }
 .controls .field { margin: 0; }
-.family-chips .chip .swatch { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
 .chart-wrap { position: relative; }
 .chart { width: 100%; height: auto; display: block; background: var(--surface); border-radius: var(--radius-sm); }
 .chart text { fill: var(--muted); font: 12px var(--font); }
@@ -223,9 +222,6 @@ dl.kv dd { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
-@media (forced-colors: active) {
-  .chart .pt { stroke: CanvasText; }
-}
 
 .ui-switch{display:inline-flex;align-items:center;gap:8px;font-size:12px;white-space:nowrap}.ui-switch-label{color:#6b7280}.ui-switch-label.active{color:inherit;font-weight:600}
 .ui-switch-track{position:relative;width:40px;height:22px;border-radius:11px;border:1px solid #9aa3b2;background:#e5e7eb;padding:0;cursor:pointer;transition:background .15s}
@@ -249,8 +245,6 @@ dl.kv dd { margin: 0; }
 .note-mark.note-definition { background: var(--ok-bg, rgba(127,127,127,.15)); color: var(--ink-2); font-style: italic; }
 .note-mark.note-unresolved, .note-mark.note-pending { background: var(--bad-bg, #3a1616); color: var(--bad, #ff9a9a); }
 .note-mark:focus-visible { outline: 2px solid var(--s1); outline-offset: 1px; }
-.proposed-mark { fill: none; stroke: #8b5cf6; stroke-width: 1.6; opacity: .85; }
-.hit-proposed:focus-visible .proposed-mark, .hit-proposed:hover .proposed-mark { stroke-width: 2.6; opacity: 1; }
 .caveats { margin: 6px 0; padding: 8px 12px 8px 26px; border-radius: 8px; background: var(--warn-bg); color: var(--warn); font-size: 13px; line-height: 1.4; }
 .caveats li { margin: 2px 0; }
 .ai-row { gap: 10px; flex-wrap: wrap; }
