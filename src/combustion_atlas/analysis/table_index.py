@@ -33,6 +33,53 @@ ROW_ONLY_ISSUES = {
     "unreferenced_source_cell",
     "source_table",
 }
+# Review bookkeeping stays in the reviewed-evidence files; it is not shown to readers.
+HIDDEN_ISSUES = ROW_ONLY_ISSUES | {
+    "evidence_class",
+    "preliminary_test_matrix",
+    "extraction_spot_checked",
+}
+HIDDEN_QUESTION_WORDS = ("spot-checked", "review", "pattern rule")
+# Who produced a source document, for the plain-language provenance line.
+SOURCE_DOCUMENTS = {
+    "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9": {
+        "document": "NASA's FLEX Research Requirements Document (Droplet Flame "
+        "Extinguishment in Microgravity)",
+        "authors": "the FLEX research team (lead: Forman A. Williams, UC San Diego)",
+    },
+}
+
+
+def _pages_text(pages: list[int]) -> str:
+    if not pages:
+        return ""
+    if len(pages) == 1:
+        return f"page {pages[0]}"
+    return f"pages {pages[0]}–{pages[-1]}"
+
+
+def provenance(kind: str | None, sha256: str, title: str, pages: list[int], plural: bool) -> str:
+    """One plain sentence saying where table data comes from and what it is."""
+    doc = SOURCE_DOCUMENTS.get(sha256, {})
+    document = doc.get("document", "the source document")
+    authors = doc.get("authors", "the investigators")
+    table = re.sub(r"^EIRD\s+", "", title).rstrip(".")
+    where = f"{document}, {table}" + (f" ({_pages_text(pages)})" if pages else "")
+    if kind == "planned_test_condition":
+        lead = "Tests proposed" if plural else "A test proposed"
+        return (
+            f"{lead} by {authors} in {where}. Planned conditions only: not run as listed, "
+            "and no results are recorded."
+        )
+    if kind == "background_table_row":
+        return f"Background data from {where}: literature or calculated values, not a FLEX run."
+    return ""
+
+
+def display_caveats(candidate: EvidenceCandidate) -> list[str]:
+    return [i.message for i in candidate.issues if i.code not in HIDDEN_ISSUES]
+
+
 CAVEAT_NOTES = ("ambiguous", "unresolved", "pending", "assumed", "inferred", "definition")
 MAX_CARD_NOTES = 12
 
@@ -100,19 +147,24 @@ def row_payload(record: dict[str, Any], card_id: str, title: str) -> dict[str, A
                 "notes": [n.model_dump(mode="json") for n in value.notes],
             }
         )
-    caveats = [i.message for i in candidate.issues if i.code not in ROW_ONLY_ISSUES]
-    questions = list(item.get("unresolved_questions") or [])
+    pages = sorted({v["page"] for v in values if v["page"]})
+    origin = provenance(item.get("evidence_kind"), first.source_sha256, title, pages, False)
+    caveats = display_caveats(candidate)
+    questions = [
+        q
+        for q in item.get("unresolved_questions") or []
+        if not any(w in q.lower() for w in HIDDEN_QUESTION_WORDS)
+    ]
     lines = [
         f"Table row — {title}: {identity.investigation_id} {identity.test_id}",
-        f"Evidence: {EVIDENCE_LABELS.get(item.get('evidence_kind') or '', 'table data')}. "
-        f"Review: {record['review_action']}.",
+        origin
+        or f"Evidence: {EVIDENCE_LABELS.get(item.get('evidence_kind') or '', 'table data')}.",
     ]
     for v in values:
         unit = f" {v['unit']}" if v["unit"] else ""
         lines.append(f"- {v['field']} = {v['value']}{unit}  [source: {v['original']}]")
         lines += [f"  note ({n['kind']}): {n['text']}" for n in v["notes"] if n["kind"] != "model"]
     lines += [f"Caveat: {c}" for c in caveats]
-    pages = sorted({v["page"] for v in values if v["page"]})
     where = (
         f"{first.file}, PDF page {', '.join(map(str, pages))}, table {first.table}, row {first.row}"
         if first.page
@@ -137,6 +189,7 @@ def row_payload(record: dict[str, Any], card_id: str, title: str) -> dict[str, A
             "row": first.row,
         },
         "locator": where,
+        "provenance": origin,
         "values": values,
         "caveats": caveats,
         "open_questions": questions,
@@ -171,6 +224,7 @@ def _card(key: str, title: str, members: list[dict[str, Any]]) -> dict[str, Any]
     pages: set[int] = set()
     for m in members:
         candidate: EvidenceCandidate = m["candidate"]
+        row_notes: set[tuple[str, str]] = set()  # counted once per row
         for _, field, value, _ in _values(candidate):
             number = _number(value.value)
             if number is not None:
@@ -183,17 +237,23 @@ def _card(key: str, title: str, members: list[dict[str, Any]]) -> dict[str, Any]
                 pages.add(value.provenance.page)
             for note in value.notes:
                 if note.kind in CAVEAT_NOTES:
-                    notes[(note.kind, note.text)] += 1
-        for issue in candidate.issues:
-            if issue.code not in ROW_ONLY_ISSUES:
-                caveats[issue.message] += 1
+                    row_notes.add((note.kind, note.text))
+        notes.update(row_notes)
+        for message in display_caveats(candidate):
+            caveats[message] += 1
     ids = [m["candidate"].identity.test_id for m in members]
+    origin = provenance(
+        next(iter(kinds)) if len(kinds) == 1 else None,
+        first.source_sha256,
+        title,
+        sorted(pages),
+        len(members) > 1,
+    )
     lines = [
         f"Table — {title} ({first_candidate.identity.investigation_id})",
-        "Evidence: "
+        origin
+        or "Evidence: "
         + "; ".join(f"{EVIDENCE_LABELS.get(k or '', k)} ({n})" for k, n in kinds.items())
-        + ". Review: "
-        + ", ".join(f"{k} ({n})" for k, n in reviews.items())
         + ".",
         f"{len(members)} rows: {ids[0]} … {ids[-1]}" if len(ids) > 1 else f"1 row: {ids[0]}",
     ]
@@ -251,6 +311,7 @@ def _card(key: str, title: str, members: list[dict[str, Any]]) -> dict[str, Any]
             "pages": sorted(pages),
             "table": first.table,
             "locator": locator,
+            "provenance": origin,
             "caveats": [c for c, _ in caveats.most_common()],
             "notes": [{"kind": k, "text": t, "rows": n} for (k, t), n in notes.most_common()],
         },

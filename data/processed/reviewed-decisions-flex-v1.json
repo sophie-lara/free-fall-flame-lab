@@ -1,6 +1,6 @@
 {
   "schema_version": "reviewed-decisions-v1",
-  "fixture_sha256": "ab37c4647f6717359fec8a8b26a6da49bf112e94c374b4f8690e0439f1fba6d2",
+  "fixture_sha256": "25e329fcaa024ec3a7f5b27c72b939ad9a1abd3854b95664e8d50c27fe73f4cb",
   "decisions": [
     {
       "investigation_id": "PSI-69",
@@ -5797,9 +5797,9 @@
     {
       "investigation_id": "PSI-69",
       "test_id": "FLEX-T14-He",
-      "candidate_fingerprint": "8cf14b2565d824a88e34c5c1ce4036cd0f4079ec4f914fce92d3448263115725",
+      "candidate_fingerprint": "e38070898be7cc2013b3a9934a5bf79e7a2b54cf722b50552dbf92c1141a7bad",
       "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
-      "reviewed_fingerprint": "91ff1310ad6a67c3e60047dc330f9517175fab9b02fc9040374be5a598104c9c",
+      "reviewed_fingerprint": "61b35a64eff46cf750af4cbc60514d9fc8013197e3319312b94db97ece645162",
       "action": "accept",
       "reviewer": "Sophie",
       "reviewed_at": "2026-11-14T19:34:00-06:00",
@@ -5813,9 +5813,9 @@
     {
       "investigation_id": "PSI-69",
       "test_id": "FLEX-T14-N2",
-      "candidate_fingerprint": "50e65507c592a31bbfa70dfed0bc019ddf41f4428addc4f6c1ea6d0f93db5e16",
+      "candidate_fingerprint": "17662dd9c8e72e1f90b7314a9d5680f2932c416addae8fab185df93306a2a4c4",
       "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
-      "reviewed_fingerprint": "5f81346a59a1440ae5cf993bae34131c78bf5f9b7330112acc7bbf61d14b3ac3",
+      "reviewed_fingerprint": "9c2e243c6670e3b78dcdf4b42423748ea881a950de296643da44ae132f8eb7b9",
       "action": "accept",
       "reviewer": "Sophie",
       "reviewed_at": "2026-11-14T19:34:00-06:00",
@@ -5829,9 +5829,9 @@
     {
       "investigation_id": "PSI-69",
       "test_id": "FLEX-T14-Xe",
-      "candidate_fingerprint": "500da5f89cc962e8d0982bbc7bc31cd6f5eabeec1ad1edad113c7ad34afcc848",
+      "candidate_fingerprint": "bdc559e3be28128a85c7d26b6a353dcc5b4badc36ae0e10e59cce455a01301b5",
       "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
-      "reviewed_fingerprint": "ea3abd001b13714c79fc1cc6b780282aba9af7c66a444f044025a5ed71b5c008",
+      "reviewed_fingerprint": "8ce61d111012e95e33f5c89c33b58281236d43ee7879ab8521773fea853b2bc5",
       "action": "accept",
       "reviewer": "Sophie",
       "reviewed_at": "2026-11-14T19:34:00-06:00",

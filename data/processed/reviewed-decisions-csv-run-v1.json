@@ -1,6 +1,6 @@
 {
   "schema_version": "reviewed-decisions-v1",
-  "fixture_sha256": "4bced9dd2f554ed0062a1a595f58c8b6115474a35b24f851054e0c82f32ce956",
+  "fixture_sha256": "85bc72ebe0cf6e86b10dc2661f880c77eb9d86f968f3f90990218ad425c07b82",
   "draft": false,
   "decisions": [
     {
@@ -51,7 +51,7 @@
       "test_id": "SAFFIRE-II-2-8",
       "candidate_fingerprint": "b45d58ab25afbbc06e133af07aa59c1e217b6769e8f0139b64eed175a25493a1",
       "source_sha256": "3c24390b9ef86f3d1ebaab911a1a3cc95a8759aebf42062371370e6d4b31b8ac",
-      "reviewed_fingerprint": "df8e3c79901334fbcd1064879121f8f21bafe6815aa48d749274114a099cd268",
+      "reviewed_fingerprint": "c8c1f1c5c8f915be43f6946fef0bff9b6c731c02d8e7e0b162c33e21382d2ab0",
       "action": "needs_research",
       "reviewer": "Sophie",
       "reviewed_at": "2026-11-14T17:18:00-06:00",
@@ -95,7 +95,7 @@
       "test_id": "B11",
       "candidate_fingerprint": "d4efbb5e93a8b70038091b7afaf9856f3c5db6e2e8bd5293a32f28b155ae97fa",
       "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
-      "reviewed_fingerprint": "85a190ad49ed33641b0b0ffd4b7dc0af3fad151363911631599e31d7f43feeb0",
+      "reviewed_fingerprint": "df39bebf27a83b350cefd8e16953d7c5111ffe7450cb7b4c5a454e91fb7615ef",
       "action": "accept",
       "reviewer": "Sophie",
       "reviewed_at": "2026-11-14T17:18:00-06:00",
@@ -134,7 +134,7 @@
       "test_id": "B15",
       "candidate_fingerprint": "1e011f657ee91684496b3740416149fc4541213353f1952fbf6b25dfaa90c167",
       "source_sha256": "71e792bf6b5fb5ea620c5dd70fbbac05515992e12aefcf5dff47312caa48c042",
-      "reviewed_fingerprint": "077e50be3845844185844cf43cf2b7622ff259f15bf5080533bd389f78db85f2",
+      "reviewed_fingerprint": "742962e1176d71d91003e8893acd9a6badc4339ce57cd0c0f9df9c57c142e899",
       "action": "accept",
       "reviewer": "Sophie",
       "reviewed_at": "2026-11-14T17:18:00-06:00",

@@ -340,3 +340,69 @@ def test_hosted_allowlist_blocks_other_signed_in_accounts(tmp_path) -> None:
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_ask_stream_keeps_results_when_the_answer_fails(tmp_path: Path, monkeypatch) -> None:
+    from combustion_atlas.providers import openai_answers
+    from combustion_atlas.rag.chunk import chunk_page
+    from combustion_atlas.rag.models import PageRecord
+    from combustion_atlas.rag.store import DocumentStore
+
+    page = PageRecord(
+        source_id="a" * 16,
+        filename="r.pdf",
+        sha256="a" * 64,
+        physical_page=2,
+        text="A total of 126 tests were conducted.",
+    )
+    (tmp_path / "data/embeddings").mkdir(parents=True)
+    with DocumentStore(tmp_path / "data/embeddings/rag.sqlite3") as store:
+        store.replace([page], chunk_page(page))
+
+    class Unconfigured:
+        def __init__(self, _config: object) -> None:
+            raise ValueError("Configure an OpenAI answer provider and answer model locally")
+
+    monkeypatch.setattr(openai_answers, "OpenAIAnswerProvider", Unconfigured)
+    server = start(tmp_path, mode="public", hosted=False)
+    try:
+        headers = {"Content-Type": "application/json"}
+        with_ai = {
+            "question": "How many tests?",
+            "method": "keyword",
+            "generate_answer": True,
+            "allow_provider_calls": True,
+        }
+        events = ndjson(
+            call(
+                server,
+                "/api/ask/stream",
+                method="POST",
+                headers=headers,
+                body=json.dumps(with_ai).encode(),
+            )[1]
+        )
+        result = events[-1]
+        assert result["type"] == "result" and result["results"][0]["physical_page"] == 2
+        assert "answer" not in result and "AI answer unavailable" in result["answer_unavailable"]
+
+        ai_off = {
+            "question": "How many tests?",
+            "method": "keyword",
+            "generate_answer": False,
+            "allow_provider_calls": False,
+        }
+        events = ndjson(
+            call(
+                server,
+                "/api/ask/stream",
+                method="POST",
+                headers=headers,
+                body=json.dumps(ai_off).encode(),
+            )[1]
+        )
+        assert events[-1]["type"] == "result" and events[-1]["results"]
+        assert "answer_unavailable" not in events[-1]
+    finally:
+        server.shutdown()
+        server.server_close()

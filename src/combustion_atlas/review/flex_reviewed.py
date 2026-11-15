@@ -74,7 +74,7 @@ def background_candidates(
                 value["notes"].append(
                     {
                         "kind": "definition",
-                        "text": f"{_symbol(header)}: {meaning} ({basis})",
+                        "text": f"{_symbol(header)}: {meaning}",
                         "by": "reviewer",
                         "decision": None,
                     }
