@@ -22,7 +22,7 @@ import json
 import re
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -31,6 +31,7 @@ from combustion_atlas.review.evidence_schema import EvidenceCandidate
 from .flex_pdf_run import (
     SOURCE,
     ExtractedCell,
+    PageLoader,
     TableExtraction,
     check_source,
     context_pages,
@@ -137,11 +138,11 @@ def load_extraction(path: Path) -> tuple[dict[str, Any], TableExtraction]:
     return result, TableExtraction.model_validate(result["extraction"])
 
 
-def build_request(extraction: TableExtraction, pages: dict[int, dict[str, Any]]) -> dict:
+def build_request(extraction: TableExtraction, pages: dict[int, dict[str, Any]]) -> dict[str, Any]:
     return {
         "prompt_version": PROMPT_VERSION,
         "instructions": INSTRUCTIONS,
-        "allowed_fields": list(Field_.__args__),
+        "allowed_fields": list(get_args(Field_)),
         "table": {
             "label": extraction.label,
             "caption": extraction.caption,
@@ -255,7 +256,7 @@ def expand(mapping: TableMapping, extraction: TableExtraction) -> list[dict[str,
         if row in row_headers and row in groups:
             cell = row_headers[row]
             for cond in groups[row].conditions:
-                entry = {
+                entry: dict[str, Any] = {
                     "original_value": cond.source_text,
                     "original_unit": None,
                     "provenance": _location(cell, "condition row", label),
@@ -367,7 +368,9 @@ def environment(root: Path) -> dict[str, Any]:
     return {p: hashlib.sha256((root / p).read_bytes()).hexdigest() for p in CODE_FILES}
 
 
-def prepare(root: Path, entries: list[dict[str, Any]], loader=load_pages) -> list[dict]:
+def prepare(
+    root: Path, entries: list[dict[str, Any]], loader: PageLoader = load_pages
+) -> list[dict[str, Any]]:
     path = check_source(root)
     out = []
     for entry in entries:
@@ -403,7 +406,9 @@ def public(t: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in t.items() if not k.startswith("_")}
 
 
-def create_plan(root: Path, entries: list[dict[str, Any]], budget: Decimal, loader=load_pages):
+def create_plan(
+    root: Path, entries: list[dict[str, Any]], budget: Decimal, loader: PageLoader = load_pages
+) -> dict[str, Any]:
     for e in entries:
         if not (e.get("extraction_reviewer") and e.get("extraction_reviewed_at")):
             raise ValueError("Each table needs a recorded extraction review before mapping")
@@ -423,7 +428,13 @@ def create_plan(root: Path, entries: list[dict[str, Any]], budget: Decimal, load
 
 
 def execute(
-    root: Path, plan: dict, target_dir: Path, *, allow_calls=False, client=None, loader=load_pages
+    root: Path,
+    plan: dict[str, Any],
+    target_dir: Path,
+    *,
+    allow_calls: bool = False,
+    client: Any = None,
+    loader: PageLoader = load_pages,
 ) -> dict[str, Any]:
     if plan.get("schema_version") != VERSION or plan.get("environment") != environment(root):
         raise ValueError("Plan or pipeline code changed; create a new plan")
@@ -549,7 +560,7 @@ def execute(
 
 
 def review_markdown(
-    label: str, mapping: TableMapping, issues: list[str], candidates: list[dict]
+    label: str, mapping: TableMapping, issues: list[str], candidates: list[dict[str, Any]]
 ) -> str:
     lines = [
         f"# Table {label}: mapping review",

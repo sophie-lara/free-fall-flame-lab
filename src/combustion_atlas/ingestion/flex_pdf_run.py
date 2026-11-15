@@ -48,7 +48,7 @@ CODE_FILES = (
     "src/combustion_atlas/rag/visual_models.py",
 )
 
-SOURCE = {
+SOURCE: dict[str, Any] = {
     "investigation_id": "PSI-69",
     "path": "data/raw/preserved-review/PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf",
     "sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
@@ -184,7 +184,9 @@ def context_pages(table_pages: list[int]) -> list[int]:
     return [p for p in range(first - 1, last + 2) if 1 <= p <= SOURCE["pages"]]
 
 
-def build_request(label: str, pages: dict[int, dict[str, Any]], table_pages: list[int]) -> dict:
+def build_request(
+    label: str, pages: dict[int, dict[str, Any]], table_pages: list[int]
+) -> dict[str, Any]:
     texts = [
         {
             "physical_page": n,
@@ -214,7 +216,7 @@ def reservation(request: dict[str, Any], images: int) -> Decimal:
 
 
 def check_source(root: Path) -> Path:
-    path = (root / SOURCE["path"]).resolve()
+    path: Path = (root / str(SOURCE["path"])).resolve()
     if not path.is_relative_to((root / "data/raw").resolve()):
         raise ValueError("Source must be inside data/raw")
     if hashlib.sha256(path.read_bytes()).hexdigest() != SOURCE["sha256"]:
@@ -281,7 +283,9 @@ def create_plan(
     }
 
 
-def rebuild(root: Path, plan: dict[str, Any], loader: PageLoader = load_pages) -> list[dict]:
+def rebuild(
+    root: Path, plan: dict[str, Any], loader: PageLoader = load_pages
+) -> list[dict[str, Any]]:
     if plan.get("schema_version") != VERSION or plan.get("model") != MODEL:
         raise ValueError("Unsupported plan or model")
     if plan.get("environment") != environment(root) or plan.get("source") != SOURCE:
@@ -434,7 +438,7 @@ def check_extraction(
     return issues
 
 
-def review_markdown(label: str, extraction: TableExtraction, issues: list[dict]) -> str:
+def review_markdown(label: str, extraction: TableExtraction, issues: list[dict[str, Any]]) -> str:
     lines = [f"# Table {label}: extraction review", "", "Unreviewed transcription.", ""]
     lines += [f"**Caption:** {extraction.caption}", ""]
     if extraction.header_notes:
