@@ -3,7 +3,7 @@ const main = document.querySelector('#main');
 const state = {
   me: null, corpus: null, coverage: null, coverageError: '', options: null, optionsError: '',
   ask: { mode: 'answer', question: '', loading: false, error: '', result: null, progress: [], ai: localStorage.getItem('atlas-ai') !== 'off' },
-  cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'chart', detail: null, initialized: false },
+  cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'heatmap', grid: 'flex', facets: {}, cell: null, detail: null, initialized: false },
   predict: { target: '', inputs: {}, loading: false, error: '', result: null },
 };
 const NAMES = { 'PSI-25': 'BASS-II', 'PSI-26': 'BASS', 'PSI-69': 'FLEX', 'PSI-68': 'FLEX-2', 'PSI-98': 'Saffire-I', 'PSI-99': 'Saffire-II', 'PSI-100': 'Saffire-III', 'PSI-102': 'SAME', 'PSI-101': 'SAME-R' };
@@ -442,10 +442,12 @@ function initCoverageSelection() {
 }
 function renderCoverage() {
   if (!state.coverage && !state.coverageError) { main.innerHTML = '<p class="loading">Loading experiment coverage…</p>'; loadCoverage().then(() => route() === 'coverage' && renderCoverage()); return; }
-  const head = pageHead('Coverage', 'Experiment coverage', 'Each mark is one experiment run, placed by its test conditions. Dashed regions have no runs in this collection. That shows where this collection is thin, not that a condition is unstudied.');
+  const head = pageHead('Coverage', 'Experiment coverage', 'Where have experiments actually been run? Each heatmap cell counts the runs whose test conditions fall in that range. An empty cell means no runs in this collection, not that a condition is unstudied.');
   if (state.coverageError) { main.innerHTML = head + emptyBox('Not available yet', state.coverageError); return; }
   initCoverageSelection();
   const cov = state.coverage, c = state.cov;
+  const viewSwitch = `<div class="segmented" role="group" aria-label="View"><button type="button" data-view="heatmap" aria-pressed="${c.view === 'heatmap'}">Heatmap</button><button type="button" data-view="chart" aria-pressed="${c.view === 'chart'}">Points</button><button type="button" data-view="table" aria-pressed="${c.view === 'table'}">Table</button></div>`;
+  if (c.view === 'heatmap' && (cov.grids || []).length) { renderHeatmapPage(head, viewSwitch); return; }
   const fields = (cov.fields || []).filter(f => f.count > 0);
   const fieldOpt = sel => fields.map(f => `<option value="${esc(f.key)}" ${sel === f.key ? 'selected' : ''}>${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''} · ${count(f.count)}</option>`).join('');
   const reviewed = cov.records.filter(r => r.review_status === 'reviewed').length;
@@ -455,14 +457,14 @@ function renderCoverage() {
     return `<button type="button" class="chip" data-family="${esc(f.key)}" aria-pressed="${slot >= 0}">${sw}${esc(f.label)} <span class="muted">${count(f.count)}</span></button>`;
   }).join('');
   main.innerHTML = head + `
-  <div class="row" style="margin-bottom:16px"><span class="pill warn">${count(cov.records.length - reviewed)} unreviewed candidate runs</span>${reviewed ? `<span class="pill ok">${count(reviewed)} reviewed</span>` : ''}${(cov.notes || []).map(n => `<span class="muted small">${esc(n)}</span>`).join('')}</div>
+  <div class="row" style="margin-bottom:16px">${reviewed ? `<span class="pill ok">${count(reviewed)} reviewed</span>` : ''}${(cov.notes || []).filter(n => !/not been reviewed/.test(n)).map(n => `<span class="muted small">${esc(n)}</span>`).join('')}</div>
   <section class="card">
     <div class="controls">
       <div class="field"><label for="cov-x">Horizontal axis</label><select id="cov-x">${fieldOpt(c.x)}</select></div>
       <div class="field"><label for="cov-y">Vertical axis</label><select id="cov-y">${fieldOpt(c.y)}</select></div>
       <span class="spacer"></span>
       ${(cov.proposed || []).length ? `<label class="small" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="cov-proposed" ${c.showProposed === false ? '' : 'checked'}> Show ${count(cov.proposed.length)} proposed FLEX tests</label>` : ''}
-      <div class="segmented" role="group" aria-label="View"><button type="button" data-view="chart" aria-pressed="${c.view === 'chart'}">Chart</button><button type="button" data-view="table" aria-pressed="${c.view === 'table'}">Table</button></div>
+      ${viewSwitch}
     </div>
     <div><label>Highlight up to three families</label><div class="chips family-chips" role="group" aria-label="Families">${famChips || '<span class="muted">No families yet.</span>'}</div></div>
     <div id="cov-view" style="margin-top:16px"></div>
@@ -480,6 +482,156 @@ function renderCoverage() {
   }));
   drawCoverageView();
   renderCoverageDetail();
+}
+// ---------- coverage heatmap (bins and cell classes come from the server) ----------
+const CELL_CLASSES = ['strong', 'moderate', 'sparse', 'planned', 'gap'];
+const CLASS_LABEL = { strong: 'Strong', moderate: 'Moderate', sparse: 'Sparse', planned: 'Planned only', gap: 'Gap' };
+const NOT_RECORDED = 'Not recorded';
+function currentGrid() { const gs = state.coverage.grids || []; return gs.find(g => g.key === state.cov.grid) || gs[0]; }
+function gridFacets(g) { return (state.cov.facets[g.key] ||= {}); }
+function gridView(g) { const f = gridFacets(g); return g.views[g.facets.length ? g.facets.map(x => `${x.key}=${f[x.key] || 'all'}`).join('|') : 'all']; }
+const binText = (axis, b) => b.lo != null && axis.unit ? `${b.label} ${axis.unit}` : b.label;
+const axisTitle = axis => `${axis.label}${axis.unit ? ` (${axis.unit})` : ''}`;
+function cellAt(v, i, j) { return v.cells.find(c => c.x === i && c.y === j) || { x: i, y: j, observed: 0, planned: 0, neighbours: 0, class: 'gap', ids: [], planned_ids: [], outcomes: {}, reviewed: 0 }; }
+function cellSummary(g, c) {
+  const runs = `${count(c.observed)} run${c.observed === 1 ? '' : 's'}`;
+  const planned = c.planned ? `, ${count(c.planned)} planned test${c.planned === 1 ? '' : 's'}` : '';
+  return `${axisTitle(g.x).split(' (')[0]} ${binText(g.x, g.x.bins[c.x])}, ${g.y.label.toLowerCase()} ${binText(g.y, g.y.bins[c.y])}: ${runs}${planned}. ${CLASS_LABEL[c.class]}.`;
+}
+const swatch = cls => `<svg width="22" height="16" aria-hidden="true"><rect class="hm-cell hm-${cls}" x="1" y="1" width="20" height="14" rx="3"/></svg>`;
+// The selection is one cell or a whole gap band: { grid, cells: [[x, y], ...], gap? }.
+const selectedCells = (c, g) => c.cell && c.cell.grid === g.key ? c.cell.cells : [];
+
+function renderHeatmapPage(head, viewSwitch) {
+  const cov = state.coverage, c = state.cov, g = currentGrid();
+  const tabs = (cov.grids || []).map(x => `<button type="button" data-grid="${esc(x.key)}" aria-pressed="${x.key === g.key}">${esc(x.label)}</button>`).join('');
+  const facets = g.facets.map(f => `<div class="field"><label for="facet-${esc(f.key)}">${esc(f.label)}</label><select id="facet-${esc(f.key)}" data-facet="${esc(f.key)}">${f.options.map(o => `<option value="${esc(o.key)}" ${(gridFacets(g)[f.key] || 'all') === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div>`).join('');
+  main.innerHTML = head + `
+  <section class="card">
+    <div class="controls">
+      <div class="field"><label>Investigation family</label><div class="segmented" role="group" aria-label="Investigation family">${tabs}</div></div>
+      ${facets}
+      <span class="spacer"></span>
+      ${viewSwitch}
+    </div>
+    <p class="muted" style="margin:0 0 12px">${esc(g.description)}</p>
+    <div id="cov-view"></div>
+  </section>
+  <div id="cov-cell" class="section" aria-live="polite"></div>
+  <div id="cov-detail" aria-live="polite"></div>`;
+  main.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { c.view = b.dataset.view; renderCoverage(); }));
+  main.querySelectorAll('[data-grid]').forEach(b => b.addEventListener('click', () => { c.grid = b.dataset.grid; c.cell = null; c.detail = null; renderCoverage(); }));
+  main.querySelectorAll('[data-facet]').forEach(s => s.addEventListener('change', e => { gridFacets(g)[s.dataset.facet] = e.target.value; c.detail = null; if (c.cell?.gap) c.cell = null; drawHeatmap(); renderCellDetail(); renderCoverageDetail(); }));
+  drawHeatmap();
+  renderCellDetail();
+  renderCoverageDetail();
+}
+
+function drawHeatmap() {
+  const el = main.querySelector('#cov-view'); if (!el) return;
+  const g = currentGrid(), v = gridView(g), c = state.cov;
+  const nx = g.x.bins.length, ny = g.y.bins.length;
+  const longest = Math.max(...g.y.bins.map(b => binText(g.y, b).length));
+  const W = 880, mt = 8, mr = 8, mb = 64, ml = Math.min(230, Math.max(84, longest * 7 + 36));
+  // "Not recorded" bins sit apart from the real ranges, so they never read as adjacent.
+  const SEP = 14, nrX = g.x.bins.some(b => b.key === NOT_RECORDED) ? SEP : 0, nrY = g.y.bins.some(b => b.key === NOT_RECORDED) ? SEP : 0;
+  const cw = (W - ml - mr - nrX) / nx, ch = Math.max(34, Math.min(50, 400 / ny)), H = mt + ny * ch + nrY + mb;
+  const colX = i => ml + i * cw + (g.x.bins[i].key === NOT_RECORDED ? nrX : 0);
+  const nrRow = g.y.bins.findIndex(b => b.key === NOT_RECORDED); // drawn on top; rows below it shift down
+  const rowY = j => mt + (ny - 1 - j) * ch + (nrRow >= 0 && j < nrRow ? nrY : 0);
+  const sel = new Set(selectedCells(c, g).map(([x, y]) => `${x},${y}`));
+  let cells = '';
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+    const cell = cellAt(v, i, j), x = colX(i), y = rowY(j);
+    const dark = cell.class === 'strong';
+    const selected = sel.has(`${i},${j}`);
+    cells += `<g class="hm-hit${selected ? ' selected' : ''}" tabindex="0" role="button" data-x="${i}" data-y="${j}" aria-label="${esc(cellSummary(g, cell))}">
+      <rect class="hm-cell hm-${cell.class}" x="${(x + 1).toFixed(1)}" y="${(y + 1).toFixed(1)}" width="${(cw - 2).toFixed(1)}" height="${(ch - 2).toFixed(1)}" rx="4"/>
+      ${cell.observed ? `<text class="hm-count${dark ? ' on-dark' : ''}" x="${(x + cw / 2).toFixed(1)}" y="${(y + ch / 2 + 5).toFixed(1)}" text-anchor="middle">${count(cell.observed)}</text>` : ''}
+      ${cell.planned ? `<text class="hm-planned-count${dark ? ' on-dark' : ''}" x="${(x + cw - 5).toFixed(1)}" y="${(y + ch - 6).toFixed(1)}" text-anchor="end">◇${count(cell.planned)}</text>` : ''}
+    </g>`;
+  }
+  const xLabels = g.x.bins.map((b, i) => {
+    const words = b.label.length * 6.6 > cw - 4 ? b.label.split(' ') : [b.label];
+    const half = Math.ceil(words.length / 2), lines = words.length > 1 ? [words.slice(0, half).join(' '), words.slice(half).join(' ')] : words;
+    return `<text x="${(colX(i) + cw / 2).toFixed(1)}" y="${mt + ny * ch + nrY + 16}" text-anchor="middle">${lines.map((l, k) => `<tspan x="${(colX(i) + cw / 2).toFixed(1)}" dy="${k ? 14 : 0}">${esc(l)}</tspan>`).join('')}</text>`;
+  }).join('');
+  const yLabels = g.y.bins.map((b, j) => `<text x="${ml - 8}" y="${(rowY(j) + ch / 2 + 4).toFixed(1)}" text-anchor="end">${esc(binText(g.y, b))}</text>`).join('');
+  const titles = `<text class="axis-title" x="${(ml + W - mr) / 2}" y="${H - 8}" text-anchor="middle">${esc(axisTitle(g.x))}</text>`;
+  const legend = CELL_CLASSES.filter(k => g.has_planned || k !== 'planned').map(k => `<span>${swatch(k)}<strong>${esc(CLASS_LABEL[k])}</strong> <span class="muted">${esc(state.coverage.cell_classes?.[k] || '')}${k === 'planned' ? ' · ◇ = planned tests in a cell' : ''}</span></span>`).join('');
+  const t = v.totals;
+  const gaps = v.gaps || [];
+  const gapItem = (gp, k) => `<li><button type="button" class="gap-pick${c.cell?.gap === k ? ' active' : ''}" data-gap="${k}"><strong>${esc(gp.label)}</strong>${gp.detail ? `<span class="muted"> · ${esc(gp.detail)}</span>` : ''}</button></li>`;
+  const gapGroup = (title, status) => { const items = gaps.map((gp, k) => [gp, k]).filter(([gp]) => gp.status === status); return items.length ? `${title ? `<h4>${esc(title)}</h4>` : ''}<ul class="gap-list">${items.map(([gp, k]) => gapItem(gp, k)).join('')}</ul>` : ''; };
+  const gapSection = gaps.length ? `<section class="gaps"><h3>Possible experimental gaps</h3><p class="muted small">Condition ranges with no runs in this collection. Click one to highlight it.</p>
+    ${g.has_planned ? gapGroup('Planned, not yet run', 'planned') + gapGroup('Neither run nor planned', 'unplanned') : gapGroup('', 'unplanned')}</section>` : '';
+  el.innerHTML = `<p class="small" style="margin:0 0 4px"><strong>${count(t.observed)} runs</strong> in ${count(t.cells_with_runs)} of ${count(t.cells)} cells${g.has_planned ? ` · <strong>${count(t.planned)} planned tests</strong>` : ''}</p>
+    <p class="y-axis-title">↑ ${esc(axisTitle(g.y))}</p>
+    <div class="chart-wrap"><svg class="chart heatmap" viewBox="0 0 ${W} ${H}" role="group" aria-label="${esc(`${g.label} coverage heatmap: ${g.y.label} by ${g.x.label}`)}">${cells}${xLabels}${yLabels}${titles}</svg><div class="tooltip" id="hm-tip" hidden></div></div>
+    <div class="legend" aria-label="Legend">${legend}</div>
+    ${gapSection}
+    ${(g.notes || []).length ? `<ul class="hint" style="margin-top:12px;padding-left:18px">${g.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}`;
+  const tip = el.querySelector('#hm-tip'), svg = el.querySelector('svg');
+  const pick = (i, j, gap) => { c.cell = gap == null ? { grid: g.key, cells: [[i, j]] } : { grid: g.key, cells: gaps[gap].cells, gap }; c.detail = null; drawHeatmap(); renderCellDetail(); renderCoverageDetail(); main.querySelector('#cov-cell')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' }); };
+  el.querySelectorAll('.hm-hit').forEach(node => {
+    const cell = cellAt(v, +node.dataset.x, +node.dataset.y);
+    const show = ev => {
+      const box = svg.getBoundingClientRect(), rect = node.getBoundingClientRect();
+      const outcomes = Object.entries(cell.outcomes || {}).map(([k, n]) => `${esc(k)} ${count(n)}`).join(', ');
+      tip.innerHTML = `<strong>${esc(binText(g.x, g.x.bins[cell.x]))} · ${esc(binText(g.y, g.y.bins[cell.y]))}</strong><br>${count(cell.observed)} run${cell.observed === 1 ? '' : 's'}${outcomes ? ` (${outcomes})` : ''}${cell.planned ? `<br>${count(cell.planned)} planned test${cell.planned === 1 ? '' : 's'}, not runs` : ''}<br><span class="muted">${esc(CLASS_LABEL[cell.class])} · click for details</span>`;
+      tip.hidden = false;
+      const px = (ev?.clientX ?? rect.left + rect.width / 2) - box.left, py = (ev?.clientY ?? rect.bottom) - box.top;
+      tip.style.left = `${Math.max(0, Math.min(px + 14, box.width - 300))}px`; tip.style.top = `${py + 14}px`;
+    };
+    node.addEventListener('mousemove', show); node.addEventListener('focus', () => show());
+    node.addEventListener('mouseleave', () => { tip.hidden = true; }); node.addEventListener('blur', () => { tip.hidden = true; });
+    node.addEventListener('click', () => pick(cell.x, cell.y));
+    node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(cell.x, cell.y); } });
+  });
+  el.querySelectorAll('.gap-pick').forEach(b => b.addEventListener('click', () => pick(null, null, +b.dataset.gap)));
+}
+
+function renderCellDetail() {
+  const el = main.querySelector('#cov-cell'); if (!el) return;
+  const g = currentGrid(), c = state.cov;
+  if (!c.cell || c.cell.grid !== g.key) { el.innerHTML = ''; return; }
+  const v = gridView(g), members = c.cell.cells.map(([x, y]) => cellAt(v, x, y));
+  const gap = c.cell.gap != null ? (v.gaps || [])[c.cell.gap] : null;
+  if (c.cell.gap != null && !gap) { el.innerHTML = ''; return; }
+  const cell = members.length === 1 ? members[0] : { ids: members.flatMap(m => m.ids), planned_ids: members.flatMap(m => m.planned_ids), outcomes: {}, observed: 0, planned: members.reduce((n, m) => n + m.planned, 0), neighbours: 0, class: gap?.status === 'planned' ? 'planned' : 'gap' };
+  const byId = Object.fromEntries(state.coverage.records.map(r => [String(r.id), r]));
+  const runs = cell.ids.map(id => byId[String(id)]).filter(Boolean);
+  const outcomeOf = r => r.raw?.['Test end'] || (r.outcomes?.burn_time_s?.raw ? `burn time ${r.outcomes.burn_time_s.raw}` : '');
+  const cols = [
+    ['Material', r => r.raw?.['Fuel Sample Material'] || r.material],
+    ['O₂ (%)', r => r.oxygen_pct != null ? fmt(r.oxygen_pct) : null, true],
+    ['Pressure (atm)', r => r.pressure_kpa ? fmt(r.pressure_kpa / 101.325) : null, true],
+    ['Flow (cm/s)', r => r.flow_cm_s != null ? fmt(r.flow_cm_s) : null, true],
+    ['Outcome', outcomeOf],
+  ].filter(([, f]) => runs.some(r => f(r)));
+  const runTable = runs.length ? `<div class="table-scroll" style="max-height:360px"><table><thead><tr><th>Run</th><th>Investigation</th>${cols.map(([h, , n]) => `<th${n ? ' class="num"' : ''}>${esc(h)}</th>`).join('')}<th>Source</th></tr></thead><tbody>
+    ${runs.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(r.test_id)}${r.review_status === 'reviewed' ? ' <span class="pill ok">Reviewed</span>' : ''}</td><td>${esc(invName(r.investigation_id))}</td>${cols.map(([, f, n]) => `<td${n ? ' class="num"' : ''}>${esc(f(r) || '—')}</td>`).join('')}<td class="small">${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}</td></tr>`).join('')}
+  </tbody></table></div>` : `<p class="muted">No runs in this collection fall in ${gap ? 'this range' : 'this cell'}.</p>`;
+  const proposed = cell.planned_ids.map(i => state.coverage.proposed?.[i]).filter(Boolean);
+  const plannedTable = proposed.length ? `<h4 style="margin:20px 0 8px">Planned tests · ${count(proposed.length)}</h4><p class="muted small" style="margin:0 0 8px">From the FLEX EIRD test matrices: planned conditions, not runs, with no results.</p>
+    <div class="table-scroll" style="max-height:300px"><table><thead><tr><th>Test</th><th>Source</th><th>Fuel</th><th>Added diluent</th><th class="num">O₂ (%)</th><th class="num">Pressure (atm)</th></tr></thead><tbody>
+    ${proposed.map(p => `<tr><td>${esc(p.test_id)}</td><td class="small">EIRD Table ${esc(p.table)}, page ${esc(p.page)}</td><td>${esc(({ C7H16: 'Heptane (C₇H₁₆)', CH3OH: 'Methanol (CH₃OH)' })[p.fuel] || p.fuel || '—')}</td><td>${esc(p.suppressant || 'none')}</td><td class="num">${fmt(p.fields?.oxygen_pct)}</td><td class="num">${p.fields?.pressure_kpa != null ? fmt(p.fields.pressure_kpa / 101.325) : '—'}</td></tr>`).join('')}
+    </tbody></table></div>` : '';
+  const outcomes = Object.entries(cell.outcomes || {});
+  const title = gap ? gap.label : `${g.x.label} ${binText(g.x, g.x.bins[cell.x])} · ${g.y.label} ${binText(g.y, g.y.bins[cell.y])}`;
+  const pill = gap ? `<span class="pill">Possible gap · ${gap.status === 'planned' ? 'planned, not run' : 'not planned'}</span>` : `<span class="pill">${swatch(cell.class)}${esc(CLASS_LABEL[cell.class])}</span>`;
+  // A gap band is described by its overall range on each axis, not cell by cell.
+  const span = (axis, idx) => { const bins = [...new Set(idx)].sort((a, b) => a - b).map(k => axis.bins[k]); return bins.every(b => b.lo != null) ? `${axis.label} ${bins[0].lo}–${bins[bins.length - 1].hi}${axis.unit ? ` ${axis.unit}` : ''}` : bins.map(b => b.label).join(', '); };
+  const sub = gap
+    ? `${esc(span(g.x, members.map(m => m.x)))} · ${esc(span(g.y, members.map(m => m.y)))}${gap.planned ? ` · ${count(gap.planned)} planned test${gap.planned === 1 ? '' : 's'}, no runs` : ' · no runs or planned tests'}`
+    : esc(state.coverage.cell_classes?.[cell.class] || '');
+  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(title)}</h3>${pill}<span class="spacer"></span><button class="btn small" type="button" id="close-cell">Close</button></div>
+    <p class="muted small" style="margin:8px 0 16px">${sub}</p>
+    ${gap ? '' : `<h4 style="margin:0 0 8px">Runs · ${count(runs.length)}</h4>
+    ${outcomes.length ? `<p class="small" style="margin:0 0 8px">Outcomes: ${outcomes.map(([k, n]) => `${esc(k)} ${count(n)}`).join(' · ')}</p>` : ''}
+    ${runTable}`}${plannedTable}</section>`;
+  el.querySelector('#close-cell').addEventListener('click', () => { c.cell = null; c.detail = null; drawHeatmap(); renderCellDetail(); renderCoverageDetail(); });
+  bindRows(el);
 }
 function toastInline(msg) { const el = main.querySelector('#cov-detail'); if (el) el.innerHTML = `<p class="notice">${esc(msg)}</p>`; }
 function fieldMeta(key) { return (state.coverage.fields || []).find(f => f.key === key) || { key, label: key, unit: null }; }
@@ -529,7 +681,7 @@ function drawCoverageView() {
     const r = byId[g.dataset.id];
     const show = ev => {
       const box = svg.getBoundingClientRect();
-      tip.innerHTML = `<strong>${esc(familyLabel(r.family))} · ${esc(r.test_id)}</strong><br>${esc(fx.label)}: ${fmt(r[c.x])}${fx.unit ? ` ${esc(fx.unit)}` : ''}<br>${esc(fy.label)}: ${fmt(r[c.y])}${fy.unit ? ` ${esc(fy.unit)}` : ''}${r.material ? `<br>Material: ${esc(r.material)}` : ''}<br><span class="muted">${r.review_status === 'reviewed' ? 'Reviewed' : 'Unreviewed candidate'} · click for details</span>`;
+      tip.innerHTML = `<strong>${esc(familyLabel(r.family))} · ${esc(r.test_id)}</strong><br>${esc(fx.label)}: ${fmt(r[c.x])}${fx.unit ? ` ${esc(fx.unit)}` : ''}<br>${esc(fy.label)}: ${fmt(r[c.y])}${fy.unit ? ` ${esc(fy.unit)}` : ''}${r.material ? `<br>Material: ${esc(r.material)}` : ''}<br><span class="muted">${r.review_status === 'reviewed' ? 'Reviewed · ' : ''}click for details</span>`;
       tip.hidden = false;
       const rect = g.getBoundingClientRect();
       const px = (ev?.clientX ?? rect.left + rect.width / 2) - box.left, py = (ev?.clientY ?? rect.top) - box.top;
@@ -556,7 +708,7 @@ function drawCoverageView() {
 function coverageTable(records) {
   const cols = ['oxygen_pct', 'flow_cm_s', 'pressure_kpa'].map(fieldMeta);
   return `<div class="table-scroll"><table><caption class="visually-hidden" hidden>Experiment runs</caption><thead><tr><th>Family</th><th>Test</th><th>Material</th>${cols.map(f => `<th class="num">${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''}</th>`).join('')}<th>Gravity</th><th>Status</th><th>Source</th></tr></thead><tbody>
-    ${records.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(familyLabel(r.family))}</td><td>${esc(r.test_id)}</td><td>${esc(r.material || '—')}</td>${cols.map(f => `<td class="num">${fmt(r[f.key])}</td>`).join('')}<td>${esc(r.gravity || '—')}</td><td>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : '<span class="pill warn">Unreviewed</span>'}</td><td class="small">${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}</td></tr>`).join('')}
+    ${records.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(familyLabel(r.family))}</td><td>${esc(r.test_id)}</td><td>${esc(r.material || '—')}</td>${cols.map(f => `<td class="num">${fmt(r[f.key])}</td>`).join('')}<td>${esc(r.gravity || '—')}</td><td>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}</td><td class="small">${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}</td></tr>`).join('')}
   </tbody></table></div>`;
 }
 function bindRows(el) { el.querySelectorAll('[data-row]').forEach(tr => { const open = () => { state.cov.detail = tr.dataset.row; renderCoverageDetail(); }; tr.addEventListener('click', open); tr.addEventListener('keydown', e => { if (e.key === 'Enter') open(); }); }); }
@@ -566,7 +718,7 @@ function renderCoverageDetail() {
   if (!r) { el.innerHTML = ''; return; }
   const row = (k, v) => v == null || v === '' ? '' : `<dt>${esc(k)}</dt><dd>${v}</dd>`;
   const outcomes = Object.entries(r.outcomes || {});
-  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(familyLabel(r.family))} · ${esc(r.test_id)}</h3>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : '<span class="pill warn">Unreviewed candidate</span>'}<span class="spacer"></span><button class="btn small" type="button" id="close-detail">Close</button></div>
+  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(familyLabel(r.family))} · ${esc(r.test_id)}</h3>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}<span class="spacer"></span><button class="btn small" type="button" id="close-detail">Close</button></div>
     <dl class="kv" style="margin-top:16px">${row('Investigation', esc(invName(r.investigation_id)))}${row('Material', esc(r.material))}${row('Geometry', esc(r.geometry))}${row('Oxygen', r.oxygen_pct != null ? `${fmt(r.oxygen_pct)} %` : null)}${row('Flow', r.flow_cm_s != null ? `${fmt(r.flow_cm_s)} cm/s` : null)}${row('Pressure', r.pressure_kpa != null ? `${fmt(r.pressure_kpa)} kPa` : null)}${row('Gravity', esc(r.gravity))}
     ${outcomes.map(([k, o]) => row(k.replaceAll('_', ' '), `${o.value != null ? fmt(o.value) : '—'}${o.unit ? ` ${esc(o.unit)}` : ''} <span class="muted small">(source text: “${esc(o.raw)}”)</span>`)).join('')}
     ${row('Source', `${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}`)}</dl></section>`;
