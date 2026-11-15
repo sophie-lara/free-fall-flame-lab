@@ -3660,7 +3660,7 @@
               },
               {
                 "kind": "pending",
-                "text": "Source reads 'See Fig. 5': the thickness is only given in a figure of the source paper. Reviewer to check that figure.",
+                "text": "Source reads 'See Fig. 5': the thickness is only given in a figure of the source paper and has not been looked up yet.",
                 "by": "reviewer",
                 "decision": "D7"
               }
@@ -6888,7 +6888,7 @@
               },
               {
                 "kind": "inferred",
-                "text": "Geometry 'film' was added by the importer's rule-based parser (the model did not propose it); the word appears in the source cell '2 cm   0.2 mm PMMA film'. Accepted at review.",
+                "text": "Geometry 'film' was added by the importer's rule-based parser (the model did not propose it); the word appears in the source cell '2 cm   0.2 mm PMMA film'.",
                 "by": "reviewer",
                 "decision": "D8"
               }
@@ -9597,7 +9597,7 @@
               },
               {
                 "kind": "inferred",
-                "text": "Geometry 'film' was added by the importer's rule-based parser (the model did not propose it); the word appears in the source cell '2 cm   0.1 mm PMMA film'. Accepted at review.",
+                "text": "Geometry 'film' was added by the importer's rule-based parser (the model did not propose it); the word appears in the source cell '2 cm   0.1 mm PMMA film'.",
                 "by": "reviewer",
                 "decision": "D8"
               }

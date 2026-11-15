@@ -138,6 +138,7 @@ def row_chunk(row: dict[str, object]) -> dict[str, object]:
             "evidence_kind": row["evidence_kind"],
             "review_action": row["review_action"],
             "locator": row["locator"],
+            "provenance": row.get("provenance") or "",
             "values": row["values"],
             "caveats": row["caveats"],
             "open_questions": row["open_questions"],

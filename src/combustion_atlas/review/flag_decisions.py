@@ -286,7 +286,7 @@ def rule_d7(ctx: Context) -> None:
             value,
             "pending",
             f"Source reads '{raw}': the thickness is only given in a figure of the source "
-            "paper. Reviewer to check that figure.",
+            "paper and has not been looked up yet.",
         )
         ctx.questions.append(f"Thickness pending: check '{raw}' in the source paper.")
     else:
@@ -303,7 +303,7 @@ def rule_d8(ctx: Context) -> None:
         value,
         "inferred",
         f"Geometry 'film' was added by the importer's rule-based parser (the model did not "
-        f"propose it); the word appears in the source cell '{text}'. Accepted at review.",
+        f"propose it); the word appears in the source cell '{text}'.",
     )
 
 

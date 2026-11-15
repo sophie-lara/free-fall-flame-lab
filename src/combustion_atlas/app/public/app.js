@@ -2,7 +2,7 @@
 const main = document.querySelector('#main');
 const state = {
   me: null, corpus: null, coverage: null, coverageError: '', options: null, optionsError: '',
-  ask: { mode: 'answer', question: '', loading: false, error: '', result: null, progress: [] },
+  ask: { mode: 'answer', question: '', loading: false, error: '', result: null, progress: [], ai: localStorage.getItem('atlas-ai') !== 'off' },
   cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'chart', detail: null, initialized: false },
   predict: { target: '', inputs: {}, loading: false, error: '', result: null },
 };
@@ -173,12 +173,15 @@ function renderAsk() {
     </div>
     <div><label for="q">${a.mode === 'answer' ? 'Question' : 'Topic or proposed test condition'}</label>
       <textarea id="q" maxlength="1000" required placeholder="${a.mode === 'answer' ? 'Ask about materials, conditions, results or methods…' : 'Describe a topic or proposed experiment…'}">${esc(a.question)}</textarea></div>
-    <div class="row"><button class="btn primary" type="submit" ${a.loading ? 'disabled' : ''}>${a.loading ? (a.mode === 'answer' ? 'Searching…' : 'Analyzing…') : (a.mode === 'answer' ? 'Get answer' : 'Find next steps')}</button>
-      <span class="hint" style="margin:0">Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.${limitsHint()}</span></div>
+    <div class="row ai-row"><span class="ui-switch"><button type="button" class="ui-switch-track" id="ai-toggle" role="switch" aria-checked="${a.ai}" aria-label="AI answers"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${a.ai ? ' active' : ''}">AI answers ${a.ai ? 'on' : 'off'}</span></span>
+      <span class="hint" style="margin:0">${a.ai ? 'Uses OpenAI to write a cited answer.' : 'Free keyword search only: no AI calls. Table data and passages are still shown.'}</span></div>
+    <div class="row"><button class="btn primary" type="submit" ${a.loading || (a.mode === 'plan' && !a.ai) ? 'disabled' : ''}>${a.loading ? (a.mode === 'answer' ? 'Searching…' : 'Analyzing…') : (a.mode === 'answer' ? (a.ai ? 'Get answer' : 'Search') : 'Find next steps')}</button>
+      <span class="hint" style="margin:0">${a.mode === 'plan' && !a.ai ? 'Plan next steps needs AI answers; turn them on above.' : `Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.${a.ai ? limitsHint() : ''}`}</span></div>
     ${recommendedHTML(a.mode)}
   </form>
   <div id="ask-results" class="section" aria-live="polite">${askResults()}</div>`;
   main.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { if (a.loading) return; state.ask.question = main.querySelector('#q').value; Object.assign(a, { mode: b.dataset.mode, result: null, error: '' }); renderAsk(); }));
+  main.querySelector('#ai-toggle').addEventListener('click', () => { if (a.loading) return; a.question = main.querySelector('#q').value; a.ai = !a.ai; localStorage.setItem('atlas-ai', a.ai ? 'on' : 'off'); renderAsk(); });
   main.querySelector('#ask-form').addEventListener('submit', e => { e.preventDefault(); a.question = main.querySelector('#q').value.trim(); runAsk(); });
   main.querySelectorAll('[data-example]').forEach(b => b.addEventListener('click', () => { a.question = b.dataset.example; runAsk(); }));
 }
@@ -189,7 +192,7 @@ async function runAsk() {
   if (route() === 'ask') renderAsk();
   try {
     a.result = a.mode === 'answer'
-      ? { kind: 'answer', ...(await streamAnswer(a.question)) }
+      ? { kind: 'answer', ...(await streamAnswer(a.question, a.ai)) }
       : { kind: 'plan', ...(await postJSON('/api/directions', { topic: a.question, allow_provider_calls: true })) };
   } catch (e) { a.error = e.message; }
   a.loading = false;
@@ -197,8 +200,11 @@ async function runAsk() {
   if (route() === 'ask') renderAsk();
 }
 // Streams NDJSON progress from /api/ask/stream; falls back to /api/ask when the route is absent.
-async function streamAnswer(question) {
-  const body = { question, method: 'hybrid', generate_answer: true, allow_provider_calls: true };
+async function streamAnswer(question, ai = true) {
+  // AI off: free keyword search only, no provider calls of any kind.
+  const body = ai
+    ? { question, method: 'hybrid', generate_answer: true, allow_provider_calls: true }
+    : { question, method: 'keyword', generate_answer: false, allow_provider_calls: false };
   const response = await fetch('/api/ask/stream', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (response.status === 404) return postJSON('/api/ask', body);
   if (!response.ok || !response.body) {
@@ -234,7 +240,7 @@ function progressHTML() {
 function stepsSummaryHTML(steps, failed = false) {
   if (!steps?.length) return '';
   const total = fmt(steps[steps.length - 1].elapsed_s, 3);
-  const label = failed ? `Stopped after ${total} s` : `Answered in ${total} s`;
+  const label = failed ? `Stopped after ${total} s` : state.ask.result?.answer ? `Answered in ${total} s` : `Searched in ${total} s`;
   return `<details class="card steps-summary"><summary><span>${failed ? '⚠' : '✓'} ${esc(label)}</span><span class="muted small">${steps.length} step${steps.length === 1 ? '' : 's'}</span></summary>
     <ol class="steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('')}</ol></details>`;
 }
@@ -274,17 +280,77 @@ function claimHTML(claim, byId) {
 function citeHTML(support, byId) {
   const src = byId[support.chunk_id] || {};
   const card = src.record_card;
+  const open = Array.isArray(card?.open_questions) ? card.open_questions.length : Number(card?.open_questions || 0);
+  const what = card?.kind === 'row' ? `Table row ${card.test_id}` : card?.kind === 'table' ? `Table · ${card.table_title}` : 'Table record';
   const where = card
-    ? `<span class="pill ok">Table record · ${esc(card.review_action)}</span> <span>${esc(card.locator || src.filename || 'Reviewed evidence')}</span>${card.open_questions ? ` · <span class="pill warn">${esc(card.open_questions)} open question${card.open_questions === 1 ? '' : 's'}</span>` : ''}`
+    ? `<span class="pill ok">${esc(what)}</span>${card.evidence_kind ? ` ${evidencePill(card.evidence_kind)}` : ''} <span>${esc(card.locator || src.filename || 'Reviewed evidence')}</span>${open ? ` · <span class="pill warn">${esc(open)} open question${open === 1 ? '' : 's'}</span>` : ''}`
     : src.source_id ? `<a href="${docLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a>` : esc(support.chunk_id);
   const visual = src.visual ? ` · <span class="pill warn">${esc(src.visual.kind)} ${esc(src.visual.label)} · unreviewed AI description</span>` : '';
   const crop = src.visual && String(src.crop_url || '').startsWith('/api/visuals/') ? `<details><summary class="cite">View original page image</summary><img class="crop" loading="lazy" src="${esc(src.crop_url)}" alt="Original page for ${esc(src.visual.kind)} ${esc(src.visual.label)}"></details>` : '';
   return `<blockquote>${esc(support.quote)}</blockquote><div class="cite">${where}${visual}</div>${crop}`;
 }
-function sourcesSummary(results) {
-  if (!results?.length) return '';
+// ---------- reviewed table data (table cards and exact-value rows) ----------
+const NOTE_MARK = { ambiguous: '◐', unresolved: '?', pending: '…', assumed: '≈', inferred: '≈', definition: 'i' };
+const NOTE_LABEL = { ambiguous: 'Ambiguous', unresolved: 'Unresolved', pending: 'Pending', assumed: 'Assumed', inferred: 'Inferred', definition: 'Definition' };
+const EVIDENCE = {
+  run: ['Observed run', 'ok'],
+  background_table_row: ['Background data · not a run', ''],
+  planned_test_condition: ['Proposed test · not run as listed', 'warn'],
+};
+const prettyField = f => String(f || '').replace(/^condition_/, '').replace(/_/g, ' ');
+const evidencePill = kind => { const [label, cls] = EVIDENCE[kind] || ['Table data', '']; return `<span class="pill ${cls}">${esc(label)}</span>`; };
+const visibleNotes = notes => (notes || []).filter(n => n.kind !== 'model');
+const noteMarks = notes => visibleNotes(notes).map(n => `<span class="note-mark note-${esc(n.kind)}" tabindex="0" title="${esc(`${NOTE_LABEL[n.kind] || n.kind}: ${n.text}`)}" aria-label="${esc(`${NOTE_LABEL[n.kind] || n.kind} note: ${n.text}`)}">${NOTE_MARK[n.kind] || '•'}</span>`).join('');
+const tableSourceLink = (r, label) => r.source_id ? `<a class="small" href="${docLink(r.source_id, r.physical_page || null)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>` : '';
+const caveatList = items => (items || []).length ? `<ul class="caveats">${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '';
+function rowHitHTML(r) {
+  const c = r.record_card;
+  const values = c.values || [];
+  const notes = [];
+  values.forEach(v => visibleNotes(v.notes).forEach(n => { if (!notes.some(x => x.kind === n.kind && x.text === n.text)) notes.push({ ...n, field: v.field }); }));
+  const modelNotes = values.flatMap(v => (v.notes || []).filter(n => n.kind === 'model').map(n => `${prettyField(v.field)}: ${n.text}`));
+  const match = (c.match || []).length
+    ? `<p class="small" style="margin:6px 0">Matched your values: ${c.match.map(m => `<strong>${esc(m.query)}</strong> → ${esc(prettyField(m.field))}${m.conversion ? ` <span class="pill warn">${esc(m.conversion)}</span>` : ''}`).join(' · ')}</p>`
+    : '<p class="small muted" style="margin:6px 0">Named by its test ID in your question.</p>';
+  return `<article class="table-hit">
+    <div class="row"><span class="pill ok">Table row</span>${evidencePill(c.evidence_kind)}<strong>${esc(c.test_id)}</strong><span class="muted small">${esc(c.table_title || '')}</span><span class="spacer"></span>${tableSourceLink(r, r.physical_page ? `Open page ${r.physical_page}` : 'Open source table')}</div>
+    ${c.provenance ? `<p class="provenance">${esc(c.provenance)}</p>` : ''}
+    ${match}
+    ${caveatList(c.caveats)}
+    <div class="table-scroll"><table class="row-values"><thead><tr><th>Field</th><th>Value</th><th>As printed in the source</th></tr></thead><tbody>
+      ${values.map(v => `<tr><td>${esc(prettyField(v.field))}</td><td>${esc(v.value ?? '—')}${v.unit ? ` ${esc(v.unit)}` : ''} ${noteMarks(v.notes)}</td><td class="muted">${esc(v.original ?? '')}</td></tr>`).join('')}
+    </tbody></table></div>
+    ${notes.length ? `<ul class="note-list">${notes.map(n => `<li><span class="note-mark note-${esc(n.kind)}" aria-hidden="true">${NOTE_MARK[n.kind] || '•'}</span><strong>${esc(NOTE_LABEL[n.kind] || n.kind)}</strong> (${esc(prettyField(n.field))}): ${esc(n.text)}</li>`).join('')}</ul>` : ''}
+    ${modelNotes.length ? `<details class="small"><summary>All notes, including the model's</summary><ul>${modelNotes.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>` : ''}
+    <p class="muted small" style="margin:4px 0 0">${esc(c.locator || '')}</p>
+  </article>`;
+}
+function tableHitHTML(r) {
+  const c = r.record_card;
+  const kinds = Object.keys(c.evidence_kinds || {});
+  return `<article class="table-hit">
+    <div class="row"><span class="pill ok">Table</span>${kinds.map(evidencePill).join('')}<strong>${esc(c.table_title)}</strong><span class="muted small">${count(c.rows)} row${c.rows === 1 ? '' : 's'}</span><span class="spacer"></span>${tableSourceLink(r, 'Open source table')}</div>
+    ${c.provenance ? `<p class="provenance">${esc(c.provenance)}</p>` : ''}
+    ${caveatList(c.caveats)}
+    ${(c.notes || []).length ? `<ul class="note-list">${c.notes.slice(0, 4).map(n => `<li><span class="note-mark note-${esc(n.kind)}" aria-hidden="true">${NOTE_MARK[n.kind] || '•'}</span><strong>${esc(NOTE_LABEL[n.kind] || n.kind)}</strong> (${count(n.rows)} of ${count(c.rows)} rows): ${esc(n.text)}</li>`).join('')}</ul>` : ''}
+    <p class="muted small" style="margin:4px 0 0">${esc(c.locator || '')}. To see individual rows, include two or more of a row's exact values in your question.</p>
+  </article>`;
+}
+function tableDataSection(results) {
+  const hits = results.filter(r => r.record_card && (r.record_card.kind === 'row' || r.record_card.kind === 'table'));
+  if (!hits.length) return '';
+  const rows = hits.filter(r => r.record_card.kind === 'row');
+  return `<section class="card stack"><div class="section-head"><h3>Reviewed table data</h3><span class="muted small">${rows.length ? `${rows.length} matching row${rows.length === 1 ? '' : 's'} · ` : ''}${hits.length - rows.length} table${hits.length - rows.length === 1 ? '' : 's'}</span></div>
+    <p class="muted small" style="margin:0">Values transcribed from NASA tables and reviewed. Marks beside a value (◐ ambiguous, ? unresolved, ≈ assumed or inferred, i definition) carry a note; hover or tap them.</p>
+    ${hits.map(r => r.record_card.kind === 'row' ? rowHitHTML(r) : tableHitHTML(r)).join('')}</section>`;
+}
+function sourcesSummary(allResults) {
+  if (!allResults?.length) return '';
+  const tableData = tableDataSection(allResults);
+  const results = allResults.filter(r => !(r.record_card && (r.record_card.kind === 'row' || r.record_card.kind === 'table')));
+  if (!results.length) return tableData;
   const docs = new Set(results.map(r => r.source_id));
-  return `<section class="card"><div class="section-head"><h3>Sources searched</h3><span class="muted small">${results.length} passages · ${docs.size} document${docs.size === 1 ? '' : 's'}</span></div>
+  return tableData + `<section class="card"><div class="section-head"><h3>Sources searched</h3><span class="muted small">${results.length} passages · ${docs.size} document${docs.size === 1 ? '' : 's'}</span></div>
     <ul class="source-list">${results.map(r => `<li><div class="row"><strong>${esc(r.filename)}</strong>${r.record_card ? `<span class="pill ok">Table record · ${esc(r.record_card.review_action)}</span>` : `<span class="pill">page ${esc(r.physical_page)}</span>`}${r.visual ? `<span class="pill warn">${esc(r.visual.kind)} ${esc(r.visual.label)} · unreviewed</span>` : ''}${r.investigation_id ? `<span class="pill">${esc(invName(r.investigation_id))}</span>` : ''}<span class="spacer"></span>${r.record_card ? `<span class="small muted">${esc(r.record_card.locator || '')}</span>` : `<a class="small" href="${docLink(r.source_id, r.physical_page)}" target="_blank" rel="noopener noreferrer">Open page ↗</a>`}</div>
       <div class="muted small">${esc(String(r.visual ? r.visual.caption : r.text || '').replace(/\s+/g, ' ').slice(0, 220))}…</div></li>`).join('')}</ul></section>`;
 }
@@ -302,9 +368,13 @@ function askResultBody() {
   const byId = Object.fromEntries(results.map(r => [r.chunk_id, r]));
   if (a.result.kind === 'answer') {
     const ans = a.result.answer;
-    const limited = a.result.limited
-      ? `<section class="card notice" role="status"><strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing free keyword search results below.</section>`
-      : '';
+    const notices = [
+      a.result.limited ? `<strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing free keyword search results below.` : '',
+      a.result.answer_unavailable ? `<strong>No AI answer this time.</strong> ${esc(a.result.answer_unavailable)}` : '',
+      a.result.retrieval_fallback ? esc(a.result.retrieval_fallback) : '',
+      !ans && !a.result.limited && !a.result.answer_unavailable ? '<strong>AI answers are off.</strong> Showing free keyword search results: reviewed table data first, then document passages.' : '',
+    ].filter(Boolean);
+    const limited = notices.length ? `<section class="card notice" role="status">${notices.join('<br>')}</section>` : '';
     if (!ans) return limited + sourcesSummary(results);
     const partial = ans.status === 'answered' && (ans.limitations || []).length > 0;
     const status = ans.status !== 'answered' ? '<span class="pill bad">Insufficient evidence</span>' : partial ? '<span class="pill warn">Partial evidence</span>' : '<span class="pill ok">Answered from sources</span>';
@@ -391,6 +461,7 @@ function renderCoverage() {
       <div class="field"><label for="cov-x">Horizontal axis</label><select id="cov-x">${fieldOpt(c.x)}</select></div>
       <div class="field"><label for="cov-y">Vertical axis</label><select id="cov-y">${fieldOpt(c.y)}</select></div>
       <span class="spacer"></span>
+      ${(cov.proposed || []).length ? `<label class="small" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="cov-proposed" ${c.showProposed === false ? '' : 'checked'}> Show ${count(cov.proposed.length)} proposed FLEX tests</label>` : ''}
       <div class="segmented" role="group" aria-label="View"><button type="button" data-view="chart" aria-pressed="${c.view === 'chart'}">Chart</button><button type="button" data-view="table" aria-pressed="${c.view === 'table'}">Table</button></div>
     </div>
     <div><label>Highlight up to three families</label><div class="chips family-chips" role="group" aria-label="Families">${famChips || '<span class="muted">No families yet.</span>'}</div></div>
@@ -400,6 +471,7 @@ function renderCoverage() {
   main.querySelector('#cov-x').addEventListener('change', e => { c.x = e.target.value; drawCoverageView(); });
   main.querySelector('#cov-y').addEventListener('change', e => { c.y = e.target.value; drawCoverageView(); });
   main.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { c.view = b.dataset.view; renderCoverage(); }));
+  main.querySelector('#cov-proposed')?.addEventListener('change', e => { c.showProposed = e.target.checked; drawCoverageView(); });
   main.querySelectorAll('[data-family]').forEach(b => b.addEventListener('click', () => {
     const key = b.dataset.family, slot = slotOf(key);
     if (slot >= 0) c.slots[slot] = null; // freeing a slot never repaints the others
@@ -418,12 +490,14 @@ function drawCoverageView() {
   const fx = fieldMeta(c.x), fy = fieldMeta(c.y);
   const plotted = cov.records.filter(r => Number.isFinite(r[c.x]) && Number.isFinite(r[c.y]));
   const missing = cov.records.length - plotted.length;
+  // Proposed FLEX tests: a separate layer that never affects gaps.
+  const proposed = c.showProposed === false ? [] : (cov.proposed || []).filter(p => Number.isFinite(p.fields?.[c.x]) && Number.isFinite(p.fields?.[c.y]));
   if (c.view === 'table') { el.innerHTML = coverageTable(cov.records); bindRows(el); return; }
   if (!plotted.length) { el.innerHTML = emptyBox('Nothing to plot', `No runs have both ${fx.label} and ${fy.label}. Try other axes or the table view.`); return; }
   const W = 880, H = 500, m = { l: 64, r: 20, t: 16, b: 56 };
   const gaps = (cov.gaps || []).filter(g => (g.x_field === c.x && g.y_field === c.y) || (g.x_field === c.y && g.y_field === c.x))
     .map(g => g.x_field === c.x ? g : { ...g, x_range: g.y_range, y_range: g.x_range });
-  const xs = [...plotted.map(r => r[c.x]), ...gaps.flatMap(g => g.x_range)], ys = [...plotted.map(r => r[c.y]), ...gaps.flatMap(g => g.y_range)];
+  const xs = [...plotted.map(r => r[c.x]), ...proposed.map(p => p.fields[c.x]), ...gaps.flatMap(g => g.x_range)], ys = [...plotted.map(r => r[c.y]), ...proposed.map(p => p.fields[c.y]), ...gaps.flatMap(g => g.y_range)];
   const pad = (lo, hi) => { const d = (hi - lo) || Math.abs(hi) || 1; return [lo - d * .06, hi + d * .06]; };
   const [x0, x1] = pad(Math.min(...xs), Math.max(...xs)), [y0, y1] = pad(Math.min(...ys), Math.max(...ys));
   const sx = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r), sy = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
@@ -442,8 +516,10 @@ function drawCoverageView() {
     const shape = slot >= 0 ? shapeSVG(SHAPES[slot], x, y, 5.5, cls, `var(--s${slot + 1})`) : shapeSVG('circle', x, y, 4, cls, 'var(--neutral)');
     return `<g class="hit" tabindex="0" role="button" data-id="${esc(r.id)}" aria-label="${esc(`${familyLabel(r.family)} ${r.test_id}: ${fx.label} ${fmt(r[c.x])}, ${fy.label} ${fmt(r[c.y])}`)}">${shape}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="transparent"/></g>`;
   }).join('');
-  const legendItems = state.cov.slots.map((k, i) => k ? `<span>${legendShape(SHAPES[i], `var(--s${i + 1})`)}${esc(familyLabel(k))}</span>` : '').join('') + `<span>${legendShape('circle', 'var(--neutral)')}Other families</span><span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="var(--neutral)" stroke="var(--ink)" stroke-width="2"/></svg>Reviewed (dark ring)</span>${gaps.length ? '<span><svg width="22" height="14" aria-hidden="true"><rect x="1" y="1" width="20" height="12" rx="3" fill="none" stroke="var(--ink-2)" stroke-dasharray="4 3"/></svg>No runs in this collection</span>' : ''}`;
-  el.innerHTML = `<div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Scatter of ${plotted.length} runs: ${fy.label} against ${fx.label}`)}">${grid}${gapSVG}${axes}${marks}</svg><div class="tooltip" id="cov-tip" hidden></div></div>
+  const diamond = (x, y, r) => `${x},${(y - r).toFixed(1)} ${(x + r).toFixed(1)},${y} ${x},${(y + r).toFixed(1)} ${(x - r).toFixed(1)},${y}`;
+  const proposedSVG = proposed.map((p, i) => { const x = sx(p.fields[c.x]), y = sy(p.fields[c.y]); return `<g class="hit-proposed" tabindex="0" role="button" data-pid="${i}" aria-label="${esc(`Proposed test ${p.test_id}, not run as listed: ${fx.label} ${fmt(p.fields[c.x])}, ${fy.label} ${fmt(p.fields[c.y])}`)}"><polygon class="proposed-mark" points="${diamond(x, y, 6)}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" fill="transparent"/></g>`; }).join('');
+  const legendItems = state.cov.slots.map((k, i) => k ? `<span>${legendShape(SHAPES[i], `var(--s${i + 1})`)}${esc(familyLabel(k))}</span>` : '').join('') + `<span>${legendShape('circle', 'var(--neutral)')}Other families</span><span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="var(--neutral)" stroke="var(--ink)" stroke-width="2"/></svg>Reviewed (dark ring)</span>${gaps.length ? '<span><svg width="22" height="14" aria-hidden="true"><rect x="1" y="1" width="20" height="12" rx="3" fill="none" stroke="var(--ink-2)" stroke-dasharray="4 3"/></svg>No runs in this collection</span>' : ''}${proposed.length ? '<span><svg width="16" height="16" aria-hidden="true"><polygon class="proposed-mark" points="8,2 14,8 8,14 2,8"/></svg>Proposed FLEX test (planned, not run as listed; no results)</span>' : ''}`;
+  el.innerHTML = `<div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Scatter of ${plotted.length} runs: ${fy.label} against ${fx.label}`)}">${grid}${gapSVG}${axes}${proposedSVG}${marks}</svg><div class="tooltip" id="cov-tip" hidden></div></div>
     <div class="legend" aria-label="Legend">${legendItems}</div>
     ${missing ? `<p class="hint">${count(missing)} runs lack ${esc(fx.label)} or ${esc(fy.label)} and are not plotted; they appear in the table view.</p>` : ''}
     ${gaps.length ? `<ol class="small" style="margin-top:12px">${gaps.map(g => `<li>${esc(g.note)}</li>`).join('')}</ol>` : ''}`;
@@ -463,6 +539,18 @@ function drawCoverageView() {
     g.addEventListener('mouseleave', () => { tip.hidden = true; }); g.addEventListener('blur', () => { tip.hidden = true; });
     const open = () => { state.cov.detail = r.id; renderCoverageDetail(); };
     g.addEventListener('click', open); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  });
+  el.querySelectorAll('.hit-proposed').forEach(g => {
+    const p = proposed[Number(g.dataset.pid)];
+    const show = ev => {
+      const box = svg.getBoundingClientRect(), rect = g.getBoundingClientRect();
+      tip.innerHTML = `<strong>Proposed test · ${esc(p.test_id)}</strong> (EIRD Table ${esc(p.table)}, page ${esc(p.page)})<br>${esc(fx.label)}: ${fmt(p.fields[c.x])}${fx.unit ? ` ${esc(fx.unit)}` : ''}<br>${esc(fy.label)}: ${fmt(p.fields[c.y])}${fy.unit ? ` ${esc(fy.unit)}` : ''}${p.fuel ? `<br>Fuel: ${esc(p.fuel)}` : ''}${p.suppressant ? ` · suppressant: ${esc(p.suppressant)}` : ''}<br><span class="muted">${esc(p.conversions.join('; '))}</span><br><span class="muted">Planned in a test matrix, not run as listed; no results.</span>`;
+      tip.hidden = false;
+      const px = (ev?.clientX ?? rect.left + rect.width / 2) - box.left, py = (ev?.clientY ?? rect.top) - box.top;
+      tip.style.left = `${Math.max(0, Math.min(px + 14, box.width - 300))}px`; tip.style.top = `${py + 14}px`;
+    };
+    g.addEventListener('mousemove', show); g.addEventListener('focus', () => show());
+    g.addEventListener('mouseleave', () => { tip.hidden = true; }); g.addEventListener('blur', () => { tip.hidden = true; });
   });
 }
 function coverageTable(records) {

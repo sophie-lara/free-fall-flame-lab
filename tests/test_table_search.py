@@ -116,8 +116,15 @@ def test_one_card_per_table_with_ranges_caveats_and_notes() -> None:
     assert len(cards) == 1 and len(payloads) == 3
     text = cards[0]["text"]
     assert text.startswith("Table — EIRD Table 8: CO2 matrix.")
-    assert "pressure 0.85–1 atm" in text and "proposed test conditions" in text
-    assert "ambiguous (3 of 3 rows)" in text and "not an observed result" in text
+    assert "pressure 0.85–1 atm" in text and "Tests proposed by" in text
+    assert "ambiguous (3 of 3 rows)" in text and "not run as listed" in text
+    # Review bookkeeping and reviewer names never reach what readers see.
+    assert "Review:" not in text and "not an observed result" not in text
+    row = payloads[0]
+    assert row["provenance"].startswith("A test proposed by")
+    assert row["caveats"] == [] and "Review:" not in row["text"]
+    duplicated = [*RECORDS]  # a note on two values of one row still counts as one row
+    assert all(n["rows"] <= len(duplicated) for n in cards[0]["meta"]["notes"])
     assert payloads[0]["card_id"] == cards[0]["card_id"]
 
 
@@ -153,6 +160,7 @@ def test_search_pins_matched_rows_above_table_cards(tmp_path: Path) -> None:
         assert exact[0]["record_card"]["kind"] == "row"
         assert exact[0]["record_card"]["test_id"] == "FLEX-T8-61"
         assert exact[0]["record_card"]["values"][0]["unit"] == "atm"
+        assert exact[0]["record_card"]["provenance"].startswith("A test proposed by")
         named = retrieve(store, "show FLEX-T8-70")
         assert named[0]["record_card"]["test_id"] == "FLEX-T8-70"
 

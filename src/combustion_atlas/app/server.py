@@ -71,24 +71,45 @@ def ask_evidence(
         request.method != "keyword" or request.generate_answer
     ) and not request.allow_provider_calls:
         raise ValueError("Enable OpenAI calls for semantic search or generated answers")
+    from openai import OpenAIError
+
+    from .streaming import answer_unavailable, semantic_unavailable
+
     request, limited = apply_paid_limit(request, limiter, exempt)
+    fallback = None
     with DocumentStore(workspace.database) as store:
-        results = retrieve(
-            store,
-            request.question,
-            method=request.method,
-            investigation=request.investigation or None,
-        )
+        try:
+            results = retrieve(
+                store,
+                request.question,
+                method=request.method,
+                investigation=request.investigation or None,
+            )
+        except (ValueError, OpenAIError) as exc:
+            if request.method == "keyword":
+                raise
+            fallback = semantic_unavailable(exc)
+            results = retrieve(
+                store,
+                request.question,
+                method="keyword",
+                investigation=request.investigation or None,
+            )
     payload: dict[str, object] = {
         "question": request.question,
-        "method": request.method,
+        "method": "keyword" if fallback else request.method,
         "results": results,
     }
+    if fallback:
+        payload["retrieval_fallback"] = fallback
     if limited:
         payload["limited"] = limited
     if request.generate_answer:
-        provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
-        payload["answer"] = provider.answer(request.question, results).model_dump()
+        try:
+            provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
+            payload["answer"] = provider.answer(request.question, results).model_dump()
+        except (ValueError, OpenAIError) as exc:
+            payload["answer_unavailable"] = answer_unavailable(exc)
     return payload
 
 
@@ -713,7 +734,15 @@ class AtlasHandler(BaseHTTPRequestHandler):
                 )
                 return
             with DocumentStore(atlas.database) as store:
-                results = store.search(question, query.get("investigation"), k)
+                # Same keyword retrieval as Ask, so table rows named by test ID or by
+                # two or more exact values are pinned here too.
+                results = retrieve(
+                    store,
+                    question,
+                    method="keyword",
+                    investigation=query.get("investigation"),
+                    top_k=k,
+                )
             self._json({"question": question, "results": results})
         elif parsed.path.startswith("/api/documents/"):
             sid = unquote(parsed.path.removeprefix("/api/documents/"))

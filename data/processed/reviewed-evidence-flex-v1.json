@@ -242271,7 +242271,7 @@
       "test_id": "FLEX-T14-He",
       "evidence_kind": "background_table_row",
       "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
-      "candidate_fingerprint": "8cf14b2565d824a88e34c5c1ce4036cd0f4079ec4f914fce92d3448263115725",
+      "candidate_fingerprint": "e38070898be7cc2013b3a9934a5bf79e7a2b54cf722b50552dbf92c1141a7bad",
       "review_action": "accept_extraction",
       "supporting_references": [
         "PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf PDF page 80, Table 14, row 2 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-69"
@@ -242286,7 +242286,7 @@
         "saved_at_utc": "2026-11-14T19:34:00-06:00",
         "extraction_check": "checked",
         "review_record_sha256": "63f7db5328bbff64aa44a2aa63d383c5a3d4b5174361332fc4b698b80a47e213",
-        "candidate_fingerprint": "8cf14b2565d824a88e34c5c1ce4036cd0f4079ec4f914fce92d3448263115725"
+        "candidate_fingerprint": "e38070898be7cc2013b3a9934a5bf79e7a2b54cf722b50552dbf92c1141a7bad"
       },
       "review_history": [],
       "original_candidate": {
@@ -242339,7 +242339,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "β: Soret transport (Soret effect) factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "β: Soret transport (Soret effect) factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242365,7 +242365,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "φ: multicomponent diffusion factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "φ: multicomponent diffusion factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242391,7 +242391,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_IO: binary diffusion coefficient of O2 in the diluent (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_IO: binary diffusion coefficient of O2 in the diluent",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242417,7 +242417,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8) (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242443,7 +242443,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242469,7 +242469,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242638,7 +242638,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "β: Soret transport (Soret effect) factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "β: Soret transport (Soret effect) factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242664,7 +242664,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "φ: multicomponent diffusion factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "φ: multicomponent diffusion factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242690,7 +242690,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_IO: binary diffusion coefficient of O2 in the diluent (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_IO: binary diffusion coefficient of O2 in the diluent",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242716,7 +242716,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8) (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242742,7 +242742,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242768,7 +242768,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -242907,7 +242907,7 @@
       "test_id": "FLEX-T14-N2",
       "evidence_kind": "background_table_row",
       "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
-      "candidate_fingerprint": "50e65507c592a31bbfa70dfed0bc019ddf41f4428addc4f6c1ea6d0f93db5e16",
+      "candidate_fingerprint": "17662dd9c8e72e1f90b7314a9d5680f2932c416addae8fab185df93306a2a4c4",
       "review_action": "accept_extraction",
       "supporting_references": [
         "PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf PDF page 80, Table 14, row 3 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-69"
@@ -242922,7 +242922,7 @@
         "saved_at_utc": "2026-11-14T19:34:00-06:00",
         "extraction_check": "checked",
         "review_record_sha256": "63f7db5328bbff64aa44a2aa63d383c5a3d4b5174361332fc4b698b80a47e213",
-        "candidate_fingerprint": "50e65507c592a31bbfa70dfed0bc019ddf41f4428addc4f6c1ea6d0f93db5e16"
+        "candidate_fingerprint": "17662dd9c8e72e1f90b7314a9d5680f2932c416addae8fab185df93306a2a4c4"
       },
       "review_history": [],
       "original_candidate": {
@@ -242975,7 +242975,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "β: Soret transport (Soret effect) factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "β: Soret transport (Soret effect) factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243001,7 +243001,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "φ: multicomponent diffusion factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "φ: multicomponent diffusion factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243027,7 +243027,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_IO: binary diffusion coefficient of O2 in the diluent (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_IO: binary diffusion coefficient of O2 in the diluent",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243053,7 +243053,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8) (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243079,7 +243079,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243105,7 +243105,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243274,7 +243274,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "β: Soret transport (Soret effect) factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "β: Soret transport (Soret effect) factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243300,7 +243300,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "φ: multicomponent diffusion factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "φ: multicomponent diffusion factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243326,7 +243326,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_IO: binary diffusion coefficient of O2 in the diluent (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_IO: binary diffusion coefficient of O2 in the diluent",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243352,7 +243352,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8) (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243378,7 +243378,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243404,7 +243404,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243543,7 +243543,7 @@
       "test_id": "FLEX-T14-Xe",
       "evidence_kind": "background_table_row",
       "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
-      "candidate_fingerprint": "500da5f89cc962e8d0982bbc7bc31cd6f5eabeec1ad1edad113c7ad34afcc848",
+      "candidate_fingerprint": "bdc559e3be28128a85c7d26b6a353dcc5b4badc36ae0e10e59cce455a01301b5",
       "review_action": "accept_extraction",
       "supporting_references": [
         "PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf PDF page 80, Table 14, row 4 ; https://psi.nasa.gov/physci/repo/data/investigations/PSI-69"
@@ -243558,7 +243558,7 @@
         "saved_at_utc": "2026-11-14T19:34:00-06:00",
         "extraction_check": "checked",
         "review_record_sha256": "63f7db5328bbff64aa44a2aa63d383c5a3d4b5174361332fc4b698b80a47e213",
-        "candidate_fingerprint": "500da5f89cc962e8d0982bbc7bc31cd6f5eabeec1ad1edad113c7ad34afcc848"
+        "candidate_fingerprint": "bdc559e3be28128a85c7d26b6a353dcc5b4badc36ae0e10e59cce455a01301b5"
       },
       "review_history": [],
       "original_candidate": {
@@ -243611,7 +243611,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "β: Soret transport (Soret effect) factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "β: Soret transport (Soret effect) factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243637,7 +243637,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "φ: multicomponent diffusion factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "φ: multicomponent diffusion factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243663,7 +243663,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_IO: binary diffusion coefficient of O2 in the diluent (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_IO: binary diffusion coefficient of O2 in the diluent",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243689,7 +243689,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8) (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243715,7 +243715,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243741,7 +243741,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243910,7 +243910,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "β: Soret transport (Soret effect) factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "β: Soret transport (Soret effect) factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243936,7 +243936,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "φ: multicomponent diffusion factor (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "φ: multicomponent diffusion factor",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243962,7 +243962,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_IO: binary diffusion coefficient of O2 in the diluent (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_IO: binary diffusion coefficient of O2 in the diluent",
                 "by": "reviewer",
                 "decision": null
               }
@@ -243988,7 +243988,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8) (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "D_O: effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
                 "by": "reviewer",
                 "decision": null
               }
@@ -244014,7 +244014,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }
@@ -244040,7 +244040,7 @@
             "notes": [
               {
                 "kind": "definition",
-                "text": "Le_O: oxygen Lewis number (reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion)",
+                "text": "Le_O: oxygen Lewis number",
                 "by": "reviewer",
                 "decision": null
               }

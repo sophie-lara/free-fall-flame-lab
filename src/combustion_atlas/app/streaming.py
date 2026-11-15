@@ -15,6 +15,16 @@ from openai import OpenAIError
 from pydantic import ValidationError
 
 
+def answer_unavailable(exc: Exception) -> str:
+    detail = str(exc) if isinstance(exc, ValueError) else "the OpenAI request failed"
+    return f"AI answer unavailable ({detail[:200]}). Showing search results instead."
+
+
+def semantic_unavailable(exc: Exception) -> str:
+    detail = str(exc) if isinstance(exc, ValueError) else "the OpenAI request failed"
+    return f"Semantic search unavailable ({detail[:200]}); used keyword search."
+
+
 def stream_ask(
     handler: Any, workspace: Any, raw: bytes, *, limiter: Any = None, exempt: bool = False
 ) -> None:
@@ -63,26 +73,48 @@ def stream_ask(
         if limited:
             progress("limited", str(limited["reason"]))
         progress("started", f"Searching the corpus ({request.method} retrieval)")
+        fallback = None
         with DocumentStore(workspace.database) as store:
-            results = retrieve(
-                store,
-                request.question,
-                method=request.method,
-                investigation=request.investigation or None,
-                progress=progress,
-            )
+            try:
+                results = retrieve(
+                    store,
+                    request.question,
+                    method=request.method,
+                    investigation=request.investigation or None,
+                    progress=progress,
+                )
+            except (ValueError, OpenAIError) as exc:
+                if request.method == "keyword":
+                    raise
+                # Semantic search unavailable: keep going with free keyword search.
+                fallback = semantic_unavailable(exc)
+                progress("fallback", fallback)
+                results = retrieve(
+                    store,
+                    request.question,
+                    method="keyword",
+                    investigation=request.investigation or None,
+                    progress=progress,
+                )
         payload: dict[str, Any] = {
             "question": request.question,
-            "method": request.method,
+            "method": "keyword" if fallback else request.method,
             "results": results,
         }
+        if fallback:
+            payload["retrieval_fallback"] = fallback
         if limited:
             payload["limited"] = limited
         if request.generate_answer:
-            provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
-            payload["answer"] = provider.answer(
-                request.question, results, progress=progress
-            ).model_dump()
+            try:
+                provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
+                payload["answer"] = provider.answer(
+                    request.question, results, progress=progress
+                ).model_dump()
+            except (ValueError, OpenAIError) as exc:
+                # Never discard what was found: report the answer failure with the results.
+                payload["answer_unavailable"] = answer_unavailable(exc)
+                progress("answer", payload["answer_unavailable"])
         progress("done", "Done")
         emit({"type": "result", **payload})
     except (ValueError, ValidationError) as exc:
