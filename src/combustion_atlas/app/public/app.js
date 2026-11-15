@@ -83,6 +83,7 @@ function renderHome() {
         <input id="hero-q" type="search" maxlength="1000" placeholder="e.g. How does opposed-flow velocity affect flame spread?" aria-label="Ask a question">
         <button class="btn primary" type="submit">Ask</button>
       </form>
+      <div class="chips hero-try" aria-label="Try asking"><span class="hint" style="margin:0">Try:</span>${HOME_TRY.map(q => `<button type="button" class="chip" data-try="${esc(q)}">${esc(q)}</button>`).join('')}</div>
     </div>
     <div class="hero-art" aria-hidden="true"></div>
   </section>
@@ -105,6 +106,7 @@ function renderHome() {
       ${state.me?.is_admin ? tile('#/upload', '+', 'Add to corpus', 'Upload a NASA report or paper (PDF). Visible to administrators only.') : ''}
     </div>
   </section>`;
+  main.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => askQuestion(b.dataset.try)));
   main.querySelector('#hero-search').addEventListener('submit', e => {
     e.preventDefault();
     const q = main.querySelector('#hero-q').value.trim();
@@ -116,10 +118,51 @@ function renderHome() {
 }
 
 // ---------- ask ----------
-const EXAMPLES = {
-  answer: ['Which variables were tested in BASS-II?', 'How many samples were burned in BASS-II?', 'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?', 'How does opposed-flow velocity affect flame spread over thin PMMA?'],
-  plan: ['Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen', 'Flammability limits of PMMA rods in microgravity', 'Smoke particle size from overheated spacecraft materials'],
-};
+// Recommended questions, grouped by what they demonstrate. Each was checked against the
+// indexed corpus; the last group intentionally shows an honest "not in this collection".
+const RECOMMENDED = [
+  { group: 'Answers from NASA reports', hint: 'Cited, quoted passages with page links', questions: [
+    'Which variables were tested in BASS-II?',
+    'How does opposed-flow velocity affect flame spread over thin PMMA?',
+    'What did the Saffire experiments show about flame spread on large samples?',
+  ] },
+  { group: 'Figures', hint: 'AI descriptions of report figures, with the original page image', questions: [
+    'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?',
+  ] },
+  { group: 'Reviewed table records', hint: 'Exact values from human-reviewed tables, with their notes', questions: [
+    'What was the initial CO reading for BASS-II test O12?',
+    'Which FLEX tables report droplet extinction diameters?',
+    'How does adding helium to the atmosphere affect FLEX droplet flames?',
+  ] },
+  { group: 'Careful answers', hint: 'Partial evidence is scoped, never totalled or guessed', questions: [
+    'How many samples were burned in BASS-II?',
+  ] },
+  { group: 'Honest gaps', hint: 'Says when the collection has no evidence', questions: [
+    'What flame spread rates were measured for titanium alloy at Martian surface pressure?',
+  ] },
+];
+const PLAN_EXAMPLES = [
+  'Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen',
+  'Flammability limits of PMMA rods in microgravity',
+  'Extinction of fuel droplets in helium-diluted atmospheres',
+];
+const HOME_TRY = [
+  'How does opposed-flow velocity affect flame spread over thin PMMA?',
+  'What was the initial CO reading for BASS-II test O12?',
+  'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?',
+  'What did the Saffire experiments show about flame spread on large samples?',
+];
+function recommendedHTML(mode) {
+  const chip = q => `<button type="button" class="chip" data-example="${esc(q)}">${esc(q)}</button>`;
+  if (mode === 'plan') return `<div class="chips" aria-label="Example topics">${PLAN_EXAMPLES.map(chip).join('')}</div>`;
+  return `<details class="recommended" open><summary>Recommended questions</summary><div class="recommended-groups">${RECOMMENDED.map(g =>
+    `<div class="recommended-group"><div class="recommended-title">${esc(g.group)}</div><div class="hint" style="margin:2px 0 8px">${esc(g.hint)}</div><div class="chips">${g.questions.map(chip).join('')}</div></div>`).join('')}</div></details>`;
+}
+function askQuestion(q) {
+  Object.assign(state.ask, { mode: 'answer', question: q });
+  location.hash = '#/ask';
+  setTimeout(runAsk, 0);
+}
 function renderAsk() {
   const a = state.ask;
   main.innerHTML = pageHead('Ask', 'Ask the evidence', 'Answers are built only from indexed NASA documents and quote them verbatim. “Plan next steps” lists what the evidence shows, what authors leave open, and grounded suggestions.') + `
@@ -132,7 +175,7 @@ function renderAsk() {
       <textarea id="q" maxlength="1000" required placeholder="${a.mode === 'answer' ? 'Ask about materials, conditions, results or methods…' : 'Describe a topic or proposed experiment…'}">${esc(a.question)}</textarea></div>
     <div class="row"><button class="btn primary" type="submit" ${a.loading ? 'disabled' : ''}>${a.loading ? (a.mode === 'answer' ? 'Searching…' : 'Analyzing…') : (a.mode === 'answer' ? 'Get answer' : 'Find next steps')}</button>
       <span class="hint" style="margin:0">Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.${limitsHint()}</span></div>
-    <div class="chips" aria-label="Examples">${EXAMPLES[a.mode].map(q => `<button type="button" class="chip" data-example="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+    ${recommendedHTML(a.mode)}
   </form>
   <div id="ask-results" class="section" aria-live="polite">${askResults()}</div>`;
   main.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { if (a.loading) return; state.ask.question = main.querySelector('#q').value; Object.assign(a, { mode: b.dataset.mode, result: null, error: '' }); renderAsk(); }));

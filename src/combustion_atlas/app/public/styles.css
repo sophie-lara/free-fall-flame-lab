@@ -228,3 +228,9 @@ dl.kv dd { margin: 0; }
 @media (prefers-reduced-motion:reduce){.ui-switch-track,.ui-switch-knob{transition:none}}
 
 .steps-summary{padding-top:12px;padding-bottom:12px}.steps-summary summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none;font-weight:600}.steps-summary summary::-webkit-details-marker{display:none}.steps-summary summary::after{content:"▸";margin-left:8px;color:#6b7280}.steps-summary[open] summary::after{content:"▾"}.steps-summary .steps{margin-top:12px}
+
+.recommended { margin-top: 4px; }
+.recommended summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; padding: 4px 0; }
+.recommended-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+.recommended-title { font-weight: 600; font-size: 0.9rem; }
+.hero-try { margin-top: 16px; align-items: center; }
