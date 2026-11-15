@@ -795,6 +795,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
             ".js": "text/javascript; charset=utf-8",
             ".css": "text/css; charset=utf-8",
             ".svg": "image/svg+xml",
+            ".jpg": "image/jpeg",
         }
         assets = {
             "/p/app.js": "app.js",
@@ -802,6 +803,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
             "/p/logo.svg": "logo.svg",
             "/p/flame-story.js": "flame-story.js",
             "/p/flame-story.css": "flame-story.css",
+            "/p/space-orbital-sunrise.jpg": "space-orbital-sunrise.jpg",
         }
         if request_path in {"/", "/index.html"}:
             target = self.public_dir / "index.html"

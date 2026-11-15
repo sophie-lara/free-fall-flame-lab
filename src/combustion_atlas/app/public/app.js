@@ -62,6 +62,7 @@ async function loadCorpus(force = false) {
 // ---------- shell ----------
 function renderShell() {
   const page = route();
+  document.body.dataset.route = page; // lets a page restyle the backdrop (Ask has a photo)
   document.querySelectorAll('[data-route]').forEach(a => { const current = a.dataset.route === page || (a.dataset.route === 'explore' && isExplore()) || (a.dataset.route === 'coverage' && page === 'explore');
     if (current) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   document.querySelectorAll('.admin-only').forEach(el => { el.hidden = !(state.me?.is_admin || state.me?.can_upload); });
@@ -183,6 +184,7 @@ function renderAsk() {
         <span class="ui-switch"><button type="button" class="ui-switch-track" id="ai-toggle" role="switch" aria-checked="${a.ai}" aria-label="AI answers"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${a.ai ? ' active' : ''}">AI ${a.ai ? 'on' : 'off'}</span></span>
         <span class="hint" style="margin:0">${a.ai ? `Cited answers from the indexed documents.${limitsHint()}` : 'Keyword search only: no AI calls.'}</span>
       </div>
+      <p class="photo-credit">Background: orbital sunrise over the Pacific Ocean, photographed from the International Space Station on Aug. 6, 2024. Image: NASA (iss071e439624).</p>
     </form></div>`;
   const q = main.querySelector('#q');
   const grow = () => { q.style.height = 'auto'; q.style.height = `${Math.min(q.scrollHeight, 200)}px`; };
