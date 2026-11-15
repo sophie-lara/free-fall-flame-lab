@@ -145,3 +145,9 @@ variable "paid_min_interval_s" {
   type        = number
   default     = 0
 }
+
+variable "plan_name" {
+  description = "App Service plan name; defaults to <app_name>-plan. Set it to keep an existing plan when renaming the app."
+  type        = string
+  default     = ""
+}

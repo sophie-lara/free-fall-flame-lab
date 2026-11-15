@@ -5,19 +5,23 @@
 #   scripts/azure_upload_data.sh <web-app-name> <resource-group>            # dry run
 #   scripts/azure_upload_data.sh <web-app-name> <resource-group> --upload   # upload
 #   ... --upload --overwrite   # replace data already on the server (stops the app briefly)
+#   scripts/azure_upload_data.sh - - --bundle out.zip   # just write the zip (e.g. to share)
 #
 # Uploads data/raw, data/processed/{rag,visuals}, data/review and a consistent
 # SQLite snapshot to /home/site/data. Never uploads .env, backups or eval outputs.
 set -euo pipefail
 
 app="${1:?web app name}"; group="${2:?resource group}"
-upload=false; overwrite=false
-for arg in "${@:3}"; do
-  case "$arg" in
+upload=false; overwrite=false; bundle=""
+set -- "${@:3}"
+while [ $# -gt 0 ]; do
+  case "$1" in
     --upload) upload=true ;;
     --overwrite) overwrite=true ;;
-    *) echo "Unknown option: $arg" >&2; exit 2 ;;
+    --bundle) bundle="${2:?--bundle needs an output path}"; shift ;;
+    *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
+  shift
 done
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -66,7 +70,13 @@ if missing:
     print(f"WARNING: {len(missing)} indexed documents have no local PDF (page links will 404)")
 PY
 find "$stage" \( -name '.env*' -o -name '*.part' -o -name '.DS_Store' \) -delete
+[ -f "$root/docs/local_artifacts.md" ] && cp "$root/docs/local_artifacts.md" "$stage/README-local-artifacts.md"
 (cd "$stage" && zip -qr "$stage/data.zip" .)
+if [ -n "$bundle" ]; then
+  cp "$stage/data.zip" "$bundle"
+  echo "Wrote $bundle ($(du -h "$bundle" | cut -f1)). Unzip into the repository's data/ folder."
+  exit 0
+fi
 
 echo "Package: $(du -h "$stage/data.zip" | cut -f1) for $app ($group) -> /home/site/data"
 (cd "$stage" && find . -type f ! -name data.zip | sed 's|^\./||' | sort | awk -F/ '{print $1"/"$2}' | uniq -c)

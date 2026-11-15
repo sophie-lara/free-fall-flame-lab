@@ -4,8 +4,12 @@ data "azuread_client_config" "current" {}
 locals {
   # Built from the variable, not the web app resource, to avoid a dependency
   # cycle (the web app needs the sign-in app's client ID).
-  app_host  = "${var.app_name}.azurewebsites.net"
-  workspace = "/home/site/data"
+  app_host = "${var.app_name}.azurewebsites.net"
+  # The app reads <workspace>/data/..., and the data lives in /home/site/data.
+  workspace = "/home/site"
+  # Pinned separately so renaming the app never recreates the plan (plan creation
+  # is rate-limited by Azure on this subscription).
+  plan_name = var.plan_name != "" ? var.plan_name : "${var.app_name}-plan"
 
   # Default access role for apps without app roles.
   default_app_role_id = "00000000-0000-0000-0000-000000000000"
@@ -24,7 +28,7 @@ resource "azurerm_resource_group" "main" {
 }
 
 resource "azurerm_service_plan" "main" {
-  name                = "${var.app_name}-plan"
+  name                = local.plan_name
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   os_type             = "Linux"
