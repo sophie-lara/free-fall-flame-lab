@@ -80,6 +80,11 @@ resource "azurerm_linux_web_app" "main" {
       client_id                  = azuread_application.signin.client_id
       tenant_auth_endpoint       = "https://login.microsoftonline.com/${data.azuread_client_config.current.tenant_id}/v2.0"
       client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      # Request only what the app needs to identify the user. "profile" and
+      # "offline_access" need an admin's approval in some directories (e.g. UChicago).
+      login_parameters = {
+        scope = "openid email"
+      }
     }
 
     login {

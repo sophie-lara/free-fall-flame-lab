@@ -451,16 +451,44 @@ class AtlasHandler(BaseHTTPRequestHandler):
         client-supplied copy. The header is only trusted when hosted (allowed_hosts
         configured); on plain loopback a client could forge it, so it is ignored.
         """
+        names = self._identities()
+        return names[0] if names else None
+
+    def _identities(self) -> list[str]:
+        """All names Easy Auth vouches for: the principal name, then e-mail, username
+        and UPN claims from X-MS-CLIENT-PRINCIPAL (base64 JSON). Depending on the sign-in
+        scopes a directory allows, the principal name can be empty while e-mail is set.
+        Trusted only when hosted; App Service strips client-supplied X-MS-* headers.
+        """
         if not self.allowed_hosts:
-            return None
-        name = (self.headers.get("X-MS-CLIENT-PRINCIPAL-NAME") or "").strip()
-        return name or None
+            return []
+        names = [(self.headers.get("X-MS-CLIENT-PRINCIPAL-NAME") or "").strip()]
+        encoded = self.headers.get("X-MS-CLIENT-PRINCIPAL") or ""
+        if encoded:
+            import base64
+
+            try:
+                principal = json.loads(base64.b64decode(encoded + "=" * (-len(encoded) % 4)))
+                wanted = {
+                    "email",
+                    "preferred_username",
+                    "upn",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn",
+                }
+                names += [
+                    str(claim.get("val") or "").strip()
+                    for claim in principal.get("claims", [])
+                    if isinstance(claim, dict) and claim.get("typ") in wanted
+                ]
+            except (ValueError, TypeError, AttributeError):
+                pass  # malformed header: fall back to the principal name only
+        return list(dict.fromkeys(n for n in names if n))
 
     def _is_admin(self) -> bool:
         if not self.allowed_hosts:
             return True  # loopback-only server: the local user owns the workspace
-        name = self._identity()
-        return name is not None and name.casefold() in self.admins
+        return any(name.casefold() in self.admins for name in self._identities())
 
     def _forbidden_unless_admin(self) -> bool:
         """Send 403 and return True when the caller is not an administrator."""

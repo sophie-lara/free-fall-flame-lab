@@ -261,3 +261,40 @@ def test_both_interfaces_carry_the_ui_switch() -> None:
         assert 'id="ui-switch-slot"' in (app / ui / "index.html").read_text(encoding="utf-8")
         script = (app / ui / "app.js").read_text(encoding="utf-8")
         assert "function uiSwitchHTML" in script and 'role="switch"' in script
+
+
+def test_admin_identity_falls_back_to_email_claim_when_hosted(tmp_path) -> None:
+    import base64
+    import http.client
+    import json as _json
+    import threading
+    from http.server import ThreadingHTTPServer
+
+    from combustion_atlas.app.server import AtlasHandler
+
+    claims = {"claims": [{"typ": "email", "val": "Admin@Example.edu"}]}
+    principal = base64.b64encode(_json.dumps(claims).encode()).decode().rstrip("=")
+    for hosted, expected in ((frozenset({"atlas.example.net"}), True), (frozenset(), None)):
+        handler = type(
+            "H",
+            (AtlasHandler,),
+            {
+                "workspace": tmp_path,
+                "allowed_hosts": hosted,
+                "ui_mode": "public",
+                "admins": frozenset({"admin@example.edu"}),
+            },
+        )
+        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        host = "atlas.example.net" if hosted else f"127.0.0.1:{server.server_port}"
+        conn = http.client.HTTPConnection("127.0.0.1", server.server_port)
+        conn.request("GET", "/api/me", headers={"Host": host, "X-MS-CLIENT-PRINCIPAL": principal})
+        me = _json.loads(conn.getresponse().read())
+        conn.close()
+        server.shutdown()
+        server.server_close()
+        if expected:
+            assert me["is_admin"] is True and me["name"] == "Admin@Example.edu"
+        else:  # loopback ignores the header (local user is admin, but no hosted identity)
+            assert me["name"] is None
