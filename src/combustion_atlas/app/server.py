@@ -722,6 +722,19 @@ class AtlasHandler(BaseHTTPRequestHandler):
                         cache_dir=atlas.data / "processed/rag",
                     )
                 )
+        elif parsed.path == "/api/landscape":
+            from combustion_atlas.analysis.landscape import load_cached
+
+            landscape_path = atlas.data / "processed/rag/landscape.json"
+            if not atlas.database.is_file():
+                landscape = load_cached(landscape_path)
+            else:
+                with DocumentStore(atlas.database) as store:
+                    landscape = load_cached(landscape_path, store)
+            if landscape is None:
+                self._json({"points": [], "clusters": [], "missing": True})
+            else:
+                self._json(landscape)
         elif parsed.path == "/api/limits":
             status = self.limiter.status() if self.limiter else {"enabled": False}
             self._json({**status, "exempt": self._is_paid_exempt()})

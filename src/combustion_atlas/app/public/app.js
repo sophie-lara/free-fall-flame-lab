@@ -5,6 +5,7 @@ const state = {
   ask: { mode: 'answer', question: '', loading: false, error: '', result: null, progress: [], ai: localStorage.getItem('atlas-ai') !== 'off' },
   cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'chart', detail: null, initialized: false },
   predict: { target: '', inputs: {}, loading: false, error: '', result: null },
+  land: { data: null, error: '', slots: [null, null, null], view: 'chart', selected: null, initialized: false },
 };
 const NAMES = { 'PSI-25': 'BASS-II', 'PSI-26': 'BASS', 'PSI-69': 'FLEX', 'PSI-68': 'FLEX-2', 'PSI-98': 'Saffire-I', 'PSI-99': 'Saffire-II', 'PSI-100': 'Saffire-III', 'PSI-102': 'SAME', 'PSI-101': 'SAME-R' };
 const SHAPES = ['circle', 'square', 'triangle'];
@@ -67,9 +68,9 @@ function renderShell() {
 function render() {
   renderShell();
   const page = route();
-  const pages = { home: renderHome, ask: renderAsk, coverage: renderCoverage, predict: renderPredict, sources: renderSources, upload: renderUpload };
+  const pages = { home: renderHome, ask: renderAsk, coverage: renderCoverage, landscape: renderLandscape, predict: renderPredict, sources: renderSources, upload: renderUpload };
   (pages[page] || renderHome)();
-  document.title = `${{ home: 'Combustion Atlas', ask: 'Ask', coverage: 'Experiment coverage', predict: 'Prediction', sources: 'Sources', upload: 'Add to corpus' }[page] || 'Combustion Atlas'} · Combustion Atlas`;
+  document.title = `${{ home: 'Combustion Atlas', ask: 'Ask', coverage: 'Experiment coverage', landscape: 'Evidence landscape', predict: 'Prediction', sources: 'Sources', upload: 'Add to corpus' }[page] || 'Combustion Atlas'} · Combustion Atlas`;
 }
 
 // ---------- home ----------
@@ -94,9 +95,10 @@ function renderHome() {
     <div class="hero-art" aria-hidden="true"></div>
   </section>
   <section class="section">
-    <div class="grid cols-${state.me?.can_upload ? 4 : 3}">
+    <div class="grid cols-${state.me?.can_upload ? 5 : 4}">
       ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
       ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
+      ${tile('#/landscape', '⁘', 'Evidence landscape', 'A map of every indexed passage, figure and table, grouped into topics, with related evidence one click away.')}
       ${tile('#/predict', '≈', 'Prediction', 'Enter conditions to find the closest observed runs and a statistical estimate, or “insufficient data”.')}
       ${state.me?.can_upload ? tile('#/upload', '+', 'Add to corpus', state.me?.is_admin ? 'Upload a NASA report or paper (PDF) and review visitor uploads.' : 'Upload a PDF and ask questions about it. It stays private until reviewed.') : ''}
     </div>
@@ -578,6 +580,131 @@ function renderCoverageDetail() {
     ${outcomes.map(([k, o]) => row(k.replaceAll('_', ' '), `${o.value != null ? fmt(o.value) : '—'}${o.unit ? ` ${esc(o.unit)}` : ''} <span class="muted small">(source text: “${esc(o.raw)}”)</span>`)).join('')}
     ${row('Source', `${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}`)}</dl></section>`;
   el.querySelector('#close-detail').addEventListener('click', () => { state.cov.detail = null; renderCoverageDetail(); });
+}
+
+// ---------- evidence landscape ----------
+const KIND_SHAPE = { passage: 'circle', figure: 'square', table: 'triangle' };
+const KIND_LABEL = { passage: 'Text passage', figure: 'Figure description', table: 'Reviewed table' };
+async function loadLandscape() {
+  if (state.land.data || state.land.error) return;
+  try {
+    const d = await api('/api/landscape');
+    if (d.missing || !d.points?.length) state.land.error = 'The evidence landscape has not been built for this collection yet.';
+    else { d.byId = Object.fromEntries(d.points.map(p => [p.id, p])); d.byCluster = Object.fromEntries(d.clusters.map(c => [c.id, c])); state.land.data = d; }
+  } catch (e) { state.land.error = e.message; }
+}
+const landSlot = id => state.land.slots.indexOf(id);
+const topicName = id => state.land.data?.byCluster[id]?.label || 'No topic';
+function renderLandscape() {
+  const L = state.land;
+  if (!L.data && !L.error) { main.innerHTML = '<p class="loading">Loading the evidence landscape…</p>'; loadLandscape().then(() => route() === 'landscape' && renderLandscape()); return; }
+  const head = pageHead('Landscape', 'Evidence landscape', 'Every indexed passage, figure description and reviewed table, placed so that passages with similar meaning sit close together. Topics are found automatically. Use it to see what the collection covers and to jump between related evidence.');
+  if (L.error) { main.innerHTML = head + emptyBox('Not available yet', L.error); return; }
+  const d = L.data;
+  if (!L.initialized) { // start with the three largest topics highlighted
+    [...d.clusters].sort((a, b) => b.size - a.size).slice(0, 3).forEach((c, i) => { L.slots[i] = c.id; });
+    L.initialized = true;
+  }
+  const chips = [...d.clusters].sort((a, b) => b.size - a.size).map(c => {
+    const slot = landSlot(c.id);
+    const sw = slot >= 0 ? legendShape('circle', `var(--s${slot + 1})`) : legendShape('circle', 'var(--neutral)');
+    return `<button type="button" class="chip" data-topic="${c.id}" aria-pressed="${slot >= 0}" title="${esc(c.description || c.keywords.join(', '))}">${sw}${esc(c.label)} <span class="muted">${count(c.size)}</span></button>`;
+  }).join('');
+  main.innerHTML = head + `
+  <div class="row" style="margin-bottom:16px">${d.stale ? '<span class="pill warn">Documents changed since this map was built; new ones are not shown yet</span>' : ''}<span class="muted small">${count(d.points.length)} items · ${count(d.clusters.length)} topics · ${count(d.noise)} without a clear topic</span></div>
+  <section class="card">
+    <div class="controls">
+      <div><label>Highlight up to three topics</label></div>
+      <span class="spacer"></span>
+      <div class="segmented" role="group" aria-label="View"><button type="button" data-view="chart" aria-pressed="${L.view === 'chart'}">Map</button><button type="button" data-view="table" aria-pressed="${L.view === 'table'}">Topic list</button></div>
+    </div>
+    <div class="chips family-chips" role="group" aria-label="Topics">${chips}</div>
+    <div id="land-view" style="margin-top:16px"></div>
+  </section>
+  <div id="land-detail" class="section" aria-live="polite"></div>
+  <details class="section small muted"><summary>How this map is made</summary><ul class="plain">${(d.notes || []).map(n => `<li>${esc(n)}</li>`).join('')}<li>Method: ${esc(d.params?.projection)}; ${esc(d.params?.clustering)}; related evidence by ${esc(d.params?.neighbors)}. Distances on the map are approximate; only nearby structure is meaningful.</li>${d.generated_at ? `<li>Built ${esc(d.generated_at.slice(0, 10))}.</li>` : ''}</ul></details>`;
+  main.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { L.view = b.dataset.view; renderLandscape(); }));
+  main.querySelectorAll('[data-topic]').forEach(b => b.addEventListener('click', () => toggleTopic(Number(b.dataset.topic))));
+  drawLandscapeView();
+  renderLandscapeDetail();
+}
+function toggleTopic(id) {
+  const L = state.land, slot = landSlot(id);
+  if (slot >= 0) L.slots[slot] = null; // freeing a slot never repaints the others
+  else { const free = L.slots.indexOf(null); if (free < 0) { const el = main.querySelector('#land-detail'); if (el) el.innerHTML = '<p class="notice">Three topics are highlighted. Deselect one first.</p>'; return; } L.slots[free] = id; }
+  renderLandscape();
+}
+function drawLandscapeView() {
+  const el = main.querySelector('#land-view'); if (!el) return;
+  const L = state.land, d = L.data;
+  if (L.view === 'table') {
+    el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Topic</th><th>What it covers</th><th class="num">Items</th><th>Main investigations</th><th>Keywords</th></tr></thead><tbody>
+      ${[...d.clusters].sort((a, b) => b.size - a.size).map(c => `<tr data-trow="${c.id}" tabindex="0" style="cursor:pointer"${landSlot(c.id) >= 0 ? ' aria-selected="true"' : ''}><td><strong>${esc(c.label)}</strong></td><td class="small">${esc(c.description || '')}</td><td class="num">${count(c.size)}</td><td class="small">${Object.entries(c.investigations).slice(0, 3).map(([k, n]) => `${esc(invName(k))} ${count(n)}`).join(' · ')}</td><td class="small muted">${esc(c.keywords.slice(0, 5).join(', '))}</td></tr>`).join('')}
+    </tbody></table></div><p class="hint">Click a topic to highlight it on the map.</p>`;
+    el.querySelectorAll('[data-trow]').forEach(tr => { const go = () => { toggleTopic(Number(tr.dataset.trow)); }; tr.addEventListener('click', go); tr.addEventListener('keydown', e => { if (e.key === 'Enter') go(); }); });
+    return;
+  }
+  const W = 880, H = 620, pad = 18;
+  const sx = v => pad + v * (W - 2 * pad), sy = v => pad + (1 - v) * (H - 2 * pad);
+  const sel = L.selected ? d.byId[L.selected] : null;
+  const active = L.slots.some(s => s !== null);
+  const order = [...d.points].sort((a, b) => (landSlot(a.cluster) >= 0) - (landSlot(b.cluster) >= 0));
+  const marks = order.map(p => {
+    const slot = p.cluster >= 0 ? landSlot(p.cluster) : -1, x = sx(p.x), y = sy(p.y);
+    const fill = slot >= 0 ? `var(--s${slot + 1})` : 'var(--neutral)';
+    const cls = `pt land${slot < 0 && active ? ' dim' : ''}${p.id === L.selected ? ' selected' : ''}`;
+    return `<g class="hit" tabindex="-1" data-pid="${esc(p.id)}">${shapeSVG(KIND_SHAPE[p.kind] || 'circle', x, y, slot >= 0 ? 4.5 : 3.5, cls, fill)}</g>`;
+  }).join('');
+  const links = sel ? sel.neighbors.map(id => d.byId[id]).filter(Boolean).map(n => `<line class="knn" x1="${sx(sel.x).toFixed(1)}" y1="${sy(sel.y).toFixed(1)}" x2="${sx(n.x).toFixed(1)}" y2="${sy(n.y).toFixed(1)}"/>`).join('') : '';
+  // Direct labels: highlighted topics, else the largest topics.
+  const labelled = active ? d.clusters.filter(c => landSlot(c.id) >= 0) : [...d.clusters].sort((a, b) => b.size - a.size).slice(0, 8);
+  const labels = labelled.map(c => { const x = sx(c.x), y = sy(c.y); const anchor = x > W * 0.8 ? 'end' : x < W * 0.2 ? 'start' : 'middle'; return `<text class="land-label${active ? ' strong' : ''}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}">${esc(c.label)}</text>`; }).join('');
+  const legend = L.slots.map((id, i) => id !== null ? `<span>${legendShape('circle', `var(--s${i + 1})`)}${esc(topicName(id))}</span>` : '').join('')
+    + `<span>${legendShape('circle', 'var(--neutral)')}${active ? 'Other topics' : 'All items'}</span>`
+    + Object.entries(KIND_SHAPE).map(([k, sh]) => `<span>${legendShape(sh, 'var(--ink-2)')}${KIND_LABEL[k]}</span>`).join('')
+    + (sel ? '<span><svg width="22" height="14" aria-hidden="true"><line class="knn" x1="1" y1="7" x2="21" y2="7"/></svg>Link to related evidence</span>' : '');
+  el.innerHTML = `<div class="chart-wrap"><svg class="chart land-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Map of ${d.points.length} indexed items in ${d.clusters.length} topics. The topic list view gives the same information as a table.`)}">${links}${marks}${labels}</svg><div class="tooltip" id="land-tip" hidden></div></div>
+    <div class="legend" aria-label="Legend">${legend}</div>
+    <p class="hint">Hover to preview, click an item for its source and related evidence. Position reflects meaning of the text, not test conditions.</p>`;
+  const tip = el.querySelector('#land-tip'), svg = el.querySelector('svg');
+  // One delegated listener set instead of 1,460.
+  const itemAt = ev => ev.target.closest?.('[data-pid]');
+  svg.addEventListener('mousemove', ev => {
+    const g = itemAt(ev); if (!g) { tip.hidden = true; return; }
+    const p = d.byId[g.dataset.pid], box = svg.getBoundingClientRect();
+    tip.innerHTML = `<strong>${esc(p.label || KIND_LABEL[p.kind])}</strong> · ${esc(p.filename)}${p.page ? `, p. ${esc(p.page)}` : ''}<br><span class="muted">${esc(p.investigation ? invName(p.investigation) : '')}${p.cluster >= 0 ? ` · ${esc(topicName(p.cluster))}` : ''}</span><br>${esc(p.snippet.slice(0, 160))}${p.snippet.length > 160 ? '…' : ''}`;
+    tip.hidden = false;
+    const px = ev.clientX - box.left, py = ev.clientY - box.top;
+    tip.style.left = `${Math.max(0, Math.min(px + 14, box.width - 300))}px`; tip.style.top = `${Math.min(py + 14, box.height - 120)}px`;
+  });
+  svg.addEventListener('mouseleave', () => { tip.hidden = true; });
+  svg.addEventListener('click', ev => { const g = itemAt(ev); if (g) selectLandItem(g.dataset.pid); });
+}
+function selectLandItem(id) {
+  state.land.selected = id;
+  drawLandscapeView(); renderLandscapeDetail();
+  main.querySelector('#land-detail')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function landItemHTML(p) {
+  return `<strong>${esc(p.label || KIND_LABEL[p.kind])}</strong> · <a href="${docLink(p.source_id, p.page)}" target="_blank" rel="noopener">${esc(p.filename)}${p.page ? `, page ${esc(p.page)}` : ''}</a>${p.investigation ? ` <span class="muted small">${esc(invName(p.investigation))}</span>` : ''}`;
+}
+function renderLandscapeDetail() {
+  const el = main.querySelector('#land-detail'); if (!el) return;
+  const d = state.land.data, p = state.land.selected && d.byId[state.land.selected];
+  if (!p) { el.innerHTML = ''; return; }
+  const topic = p.cluster >= 0 ? d.byCluster[p.cluster] : null;
+  const related = p.neighbors.map(id => d.byId[id]).filter(Boolean);
+  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(p.label || KIND_LABEL[p.kind])}</h3>${p.kind === 'figure' ? '<span class="pill warn">AI figure description, unreviewed</span>' : ''}<span class="spacer"></span><button class="btn small" type="button" id="land-close">Close</button></div>
+    <p style="margin-top:12px">${landItemHTML(p)}</p>
+    <blockquote class="small">${esc(p.snippet)}${p.snippet.length >= 240 ? '…' : ''}</blockquote>
+    ${topic ? `<p><span class="muted">Topic:</span> <strong>${esc(topic.label)}</strong>${p.core ? '' : ' <span class="muted small">(loosely)</span>'}${topic.description ? ` · <span class="small">${esc(topic.description)}</span>` : ''}</p>
+      <div class="row"><button class="btn small" type="button" id="land-highlight">${landSlot(topic.id) >= 0 ? 'Remove topic highlight' : 'Highlight this topic'}</button><button class="btn small primary" type="button" id="land-ask">Ask about “${esc(topic.label)}”</button></div>` : '<p class="muted small">This item does not belong to a clear topic.</p>'}
+    <h4 style="margin-top:20px">Related evidence <span class="muted small">(most similar passages)</span></h4>
+    <ul class="plain">${related.map(r => `<li style="margin-bottom:10px"><button type="button" class="linklike" data-related="${esc(r.id)}">Show on map</button> ${landItemHTML(r)}<br><span class="small muted">${esc(r.snippet.slice(0, 180))}${r.snippet.length > 180 ? '…' : ''}</span></li>`).join('')}</ul></section>`;
+  el.querySelector('#land-close').addEventListener('click', () => { state.land.selected = null; drawLandscapeView(); renderLandscapeDetail(); });
+  el.querySelector('#land-highlight')?.addEventListener('click', () => toggleTopic(topic.id));
+  el.querySelector('#land-ask')?.addEventListener('click', () => askQuestion(`What does the collection report about ${topic.label.toLowerCase()}?`));
+  el.querySelectorAll('[data-related]').forEach(b => b.addEventListener('click', () => selectLandItem(b.dataset.related)));
 }
 
 // ---------- prediction ----------

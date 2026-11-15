@@ -137,6 +137,7 @@ label { display: block; font-size: 14px; font-weight: 600; color: var(--ink-2); 
 .ask-form textarea { width: 100%; min-height: 96px; font-size: 17px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 6px 14px; font: 500 14px var(--font); cursor: pointer; min-height: 34px; text-align: left; }
+.chip > svg { vertical-align: -3px; margin-right: 6px; }
 .chip:hover { border-color: var(--brand); color: var(--ink); }
 .chip[aria-pressed="true"] { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
 .claim { border-left: 3px solid var(--brand); padding: 4px 0 4px 16px; }
@@ -173,6 +174,13 @@ blockquote { margin: 8px 0; padding: 8px 12px; background: var(--plane); border-
 .chart .pt.reviewed { stroke: var(--ink); stroke-width: 2; }
 .chart .hit { cursor: pointer; outline: none; }
 .chart .hit:hover .pt, .chart .hit:focus .pt { stroke: var(--ink); stroke-width: 2; }
+.chart .pt.land { stroke-width: 1; }
+.chart .pt.dim { opacity: .45; }
+.chart .pt.selected { stroke: var(--ink); stroke-width: 2.5; }
+.chart .knn, .legend .knn { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.chart .land-label { fill: var(--ink-2); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.chart .land-label.strong { fill: var(--ink); font-size: 13px; font-weight: 700; }
+.linklike { background: none; border: 0; padding: 0; color: var(--link, var(--s1)); cursor: pointer; font: inherit; font-size: 13px; text-decoration: underline; }
 .chart .gap-rect { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 6 5; }
 .chart .gap-label { fill: var(--ink-2); font-weight: 700; }
 .tooltip { position: absolute; z-index: 10; pointer-events: none; max-width: 300px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; line-height: 1.5; box-shadow: var(--shadow); }
