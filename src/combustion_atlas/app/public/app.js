@@ -83,6 +83,7 @@ function renderHome() {
         <input id="hero-q" type="search" maxlength="1000" placeholder="e.g. How does opposed-flow velocity affect flame spread?" aria-label="Ask a question">
         <button class="btn primary" type="submit">Ask</button>
       </form>
+      <div class="chips hero-try" aria-label="Try asking"><span class="hint" style="margin:0">Try:</span>${HOME_TRY.map(q => `<button type="button" class="chip" data-try="${esc(q)}">${esc(q)}</button>`).join('')}</div>
     </div>
     <div class="hero-art" aria-hidden="true"></div>
   </section>
@@ -105,6 +106,7 @@ function renderHome() {
       ${state.me?.is_admin ? tile('#/upload', '+', 'Add to corpus', 'Upload a NASA report or paper (PDF). Visible to administrators only.') : ''}
     </div>
   </section>`;
+  main.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => askQuestion(b.dataset.try)));
   main.querySelector('#hero-search').addEventListener('submit', e => {
     e.preventDefault();
     const q = main.querySelector('#hero-q').value.trim();
@@ -116,10 +118,51 @@ function renderHome() {
 }
 
 // ---------- ask ----------
-const EXAMPLES = {
-  answer: ['Which variables were tested in BASS-II?', 'How many samples were burned in BASS-II?', 'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?', 'How does opposed-flow velocity affect flame spread over thin PMMA?'],
-  plan: ['Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen', 'Flammability limits of PMMA rods in microgravity', 'Smoke particle size from overheated spacecraft materials'],
-};
+// Recommended questions, grouped by what they demonstrate. Each was checked against the
+// indexed corpus; the last group intentionally shows an honest "not in this collection".
+const RECOMMENDED = [
+  { group: 'Answers from NASA reports', hint: 'Cited, quoted passages with page links', questions: [
+    'Which variables were tested in BASS-II?',
+    'How does opposed-flow velocity affect flame spread over thin PMMA?',
+    'What did the Saffire experiments show about flame spread on large samples?',
+  ] },
+  { group: 'Figures', hint: 'AI descriptions of report figures, with the original page image', questions: [
+    'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?',
+  ] },
+  { group: 'Reviewed table records', hint: 'Exact values from human-reviewed tables, with their notes', questions: [
+    'What was the initial CO reading for BASS-II test O12?',
+    'Which FLEX tables report droplet extinction diameters?',
+    'How does adding helium to the atmosphere affect FLEX droplet flames?',
+  ] },
+  { group: 'Careful answers', hint: 'Partial evidence is scoped, never totalled or guessed', questions: [
+    'How many samples were burned in BASS-II?',
+  ] },
+  { group: 'Honest gaps', hint: 'Says when the collection has no evidence', questions: [
+    'What flame spread rates were measured for titanium alloy at Martian surface pressure?',
+  ] },
+];
+const PLAN_EXAMPLES = [
+  'Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen',
+  'Flammability limits of PMMA rods in microgravity',
+  'Extinction of fuel droplets in helium-diluted atmospheres',
+];
+const HOME_TRY = [
+  'How does opposed-flow velocity affect flame spread over thin PMMA?',
+  'What was the initial CO reading for BASS-II test O12?',
+  'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?',
+  'What did the Saffire experiments show about flame spread on large samples?',
+];
+function recommendedHTML(mode) {
+  const chip = q => `<button type="button" class="chip" data-example="${esc(q)}">${esc(q)}</button>`;
+  if (mode === 'plan') return `<div class="chips" aria-label="Example topics">${PLAN_EXAMPLES.map(chip).join('')}</div>`;
+  return `<details class="recommended" open><summary>Recommended questions</summary><div class="recommended-groups">${RECOMMENDED.map(g =>
+    `<div class="recommended-group"><div class="recommended-title">${esc(g.group)}</div><div class="hint" style="margin:2px 0 8px">${esc(g.hint)}</div><div class="chips">${g.questions.map(chip).join('')}</div></div>`).join('')}</div></details>`;
+}
+function askQuestion(q) {
+  Object.assign(state.ask, { mode: 'answer', question: q });
+  location.hash = '#/ask';
+  setTimeout(runAsk, 0);
+}
 function renderAsk() {
   const a = state.ask;
   main.innerHTML = pageHead('Ask', 'Ask the evidence', 'Answers are built only from indexed NASA documents and quote them verbatim. “Plan next steps” lists what the evidence shows, what authors leave open, and grounded suggestions.') + `
@@ -134,7 +177,7 @@ function renderAsk() {
       <span class="hint" style="margin:0">${a.ai ? 'Uses OpenAI to write a cited answer.' : 'Free keyword search only: no AI calls. Table data and passages are still shown.'}</span></div>
     <div class="row"><button class="btn primary" type="submit" ${a.loading || (a.mode === 'plan' && !a.ai) ? 'disabled' : ''}>${a.loading ? (a.mode === 'answer' ? 'Searching…' : 'Analyzing…') : (a.mode === 'answer' ? (a.ai ? 'Get answer' : 'Search') : 'Find next steps')}</button>
       <span class="hint" style="margin:0">${a.mode === 'plan' && !a.ai ? 'Plan next steps needs AI answers; turn them on above.' : `Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.${a.ai ? limitsHint() : ''}`}</span></div>
-    <div class="chips" aria-label="Examples">${EXAMPLES[a.mode].map(q => `<button type="button" class="chip" data-example="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+    ${recommendedHTML(a.mode)}
   </form>
   <div id="ask-results" class="section" aria-live="polite">${askResults()}</div>`;
   main.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { if (a.loading) return; state.ask.question = main.querySelector('#q').value; Object.assign(a, { mode: b.dataset.mode, result: null, error: '' }); renderAsk(); }));
@@ -202,6 +245,38 @@ function stepsSummaryHTML(steps, failed = false) {
     <ol class="steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('')}</ol></details>`;
 }
 function updateProgress() { const el = main.querySelector('#ask-results'); if (el && route() === 'ask' && state.ask.loading) el.innerHTML = progressHTML(); }
+// ---- Claim display: evidence tag, no label prefixes, near-duplicate quotes grouped ----
+const LABEL_PREFIX = /^\s*(?:structured\s+)?(?:document|table(?:\s+record)?|record|figure|visual)(?:\s+description)?\s+evidence\s*[:\-–—]\s*/i;
+function quoteTokens(text) {
+  return new Set(String(text).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w.length > 2));
+}
+function similarQuotes(a, b) {
+  const x = quoteTokens(a), y = quoteTokens(b);
+  if (!x.size || !y.size) return false;
+  let shared = 0; x.forEach(w => { if (y.has(w)) shared += 1; });
+  return shared / (x.size + y.size - shared) >= 0.6;
+}
+function evidenceTag(supports, byId) {
+  const sources = supports.map(s => byId[s.chunk_id] || {});
+  if (sources.some(src => src.record_card || src.record_row)) return '<span class="pill ok">Table record</span>';
+  if (sources.some(src => src.visual)) return '<span class="pill warn">Figure description</span>';
+  return '<span class="pill">Report</span>';
+}
+function sourceLink(support, byId) {
+  const src = byId[support.chunk_id] || {};
+  if (src.record_card) return esc(src.record_card.locator || src.filename || 'Reviewed evidence');
+  return src.source_id ? `<a href="${docLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a>` : esc(support.chunk_id);
+}
+function claimHTML(claim, byId) {
+  const groups = [];
+  claim.supports.forEach(s => {
+    const group = groups.find(g => similarQuotes(g[0].quote, s.quote));
+    if (group) group.push(s); else groups.push([s]);
+  });
+  const body = groups.map(([first, ...rest]) => citeHTML(first, byId) + (rest.length
+    ? `<div class="cite also">Also stated in: ${rest.map(s => sourceLink(s, byId)).join(' · ')}</div>` : '')).join('');
+  return `<div class="claim"><div class="row" style="gap:8px;align-items:baseline"><p style="margin:0">${esc(String(claim.text).replace(LABEL_PREFIX, ''))}</p>${evidenceTag(claim.supports, byId)}</div>${body}</div>`;
+}
 function citeHTML(support, byId) {
   const src = byId[support.chunk_id] || {};
   const card = src.record_card;
@@ -305,7 +380,7 @@ function askResultBody() {
     const status = ans.status !== 'answered' ? '<span class="pill bad">Insufficient evidence</span>' : partial ? '<span class="pill warn">Partial evidence</span>' : '<span class="pill ok">Answered from sources</span>';
     const body = ans.status !== 'answered'
       ? `<p>The indexed documents do not support an answer to this question. That means it is missing from this collection, not that it was never studied.</p>`
-      : ans.claims.map(c => `<div class="claim"><p>${esc(c.text)}</p>${c.supports.map(s => citeHTML(s, byId)).join('')}</div>`).join('');
+      : ans.claims.map(c => claimHTML(c, byId)).join('');
     return `<section class="card stack"><div class="row"><h2 style="margin:0">Answer</h2>${status}</div>${body}
       ${(ans.limitations || []).map(l => `<p class="notice">${esc(l)}</p>`).join('')}
       <p class="hint">Every quote is checked against the retrieved text. Verify scientific meaning and numbers against the original page.</p></section>${sourcesSummary(results)}`;

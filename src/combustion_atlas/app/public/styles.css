@@ -250,3 +250,9 @@ dl.kv dd { margin: 0; }
 .ai-row .ui-switch-label { color: var(--ink-2); }
 .ai-row .ui-switch-label.active { color: var(--ink); }
 .provenance { margin: 6px 0; font-size: 14px; color: var(--ink); }
+.recommended { margin-top: 4px; }
+.recommended summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; padding: 4px 0; }
+.recommended-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
+.recommended-title { font-weight: 600; font-size: 0.9rem; }
+.hero-try { margin-top: 16px; align-items: center; }
+.cite.also { margin-top: -4px; opacity: .85; }

@@ -1,10 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t">
   <title id="t">Combustion Atlas</title>
-  <!-- Original mark: a spherical microgravity flame inside an orbit. Not a NASA insignia. -->
-  <circle cx="32" cy="32" r="30" fill="#0B3D91"/>
-  <ellipse cx="32" cy="32" rx="27" ry="10" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="2" transform="rotate(-24 32 32)"/>
-  <circle cx="32" cy="32" r="11" fill="#FC3D21"/>
-  <circle cx="32" cy="32" r="6.5" fill="#FFB199"/>
-  <circle cx="32" cy="32" r="3" fill="#ffffff"/>
-  <circle cx="54" cy="21" r="2.6" fill="#ffffff"/>
+  <!-- Original flame mark for Combustion Atlas. Not a NASA or Space Apps insignia. -->
+  <defs>
+    <linearGradient id="outer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF9A3C"/>
+      <stop offset="1" stop-color="#E5361F"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE08A"/>
+      <stop offset="1" stop-color="#FFB040"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#outer)" d="M32 3c4 10 18 18 18 35 0 13-8 23-18 23S14 51 14 38c0-9 5-15 10-20 0 8 3 12 7 13-2-9-1-19 1-28z"/>
+  <path fill="url(#inner)" d="M32 27c3 6 10 10 10 19 0 6-4 11-10 11s-10-5-10-11c0-5 3-8 5-11 0 5 2 7 5 7-1-5-1-10 0-15z"/>
+  <ellipse cx="32" cy="50" rx="4" ry="4.5" fill="#FFF6DC"/>
 </svg>
