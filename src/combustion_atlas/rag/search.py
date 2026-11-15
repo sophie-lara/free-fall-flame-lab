@@ -24,11 +24,12 @@ def retrieve(
         if progress is not None:
             progress(stage, message)
 
+    pinned = _pinned_cards(store, question, investigation, say)
     if method == "keyword":
         say("keyword", "Searching the keyword index")
         results = store.search(question, investigation, top_k)
         say("retrieved", f"Found {len(results)} matching passages")
-        return results
+        return _merge_pinned(pinned, results, top_k)
     provider = OpenAIEmbeddingProvider(ProviderConfig.from_environment())
     # Check availability before paying to embed the question.
     if (
@@ -49,7 +50,7 @@ def retrieve(
     )
     if method == "dense":
         say("retrieved", f"Selected the {min(top_k, len(dense))} closest passages")
-        return dense[:top_k]
+        return _merge_pinned(pinned, dense, top_k)
     say("keyword", "Searching the keyword index")
     keyword = store.search(question, investigation, max(top_k * 3, 10))
     say("ranking", f"Merging {len(keyword)} keyword and {len(dense)} semantic matches")
@@ -62,4 +63,34 @@ def retrieve(
     by_id = {str(item["chunk_id"]): item for item in [*keyword, *dense]}
     fused = [{**by_id[key], "score": score} for key, score in ranked[:top_k]]
     say("retrieved", f"Selected {len(fused)} passages")
-    return fused
+    return _merge_pinned(pinned, fused, top_k)
+
+
+def _pinned_cards(
+    store: DocumentStore,
+    question: str,
+    investigation: str | None,
+    say: Callable[[str, str], None],
+) -> list[dict[str, object]]:
+    """Exact test-ID matches to reviewed table records, looked up deterministically."""
+    ids = store.cards_for_identifiers(question)
+    if not ids:
+        return []
+    placeholders = ",".join("?" * len(ids))
+    rows = store.connection.execute(
+        f"SELECT * FROM chunks WHERE chunk_id IN ({placeholders})"
+        " AND (? IS NULL OR lower(investigation_id) = lower(?))",
+        (*ids, investigation, investigation),
+    ).fetchall()
+    cards = store._attach_visuals([{**dict(row), "score": 1.0} for row in rows])
+    if cards:
+        say("records", f"Found {len(cards)} table record(s) named in the question")
+    return cards
+
+
+def _merge_pinned(
+    pinned: list[dict[str, object]], results: list[dict[str, object]], top_k: int
+) -> list[dict[str, object]]:
+    seen = {str(p["chunk_id"]) for p in pinned}
+    rest = [r for r in results if str(r["chunk_id"]) not in seen]
+    return [*pinned, *rest][: max(top_k, len(pinned))]

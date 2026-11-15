@@ -264,6 +264,34 @@ class DocumentStore:
             ).rowcount
         return {"pages": pages, "chunks": len(chunk_ids), "visual_artifacts": len(artifacts)}
 
+    def cards_for_identifiers(self, question: str) -> list[str]:
+        """Record-card chunk IDs whose test ID is named exactly in the question.
+
+        Matches tokens with letters and digits ("O12", "B11", "M5") or dashed
+        numbers ("2-8"); a dashed token also matches a prefixed ID
+        ("SAFFIRE-II-2-8"). Plain numbers never match.
+        """
+        has_cards = self.connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE name='record_cards'"
+        ).fetchone()
+        if not has_cards:
+            return []
+        tokens = {
+            t.lower() for t in re.findall(r"\b[A-Za-z][A-Za-z-]*\d+[a-z]?\b|\b\d+-\d+\b", question)
+        }
+        if not tokens:
+            return []
+        import json
+
+        matches = []
+        for card_id, payload in self.connection.execute(
+            "SELECT card_id, payload FROM record_cards"
+        ):
+            test_id = str(json.loads(payload).get("test_id") or "").lower()
+            if test_id in tokens or any("-" in t and test_id.endswith("-" + t) for t in tokens):
+                matches.append(card_id)
+        return sorted(matches)
+
     def chunks_missing_vectors(self, model_key: str) -> list[ChunkRecord]:
         rows = self.connection.execute(
             "SELECT c.* FROM chunks c LEFT JOIN vectors v "

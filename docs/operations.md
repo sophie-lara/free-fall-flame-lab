@@ -175,9 +175,10 @@ review. Do not tune retrieval against the held-out split.
 ### Reviewed table evidence in retrieval and coverage
 
 `analysis.evidence_bridge` implements the RAG side of
-[rag_adapter_handoff.md](rag_adapter_handoff.md). Copy the ingestion team's
-`data/processed/reviewed-evidence-v1.json` and `reviewed-decisions-v1.json`
-(and their source captures) into this workspace, then:
+[rag_adapter_handoff.md](rag_adapter_handoff.md). It reads every
+`data/processed/reviewed-evidence*.json` with its matching
+`reviewed-decisions*.json` (e.g. the committed `-csv-run-v1` pair), rejects pairs
+marked `draft` and identities that appear in more than one file, then:
 
 ```sh
 uv run python -m combustion_atlas.analysis.evidence_bridge report   # verify only
@@ -192,7 +193,13 @@ cells verbatim and keep derived values, review state, open questions and CSV/PDF
 locators separate (CSV cards have no page: page 0). Coverage uses reviewed values in
 place of table-parsed ones only where conversion is faithful (numeric, known unit, no
 qualifier); everything else is listed under `unconverted`. Background table rows
-become cards but not coverage runs. Answers prefer record cards for exact values and
+become cards but not coverage runs. Value `notes` (kind, author, decision) and
+`additional_fields` are printed on cards; additional fields are never mapped. Numbers
+stored as plain numeric text are accepted; values with `unresolved`, `ambiguous`,
+`pending` or `inferred` notes stay out of coverage (`assumed`/`model` notes are
+allowed). Rows marked `pattern_rule_only` are labelled "not individually reviewed"
+and excluded from coverage. A question that names a test ID ("O12", "2-8") pins that
+record card first. Answers prefer record cards for exact values and
 label each claim's evidence type.
 
 ## Review and adjudication
