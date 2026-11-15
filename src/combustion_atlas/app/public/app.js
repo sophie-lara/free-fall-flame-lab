@@ -568,7 +568,7 @@ function renderUpload() {
     <div class="field"><label for="u-file">PDF file (up to 80 MB)</label><input id="u-file" type="file" accept="application/pdf,.pdf" required></div>
     <div class="field"><label for="u-inv">Investigation ID</label><input id="u-inv" required maxlength="79" placeholder="e.g. PSI-25 or SAFFIRE-II" style="width:100%"></div>
     <div class="field"><label for="u-url">Source URL (optional)</label><input id="u-url" type="url" placeholder="https://ntrs.nasa.gov/citations/…" style="width:100%"></div>
-    <div class="field"><label style="font-weight:500"><input id="u-embed" type="checkbox" checked> Make it searchable by meaning (sends extracted text to OpenAI for embeddings)</label></div>
+    <div class="field"><label style="font-weight:500"><input id="u-embed" type="checkbox" checked> Enable semantic search (creates vector embeddings so passages can be found by meaning, not just keywords)</label></div>
     <button class="btn primary" type="submit">Add to corpus</button>
     <p class="hint">Figures are not described automatically yet; text search and cited answers work immediately.</p>
     <div id="u-status" aria-live="polite"></div>
