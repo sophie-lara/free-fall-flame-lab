@@ -136,6 +136,19 @@ def promote(root: Path, review_path: Path, matrix_path: Path) -> list[ReviewedEv
     }
     for record in matrix["records"]:
         planned.append((record, labels[record["identity"]["test_id"]], []))
+    captions: dict[str, str] = {}
+    for item in matrix["inputs"]:
+        mapping = json.loads(
+            ((root / item["candidates"]).parent / "mapping.json").read_text(encoding="utf-8")
+        )
+        extraction_path = root / mapping["target"]["extraction"]
+        if _sha(extraction_path) != mapping["target"]["extraction_sha256"]:
+            raise ValueError(f"Extraction changed: {extraction_path}")
+        result = json.loads(extraction_path.read_text(encoding="utf-8"))
+        caption = result["extraction"]["caption"]
+        if not re.match(r"\s*Table\s*\d", caption):
+            caption = f"Table {item['table']}: {caption}"
+        captions[item["table"]] = caption
 
     background: list[tuple[dict[str, Any], str, list[str]]] = []
     for label in BACKGROUND_TABLES:
@@ -147,6 +160,7 @@ def promote(root: Path, review_path: Path, matrix_path: Path) -> list[ReviewedEv
             raise ValueError(f"Extraction changed: {entry['extraction']}")
         result = json.loads(path.read_text(encoding="utf-8"))
         extraction = TableExtraction.model_validate(result["extraction"])
+        captions[label] = extraction.caption
         definitions = entry.get("symbol_definitions", {})
         basis = entry.get("definition_source", "reviewer-supplied")
         questions: list[str] = []
@@ -173,13 +187,19 @@ def promote(root: Path, review_path: Path, matrix_path: Path) -> list[ReviewedEv
             i for i in reviewed["issues"] if i["code"] != "human_review_required"
         ] + [
             {
+                "code": "source_table",
+                "field": "Record",
+                "message": f"EIRD {captions[label]}",
+                "severity": "review",
+            },
+            {
                 "code": "review_decisions",
                 "field": "Record",
                 "message": f"Accepted by {reviewer} ({when[:10]}) with the FLEX table review "
                 "record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on "
                 "each value record ambiguities and definitions.",
                 "severity": "review",
-            }
+            },
         ]
         EvidenceCandidate.model_validate(reviewed)
         check = tables[label]["status"]

@@ -202,6 +202,31 @@ and excluded from coverage. A question that names a test ID ("O12", "2-8") pins 
 record card first. Answers prefer record cards for exact values and
 label each claim's evidence type.
 
+**One card per table, exact rows on demand.** `sync` indexes one card per source table
+(`analysis.table_index`): BASS-II, Saffire-II, and each FLEX EIRD table. Each card holds
+the title, evidence type, review summary, value ranges, conditions, table caveats and the
+distinct value notes, so a broad search finds the table instead of flooding results with
+its rows. Rows are stored in a structured `record_rows` table, not in the text index.
+`rag.row_match` returns rows, pinned above passages, only when:
+- the question gives **two or more numbers** that each match a different value in the
+  same row;
+- matching is **exact** after format normalization (0.5 = 0.50);
+- partial matches return nothing.
+
+How question wording is read:
+- **Percent ↔ mole fraction:** 21% may match 0.21, and the conversion is reported with
+  the match.
+- **Hint words** narrow which column a number may match. Units qualify the number
+  before them ("0.85 atm"); quantity words qualify the nearest number ("0.25 oxygen").
+- **Species** named in the question (CO2, He, methanol…) filter rows that have
+  fuel/suppressant/diluent/agent columns.
+- **Test IDs** ("O12", "FLEX-T8-61") pin their row.
+
+`planned_test_condition` records (FLEX test matrices) also appear in `/api/coverage` as
+a separate `proposed` layer. They are never runs and never count toward gaps. Pressure
+is converted from atm to kPa and mole fractions to %, each conversion is listed, and
+values with ambiguous notes (the unassigned 3 vs 5 mm diameter) are left off.
+
 ## Review and adjudication
 
 ```sh

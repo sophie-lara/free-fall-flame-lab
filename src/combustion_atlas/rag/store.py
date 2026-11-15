@@ -292,6 +292,40 @@ class DocumentStore:
                 matches.append(card_id)
         return sorted(matches)
 
+    def record_rows(self) -> list[dict[str, object]]:
+        """Structured reviewed table rows (not part of the text index)."""
+        import json
+
+        has_rows = self.connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE name='record_rows'"
+        ).fetchone()
+        if not has_rows:
+            return []
+        return [
+            json.loads(payload)
+            for (payload,) in self.connection.execute(
+                "SELECT payload FROM record_rows ORDER BY card_id, rowid"
+            )
+        ]
+
+    def rows_for_identifiers(self, question: str) -> list[dict[str, object]]:
+        """Rows whose test ID is named exactly in the question (same rules as cards,
+        plus full FLEX IDs such as "FLEX-T8-61")."""
+        tokens = {
+            t.lower()
+            for t in re.findall(
+                r"\b[A-Za-z]+-T\d+-\d+\b|\b[A-Za-z][A-Za-z-]*\d+[a-z]?\b|\b\d+-\d+\b", question
+            )
+        }
+        if not tokens:
+            return []
+        out = []
+        for row in self.record_rows():
+            test_id = str(row.get("test_id") or "").lower()
+            if test_id in tokens or any("-" in t and test_id.endswith("-" + t) for t in tokens):
+                out.append(row)
+        return out
+
     def chunks_missing_vectors(self, model_key: str) -> list[ChunkRecord]:
         rows = self.connection.execute(
             "SELECT c.* FROM chunks c LEFT JOIN vectors v "

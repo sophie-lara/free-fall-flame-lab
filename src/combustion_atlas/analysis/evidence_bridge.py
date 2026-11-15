@@ -331,6 +331,73 @@ def to_coverage(record: dict[str, Any], report: list[dict[str, Any]]) -> dict[st
     }
 
 
+ATM_TO_KPA = 101.325
+
+
+def to_proposed(record: dict[str, Any]) -> dict[str, Any] | None:
+    """A proposed (planned) test as a separate coverage layer; never a run, never a gap.
+
+    Converts atm to kPa and mole fractions to percent, and lists every conversion. Values
+    with ambiguous/unresolved notes (e.g. an unassigned droplet diameter) are left off.
+    """
+    item, candidate = record["evidence"], record["candidate"]
+    if item.get("evidence_kind") != "planned_test_condition":
+        return None
+    fields: dict[str, float] = {}
+    conversions: list[str] = []
+    omitted: list[str] = []
+    conditions = candidate.conditions
+    suppressant = str(getattr(conditions.get("suppressant"), "value", "") or "")
+
+    def number(name: str) -> float | None:
+        value = conditions.get(name)
+        if value is None:
+            return None
+        if {n.kind for n in value.notes} & EXCLUDING_NOTES:
+            omitted.append(f"{name} ({value.original_value}): see its note")
+            return None
+        return _number(value.value)
+
+    pressure = number("pressure")
+    if pressure is not None and (conditions["pressure"].unit or "").lower() == "atm":
+        fields["pressure_kpa"] = round(pressure * ATM_TO_KPA, 3)
+        conversions.append(f"pressure {pressure:g} atm → {fields['pressure_kpa']:g} kPa")
+    oxygen = number("oxygen_mole_fraction")
+    if oxygen is not None:
+        fields["oxygen_pct"] = round(oxygen * 100, 6)
+        conversions.append(f"oxygen mole fraction {oxygen:g} → {fields['oxygen_pct']:g} %")
+    fraction = number("suppressant_mole_fraction")
+    if fraction is not None and suppressant.strip().lower() in {"he", "helium"}:
+        fields["helium_pct"] = round(fraction * 100, 6)
+        conversions.append(f"He mole fraction {fraction:g} → {fields['helium_pct']:g} %")
+    flow = number("flow_velocity")
+    if flow is not None and (conditions["flow_velocity"].unit or "").lower() == "cm/s":
+        fields["flow_cm_s"] = flow
+    number("droplet_diameter")  # recorded under `omitted` when ambiguous
+    first = candidate.raw_cells[0].provenance
+    return {
+        "investigation_id": candidate.identity.investigation_id,
+        "test_id": candidate.identity.test_id,
+        "table": first.table,
+        "page": first.page,
+        "fields": fields,
+        "fuel": str(getattr(conditions.get("fuel"), "value", "") or "") or None,
+        "suppressant": suppressant or None,
+        "conversions": conversions,
+        "omitted": omitted,
+        "caveats": [
+            i.message
+            for i in candidate.issues
+            if i.code in {"evidence_class", "preliminary_test_matrix"}
+        ],
+    }
+
+
+def proposed_tests(root: Path) -> list[dict[str, Any]]:
+    records, _ = load_reviewed(root)
+    return [p for r in records if (p := to_proposed(r))]
+
+
 def coverage_overrides(root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     records, report = load_reviewed(root)
     conversion: list[dict[str, Any]] = []
@@ -404,8 +471,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "sync":
         from combustion_atlas.rag.store import DocumentStore
 
+        from .table_index import build, sync_rows
+
+        # One card per source table in the text index; rows go to the structured
+        # row index so exact-value questions can still reach them.
+        cards, rows = build(records)
         with DocumentStore(args.database) as store:
-            report["index"] = sync_cards(store, [to_card(r) for r in records])
+            report["index"] = sync_cards(store, cards)
+            report["index"].update(sync_rows(store, rows))
         report["next_step"] = (
             "Embed new cards: providers embed --missing-only --allow-provider-calls"
         )

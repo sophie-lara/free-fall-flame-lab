@@ -6,7 +6,8 @@
 #   scripts/azure_upload_data.sh <web-app-name> <resource-group> --upload   # upload
 #   ... --upload --overwrite   # replace data already on the server (stops the app briefly)
 #
-# Uploads data/raw, data/processed/{rag,visuals}, data/review and a consistent
+# Uploads data/raw, data/processed/{rag,visuals}, data/processed/reviewed-*.json,
+# data/review and a consistent
 # SQLite snapshot to /home/site/data. Never uploads .env, backups or eval outputs.
 set -euo pipefail
 
@@ -56,6 +57,10 @@ for crop in crops:
     path = root / crop
     if path.is_file():
         put(path)
+# Reviewed table evidence: the coverage map reads these at runtime (search cards and
+# rows are already inside the index snapshot).
+for item in sorted((data / "processed").glob("reviewed-*.json")):
+    put(item)
 for part in ("processed/rag", "review"):
     for item in (data / part).rglob("*") if (data / part).is_dir() else []:
         if item.is_file():

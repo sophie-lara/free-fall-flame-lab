@@ -74,18 +74,76 @@ def _pinned_cards(
 ) -> list[dict[str, object]]:
     """Exact test-ID matches to reviewed table records, looked up deterministically."""
     ids = store.cards_for_identifiers(question)
-    if not ids:
-        return []
-    placeholders = ",".join("?" * len(ids))
-    rows = store.connection.execute(
-        f"SELECT * FROM chunks WHERE chunk_id IN ({placeholders})"
-        " AND (? IS NULL OR lower(investigation_id) = lower(?))",
-        (*ids, investigation, investigation),
-    ).fetchall()
-    cards = store._attach_visuals([{**dict(row), "score": 1.0} for row in rows])
+    cards: list[dict[str, object]] = []
+    if ids:
+        placeholders = ",".join("?" * len(ids))
+        rows = store.connection.execute(
+            f"SELECT * FROM chunks WHERE chunk_id IN ({placeholders})"
+            " AND (? IS NULL OR lower(investigation_id) = lower(?))",
+            (*ids, investigation, investigation),
+        ).fetchall()
+        cards = store._attach_visuals([{**dict(row), "score": 1.0} for row in rows])
     if cards:
         say("records", f"Found {len(cards)} table record(s) named in the question")
-    return cards
+    return cards + _pinned_rows(store, question, investigation, say)
+
+
+def _pinned_rows(
+    store: DocumentStore,
+    question: str,
+    investigation: str | None,
+    say: Callable[[str, str], None],
+) -> list[dict[str, object]]:
+    """Reviewed table rows named by test ID, or by two or more of their exact values."""
+    from .row_match import match_rows
+
+    rows = [
+        r
+        for r in store.record_rows()
+        if investigation is None or str(r["investigation_id"]).lower() == investigation.lower()
+    ]
+    if not rows:
+        return []
+    named = {str(r["row_id"]) for r in store.rows_for_identifiers(question)}
+    found = [{**r, "match": []} for r in rows if str(r["row_id"]) in named]
+    found += [r for r in match_rows(question, rows) if str(r["row_id"]) not in named]
+    if found:
+        say("records", f"Found {len(found)} table row(s) matching the question")
+    return [row_chunk(r) for r in found]
+
+
+def row_chunk(row: dict[str, object]) -> dict[str, object]:
+    """A matched row in the shape of a retrieved chunk, with its structure attached."""
+    source = row["source"]
+    assert isinstance(source, dict)
+    text = str(row["text"])
+    return {
+        "chunk_id": row["row_id"],
+        "source_id": str(source["source_sha256"])[:16],
+        "investigation_id": row["investigation_id"],
+        "filename": source["file"],
+        "source_url": source["source_url"],
+        "sha256": source["source_sha256"],
+        "physical_page": source["page"] or 0,
+        "chunk_index": 0,
+        "char_start": 0,
+        "char_end": len(text),
+        "text": text,
+        "score": 1.0,
+        "record_card": {
+            "kind": "row",
+            "test_id": row["test_id"],
+            "table_title": row["table_title"],
+            "card_id": row["card_id"],
+            "evidence_kind": row["evidence_kind"],
+            "review_action": row["review_action"],
+            "locator": row["locator"],
+            "values": row["values"],
+            "caveats": row["caveats"],
+            "open_questions": row["open_questions"],
+            "match": row.get("match") or [],
+        },
+    }
 
 
 def _merge_pinned(

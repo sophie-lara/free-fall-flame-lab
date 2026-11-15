@@ -690,6 +690,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -1389,6 +1395,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -2094,6 +2106,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -2793,6 +2811,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -3498,6 +3522,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -4197,6 +4227,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -4902,6 +4938,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -5601,6 +5643,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -6306,6 +6354,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -7005,6 +7059,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -7710,6 +7770,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -8409,6 +8475,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -9114,6 +9186,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -9813,6 +9891,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -10518,6 +10602,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -11217,6 +11307,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -11922,6 +12018,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -12621,6 +12723,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -13326,6 +13434,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -14025,6 +14139,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -14730,6 +14850,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -15429,6 +15555,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -16134,6 +16266,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -16833,6 +16971,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -17538,6 +17682,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -18237,6 +18387,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -18942,6 +19098,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -19641,6 +19803,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 6: Quiescent environment LOI test matrix.",
             "severity": "review"
           },
           {
@@ -20346,6 +20514,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -21045,6 +21219,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -21750,6 +21930,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -22449,6 +22635,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -23154,6 +23346,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -23853,6 +24051,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -24558,6 +24762,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -25257,6 +25467,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -25962,6 +26178,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -26661,6 +26883,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -27366,6 +27594,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -28065,6 +28299,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -28770,6 +29010,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -29469,6 +29715,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -30174,6 +30426,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -30873,6 +31131,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -31578,6 +31842,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -32277,6 +32547,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -32982,6 +33258,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -33681,6 +33963,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -34386,6 +34674,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -35085,6 +35379,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 7: Slow flow LOI test matrix",
             "severity": "review"
           },
           {
@@ -35936,6 +36236,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -36780,6 +37086,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -37630,6 +37942,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -38474,6 +38792,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -39324,6 +39648,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -40168,6 +40498,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -41018,6 +41354,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -41862,6 +42204,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -42712,6 +43060,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -43556,6 +43910,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -44406,6 +44766,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -45250,6 +45616,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -46100,6 +46472,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -46944,6 +47322,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -47794,6 +48178,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -48638,6 +49028,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -49488,6 +49884,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -50332,6 +50734,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -51182,6 +51590,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -52026,6 +52440,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -52876,6 +53296,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -53720,6 +54146,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -54570,6 +55002,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -55414,6 +55852,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -56264,6 +56708,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -57108,6 +57558,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -57958,6 +58414,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -58802,6 +59264,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -59652,6 +60120,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -60496,6 +60970,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -61346,6 +61826,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -62190,6 +62676,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -63040,6 +63532,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -63884,6 +64382,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -64734,6 +65238,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -65578,6 +66088,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -66428,6 +66944,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -67272,6 +67794,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -68122,6 +68650,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -68966,6 +69500,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -69816,6 +70356,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -70660,6 +71206,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -71510,6 +72062,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -72354,6 +72912,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -73204,6 +73768,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -74048,6 +74618,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -74898,6 +75474,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -75742,6 +76324,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -76592,6 +77180,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -77436,6 +78030,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -78286,6 +78886,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -79130,6 +79736,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -79980,6 +80592,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -80824,6 +81442,12 @@
             "code": "preliminary_test_matrix",
             "field": "Record",
             "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted. (reviewer note N1, Sophie)",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -81674,6 +82298,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -82521,6 +83151,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 8: CO2 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -83365,6 +84001,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -84216,6 +84858,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -85061,6 +85709,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -85912,6 +86566,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -86757,6 +87417,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -87608,6 +88274,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -88453,6 +89125,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -89304,6 +89982,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -90149,6 +90833,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -91000,6 +91690,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -91845,6 +92541,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -92696,6 +93398,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -93541,6 +94249,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -94392,6 +95106,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -95237,6 +95957,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -96088,6 +96814,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -96933,6 +97665,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -97784,6 +98522,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -98629,6 +99373,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -99480,6 +100230,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -100325,6 +101081,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -101176,6 +101938,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -102021,6 +102789,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -102872,6 +103646,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -103717,6 +104497,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -104568,6 +105354,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -105413,6 +106205,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -106264,6 +107062,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -107109,6 +107913,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -107960,6 +108770,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -108805,6 +109621,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -109656,6 +110478,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -110501,6 +111329,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -111352,6 +112186,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -112197,6 +113037,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -113048,6 +113894,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -113893,6 +114745,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -114744,6 +115602,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -115589,6 +116453,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -116440,6 +117310,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -117285,6 +118161,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -118136,6 +119018,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -118981,6 +119869,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -119832,6 +120726,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -120677,6 +121577,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -121528,6 +122434,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -122373,6 +123285,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -123224,6 +124142,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -124069,6 +124993,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -124920,6 +125850,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -125765,6 +126701,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -126616,6 +127558,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -127461,6 +128409,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -128312,6 +129266,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -129160,6 +130120,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -130005,6 +130971,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 9: He suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -130868,6 +131840,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -131725,6 +132703,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -132588,6 +133572,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -133445,6 +134435,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -134308,6 +135304,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -135165,6 +136167,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -136028,6 +137036,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -136885,6 +137899,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -137748,6 +138768,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -138605,6 +139631,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -139468,6 +140500,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -140325,6 +141363,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -141188,6 +142232,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -142045,6 +143095,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -142908,6 +143964,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -143765,6 +144827,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -144628,6 +145696,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -145485,6 +146559,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -146348,6 +147428,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -147205,6 +148291,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -148068,6 +149160,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -148925,6 +150023,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -149788,6 +150892,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -150645,6 +151755,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -151508,6 +152624,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -152365,6 +153487,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -153228,6 +154356,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -154085,6 +155219,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -154948,6 +156088,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -155805,6 +156951,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -156668,6 +157820,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -157525,6 +158683,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -158388,6 +159552,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -159245,6 +160415,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -160108,6 +161284,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -160965,6 +162147,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -161828,6 +163016,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -162685,6 +163879,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -163548,6 +164748,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -164405,6 +165611,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -165268,6 +166480,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -166125,6 +167343,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -166988,6 +168212,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -167845,6 +169075,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -168708,6 +169944,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -169565,6 +170807,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -170428,6 +171676,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -171285,6 +172539,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -172148,6 +173408,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -173005,6 +174271,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -173868,6 +175140,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -174725,6 +176003,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -175588,6 +176872,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -176445,6 +177735,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
             "severity": "review"
           },
           {
@@ -177308,6 +178604,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -178168,6 +179470,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 10: SF6 suppressant efficacy test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -179011,6 +180319,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -179860,6 +181174,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -180703,6 +182023,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -181552,6 +182878,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -182395,6 +183727,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -183244,6 +184582,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -184087,6 +185431,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -184936,6 +186286,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -185779,6 +187135,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -186628,6 +187990,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -187471,6 +188839,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -188320,6 +189694,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -189163,6 +190543,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -190012,6 +191398,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -190855,6 +192247,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -191704,6 +193102,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -192547,6 +193951,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -193396,6 +194806,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -194242,6 +195658,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -195085,6 +196507,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -195948,6 +197376,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -196805,6 +198239,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -197668,6 +199108,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -198525,6 +199971,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -199388,6 +200840,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -200245,6 +201703,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -201108,6 +202572,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -201965,6 +203435,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -202828,6 +204304,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -203685,6 +205167,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -204548,6 +206036,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -205405,6 +206899,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -206268,6 +207768,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -207125,6 +208631,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -207988,6 +209500,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -208845,6 +210363,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -209708,6 +211232,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -210565,6 +212095,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
             "severity": "review"
           },
           {
@@ -211428,6 +212964,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -212288,6 +213830,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 11: Suppressant efficacy in a slow flow test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -213133,6 +214681,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -213984,6 +215538,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -214829,6 +216389,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -215680,6 +217246,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -216525,6 +218097,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -217376,6 +218954,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -218221,6 +219805,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -219072,6 +220662,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -219917,6 +221513,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -220768,6 +222370,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -221613,6 +223221,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -222464,6 +224078,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -223309,6 +224929,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -224160,6 +225786,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -225008,6 +226640,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -225853,6 +227491,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -226718,6 +228362,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -227577,6 +229227,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -228442,6 +230098,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -229301,6 +230963,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -230166,6 +231834,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -231025,6 +232699,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -231890,6 +233570,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -232749,6 +234435,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -233614,6 +235306,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -234473,6 +236171,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -235338,6 +237042,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -236197,6 +237907,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -237062,6 +238778,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -237921,6 +239643,12 @@
             "code": "extraction_spot_checked",
             "field": "Record",
             "message": "Table transcription was spot-checked, not checked line by line; numeric cells were verified against the PDF text layer.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
             "severity": "review"
           },
           {
@@ -238786,6 +240514,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -239648,6 +241382,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 12: Suppressant in a radiative environment test matrix.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -239934,6 +241674,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 2: Gaseous fire suppression agent efficacy, as measured by the MEC, for cup burner flames (Takahashi et al., 2004).",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -240216,6 +241962,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 2: Gaseous fire suppression agent efficacy, as measured by the MEC, for cup burner flames (Takahashi et al., 2004).",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -240495,6 +242247,12 @@
             "code": "evidence_class",
             "field": "Record",
             "message": "Background data row from EIRD Table 2 (Table 2: Gaseous fire suppression agent efficacy, as measured by the MEC, for cup burner flames (Takahashi et al., 2004).); literature or calculated values, not a FLEX run.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 2: Gaseous fire suppression agent efficacy, as measured by the MEC, for cup burner flames (Takahashi et al., 2004).",
             "severity": "review"
           },
           {
@@ -241128,6 +242886,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 14: Gas-phase oxygen transport data for different inert species in a 0.21 oxygen mole fraction ambient.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -241758,6 +243522,12 @@
             "severity": "review"
           },
           {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 14: Gas-phase oxygen transport data for different inert species in a 0.21 oxygen mole fraction ambient.",
+            "severity": "review"
+          },
+          {
             "code": "review_decisions",
             "field": "Record",
             "message": "Accepted by Sophie (2026-11-14) with the FLEX table review record (docs/review_decisions/flex-eird-tables-v1-review.md); notes on each value record ambiguities and definitions.",
@@ -242385,6 +244155,12 @@
             "code": "evidence_class",
             "field": "Record",
             "message": "Background data row from EIRD Table 14 (Table 14: Gas-phase oxygen transport data for different inert species in a 0.21 oxygen mole fraction ambient.); literature or calculated values, not a FLEX run.",
+            "severity": "review"
+          },
+          {
+            "code": "source_table",
+            "field": "Record",
+            "message": "EIRD Table 14: Gas-phase oxygen transport data for different inert species in a 0.21 oxygen mole fraction ambient.",
             "severity": "review"
           },
           {

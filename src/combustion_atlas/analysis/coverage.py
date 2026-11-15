@@ -383,10 +383,21 @@ def coverage_payload(workspace: Any) -> dict[str, Any]:
             for note in table.notes
         ),
     ]
+    from .evidence_bridge import proposed_tests
+
+    # Proposed (planned) tests: a separate layer, never runs and never used for gaps.
+    proposed = proposed_tests(Path(workspace.data).parent)
+    if proposed:
+        notes.append(
+            f"{len(proposed)} proposed FLEX tests (EIRD test matrices) are shown as a separate "
+            "layer: planned conditions that were not run as listed, with no results. They do "
+            "not count toward gaps. Pressure is converted from atm and mole fractions to %."
+        )
     return {
         "records": records,
         "fields": fields,
         "families": families,
         "gaps": gaps,
         "notes": notes,
+        "proposed": proposed,
     }
