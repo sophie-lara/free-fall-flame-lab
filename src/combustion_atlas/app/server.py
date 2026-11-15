@@ -26,6 +26,8 @@ from combustion_atlas.rag.search import retrieve
 from combustion_atlas.rag.store import DocumentStore
 from combustion_atlas.retrieval.structured import filter_records
 
+from .usage import PaidCallLimiter
+
 _WRITE_LOCK = threading.Lock()
 
 
@@ -38,13 +40,38 @@ class EvidenceRequest(BaseModel):
     allow_provider_calls: bool = False
 
 
-def ask_evidence(workspace: Workspace, request: EvidenceRequest) -> dict[str, object]:
+def apply_paid_limit(
+    request: EvidenceRequest, limiter: PaidCallLimiter | None, exempt: bool
+) -> tuple[EvidenceRequest, dict[str, object] | None]:
+    """Downgrade a paid request to free keyword search when the site limit is reached."""
+    paid = request.generate_answer or request.method != "keyword"
+    if not paid or limiter is None or exempt:
+        return request, None
+    decision = limiter.acquire()
+    if decision.allowed:
+        return request, None
+    limited: dict[str, object] = {
+        "reason": decision.reason,
+        "retry_after_s": decision.retry_after_s,
+        "remaining_today": decision.remaining_today,
+    }
+    return request.model_copy(update={"method": "keyword", "generate_answer": False}), limited
+
+
+def ask_evidence(
+    workspace: Workspace,
+    request: EvidenceRequest,
+    *,
+    limiter: PaidCallLimiter | None = None,
+    exempt: bool = False,
+) -> dict[str, object]:
     if not workspace.database.is_file():
         raise ValueError("Build the document index to search evidence")
     if (
         request.method != "keyword" or request.generate_answer
     ) and not request.allow_provider_calls:
         raise ValueError("Enable OpenAI calls for semantic search or generated answers")
+    request, limited = apply_paid_limit(request, limiter, exempt)
     with DocumentStore(workspace.database) as store:
         results = retrieve(
             store,
@@ -57,6 +84,8 @@ def ask_evidence(workspace: Workspace, request: EvidenceRequest) -> dict[str, ob
         "method": request.method,
         "results": results,
     }
+    if limited:
+        payload["limited"] = limited
     if request.generate_answer:
         provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
         payload["answer"] = provider.answer(request.question, results).model_dump()
@@ -70,13 +99,31 @@ class DirectionsRequest(BaseModel):
     allow_provider_calls: bool = False
 
 
-def research_directions(workspace: Workspace, request: DirectionsRequest) -> dict[str, object]:
+class PaidLimitReached(Exception):
+    """A paid call was refused by the site-wide limit (HTTP 429)."""
+
+    def __init__(self, reason: str, retry_after_s: int):
+        super().__init__(reason)
+        self.retry_after_s = retry_after_s
+
+
+def research_directions(
+    workspace: Workspace,
+    request: DirectionsRequest,
+    *,
+    limiter: PaidCallLimiter | None = None,
+    exempt: bool = False,
+) -> dict[str, object]:
     from combustion_atlas.providers.research_directions import ResearchDirectionsProvider
 
     if not workspace.database.is_file():
         raise ValueError("Build the document index first")
     if not request.allow_provider_calls:
         raise ValueError("Enable OpenAI calls to generate research directions")
+    if limiter is not None and not exempt:
+        decision = limiter.acquire()
+        if not decision.allowed:
+            raise PaidLimitReached(decision.reason or "AI limit reached", decision.retry_after_s)
     investigation = request.investigation or None
     with DocumentStore(workspace.database) as store:
         # Topic passages plus passages where authors discuss limitations or future work.
@@ -408,6 +455,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
     # Hosted only: when set, every request except /api/health needs a signed-in identity
     # in this set (or in admins). Needed for providers like GitHub that admit any account.
     allowed_users: frozenset[str] = frozenset()
+    # Site-wide paid-call limit for public deployments (None = unlimited).
+    limiter: PaidCallLimiter | None = None
     static_dir = Path(__file__).with_name("static")
     public_dir = Path(__file__).with_name("public")
 
@@ -504,6 +553,10 @@ class AtlasHandler(BaseHTTPRequestHandler):
         )
         return True
 
+    def _is_paid_exempt(self) -> bool:
+        """Admins of a hosted deployment are not counted against the paid-call limit."""
+        return bool(self.allowed_hosts) and self._is_admin()
+
     def _is_admin(self) -> bool:
         if not self.allowed_hosts:
             return True  # loopback-only server: the local user owns the workspace
@@ -591,6 +644,9 @@ class AtlasHandler(BaseHTTPRequestHandler):
                         cache_dir=atlas.data / "processed/rag",
                     )
                 )
+        elif parsed.path == "/api/limits":
+            status = self.limiter.status() if self.limiter else {"enabled": False}
+            self._json({**status, "exempt": self._is_paid_exempt()})
         elif parsed.path == "/api/rag-status":
             config = ProviderConfig.from_environment()
             chunks = vectors = 0
@@ -811,7 +867,7 @@ class AtlasHandler(BaseHTTPRequestHandler):
             raw = self.rfile.read(length)
             from combustion_atlas.app.streaming import stream_ask
 
-            stream_ask(self, self.atlas, raw)
+            stream_ask(self, self.atlas, raw, limiter=self.limiter, exempt=self._is_paid_exempt())
             return
         if path not in {
             "/api/reviews",
@@ -842,15 +898,32 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     self._json(module.predict_payload(self.atlas, body))
                 return
             if path == "/api/ask":
-                self._json(ask_evidence(self.atlas, EvidenceRequest.model_validate_json(raw)))
+                self._json(
+                    ask_evidence(
+                        self.atlas,
+                        EvidenceRequest.model_validate_json(raw),
+                        limiter=self.limiter,
+                        exempt=self._is_paid_exempt(),
+                    )
+                )
                 return
             if path == "/api/directions":
                 self._json(
-                    research_directions(self.atlas, DirectionsRequest.model_validate_json(raw))
+                    research_directions(
+                        self.atlas,
+                        DirectionsRequest.model_validate_json(raw),
+                        limiter=self.limiter,
+                        exempt=self._is_paid_exempt(),
+                    )
                 )
                 return
             note = ReviewNote.model_validate_json(raw)
             self._json(self.atlas.save_note(note), HTTPStatus.CREATED)
+        except PaidLimitReached as exc:
+            self._json(
+                {"error": str(exc), "retry_after_s": exc.retry_after_s},
+                HTTPStatus.TOO_MANY_REQUESTS,
+            )
         except (ValueError, ValidationError) as exc:
             self._json({"error": str(exc)[:500]}, HTTPStatus.BAD_REQUEST)
         except OSError:
@@ -946,6 +1019,8 @@ def serve(
     ui_mode: str = "workspace",
     admins: frozenset[str] = frozenset(),
     allowed_users: frozenset[str] = frozenset(),
+    paid_daily_limit: int = 0,
+    paid_min_interval_s: int = 0,
 ) -> None:
     """Serve the interface. Defaults to loopback; hosted use must name its public hosts."""
     if ui_mode not in {"workspace", "public"}:
@@ -963,6 +1038,15 @@ def serve(
             "ui_mode": ui_mode,
             "admins": frozenset(a.casefold() for a in admins),
             "allowed_users": frozenset(u.casefold() for u in allowed_users),
+            "limiter": (
+                PaidCallLimiter(
+                    workspace.resolve() / "data/usage/paid-calls.json",
+                    daily_limit=paid_daily_limit,
+                    min_interval_s=paid_min_interval_s,
+                )
+                if paid_daily_limit or paid_min_interval_s
+                else None
+            ),
         },
     )
     server = ThreadingHTTPServer((host, port), handler)

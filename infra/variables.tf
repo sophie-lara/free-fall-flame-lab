@@ -127,3 +127,21 @@ variable "allowed_users" {
   type        = list(string)
   default     = []
 }
+
+variable "public_access" {
+  description = "Let anyone use the site without signing in (admins still sign in for uploads and the workspace)."
+  type        = bool
+  default     = false
+}
+
+variable "paid_daily_limit" {
+  description = "Site-wide AI answers per UTC day for visitors (0 = unlimited). Admins are exempt."
+  type        = number
+  default     = 0
+}
+
+variable "paid_min_interval_s" {
+  description = "Minimum seconds between site-wide AI answers for visitors (0 = none)."
+  type        = number
+  default     = 0
+}

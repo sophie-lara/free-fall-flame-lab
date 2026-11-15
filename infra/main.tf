@@ -37,9 +37,10 @@ resource "azurerm_linux_web_app" "main" {
   lifecycle {
     precondition {
       condition = !local.use_github || (
-        var.github_oauth_client_id != "" && var.github_oauth_client_secret != "" && length(var.allowed_users) > 0
+        var.github_oauth_client_id != "" && var.github_oauth_client_secret != "" &&
+        (var.public_access || length(var.allowed_users) > 0)
       )
-      error_message = "GitHub sign-in needs github_oauth_client_id, TF_VAR_github_oauth_client_secret and a non-empty allowed_users (it admits any GitHub account otherwise)."
+      error_message = "GitHub sign-in needs github_oauth_client_id, TF_VAR_github_oauth_client_secret, and either public_access or a non-empty allowed_users (it admits any GitHub account otherwise)."
     }
   }
 
@@ -79,13 +80,16 @@ resource "azurerm_linux_web_app" "main" {
     MICROSOFT_PROVIDER_AUTHENTICATION_SECRET = azuread_application_password.signin.value
     GITHUB_PROVIDER_AUTHENTICATION_SECRET    = var.github_oauth_client_secret
     COMBUSTION_ATLAS_ALLOWED_USERS           = join(",", var.allowed_users)
+    COMBUSTION_ATLAS_PAID_DAILY_LIMIT        = tostring(var.paid_daily_limit)
+    COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S     = tostring(var.paid_min_interval_s)
   }
 
   auth_settings_v2 {
-    auth_enabled           = true
-    require_authentication = true
+    auth_enabled = true
+    # Public access: sign-in is optional; the app still checks admin identity itself.
+    require_authentication = !var.public_access
     require_https          = true
-    unauthenticated_action = "RedirectToLoginPage"
+    unauthenticated_action = var.public_access ? "AllowAnonymous" : "RedirectToLoginPage"
     default_provider       = local.use_github ? "github" : "azureactivedirectory"
     excluded_paths         = ["/api/health"]
 

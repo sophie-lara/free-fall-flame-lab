@@ -51,6 +51,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Hosted only: sign-in names allowed to use the app (repeatable); admins are "
         "always allowed. Unset means any signed-in user.",
     )
+    parser.add_argument(
+        "--paid-daily-limit",
+        type=int,
+        default=int(env.get("COMBUSTION_ATLAS_PAID_DAILY_LIMIT", "0")),
+        help="Site-wide AI answers per UTC day for non-admins (0 = unlimited)",
+    )
+    parser.add_argument(
+        "--paid-min-interval",
+        type=int,
+        default=int(env.get("COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S", "0")),
+        help="Minimum seconds between site-wide AI answers for non-admins (0 = none)",
+    )
     args = parser.parse_args(argv)
     serve(
         workspace=args.workspace,
@@ -60,6 +72,8 @@ def main(argv: list[str] | None = None) -> int:
         ui_mode=args.ui,
         admins=frozenset(args.admin),
         allowed_users=frozenset(args.allowed_user),
+        paid_daily_limit=args.paid_daily_limit,
+        paid_min_interval_s=args.paid_min_interval,
     )
     return 0
 

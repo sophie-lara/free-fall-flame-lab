@@ -15,14 +15,16 @@ from openai import OpenAIError
 from pydantic import ValidationError
 
 
-def stream_ask(handler: Any, workspace: Any, raw: bytes) -> None:
+def stream_ask(
+    handler: Any, workspace: Any, raw: bytes, *, limiter: Any = None, exempt: bool = False
+) -> None:
     """Run /api/ask with live progress events written to the handler's socket."""
     from combustion_atlas.providers import ProviderConfig
     from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
     from combustion_atlas.rag.search import retrieve
     from combustion_atlas.rag.store import DocumentStore
 
-    from .server import EvidenceRequest
+    from .server import EvidenceRequest, apply_paid_limit
 
     started = time.monotonic()
     handler.send_response(200)
@@ -57,6 +59,9 @@ def stream_ask(handler: Any, workspace: Any, raw: bytes) -> None:
             request.allow_provider_calls
         ):
             raise ValueError("Enable OpenAI calls for semantic search or generated answers")
+        request, limited = apply_paid_limit(request, limiter, exempt)
+        if limited:
+            progress("limited", str(limited["reason"]))
         progress("started", f"Searching the corpus ({request.method} retrieval)")
         with DocumentStore(workspace.database) as store:
             results = retrieve(
@@ -71,6 +76,8 @@ def stream_ask(handler: Any, workspace: Any, raw: bytes) -> None:
             "method": request.method,
             "results": results,
         }
+        if limited:
+            payload["limited"] = limited
         if request.generate_answer:
             provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
             payload["answer"] = provider.answer(

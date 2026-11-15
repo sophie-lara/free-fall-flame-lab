@@ -50,7 +50,11 @@ function renderShell() {
   document.querySelectorAll('[data-route]').forEach(a => { if (a.dataset.route === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   document.querySelectorAll('.admin-only').forEach(el => { el.hidden = !state.me?.is_admin; });
   const badge = document.querySelector('#user-badge');
-  badge.innerHTML = state.me?.name ? `${esc(state.me.name)}${state.me.is_admin ? '<span class="pill">Admin</span>' : ''}` : (state.me?.is_admin ? '<span class="pill">Local admin</span>' : '');
+  const hosted = !['127.0.0.1', 'localhost'].includes(location.hostname);
+  badge.innerHTML = state.me?.name
+    ? `${esc(state.me.name)}${state.me.is_admin ? '<span class="pill">Admin</span>' : ''}${hosted ? ' <a class="small" href="/.auth/logout?post_logout_redirect_uri=/">Sign out</a>' : ''}`
+    : state.me?.is_admin ? '<span class="pill">Local admin</span>'
+    : hosted ? '<a class="small" href="/.auth/login/github?post_login_redirect_uri=/">Admin sign-in</a>' : '';
   document.querySelector('#site-nav').classList.remove('open');
   document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false');
 }
@@ -127,7 +131,7 @@ function renderAsk() {
     <div><label for="q">${a.mode === 'answer' ? 'Question' : 'Topic or proposed test condition'}</label>
       <textarea id="q" maxlength="1000" required placeholder="${a.mode === 'answer' ? 'Ask about materials, conditions, results or methods…' : 'Describe a topic or proposed experiment…'}">${esc(a.question)}</textarea></div>
     <div class="row"><button class="btn primary" type="submit" ${a.loading ? 'disabled' : ''}>${a.loading ? (a.mode === 'answer' ? 'Searching…' : 'Analyzing…') : (a.mode === 'answer' ? 'Get answer' : 'Find next steps')}</button>
-      <span class="hint" style="margin:0">Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.</span></div>
+      <span class="hint" style="margin:0">Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.${limitsHint()}</span></div>
     <div class="chips" aria-label="Examples">${EXAMPLES[a.mode].map(q => `<button type="button" class="chip" data-example="${esc(q)}">${esc(q)}</button>`).join('')}</div>
   </form>
   <div id="ask-results" class="section" aria-live="polite">${askResults()}</div>`;
@@ -146,6 +150,7 @@ async function runAsk() {
       : { kind: 'plan', ...(await postJSON('/api/directions', { topic: a.question, allow_provider_calls: true })) };
   } catch (e) { a.error = e.message; }
   a.loading = false;
+  await loadLimits();
   if (route() === 'ask') renderAsk();
 }
 // Streams NDJSON progress from /api/ask/stream; falls back to /api/ask when the route is absent.
@@ -222,7 +227,10 @@ function askResultBody() {
   const byId = Object.fromEntries(results.map(r => [r.chunk_id, r]));
   if (a.result.kind === 'answer') {
     const ans = a.result.answer;
-    if (!ans) return sourcesSummary(results);
+    const limited = a.result.limited
+      ? `<section class="card notice" role="status"><strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing free keyword search results below.</section>`
+      : '';
+    if (!ans) return limited + sourcesSummary(results);
     const partial = ans.status === 'answered' && (ans.limitations || []).length > 0;
     const status = ans.status !== 'answered' ? '<span class="pill bad">Insufficient evidence</span>' : partial ? '<span class="pill warn">Partial evidence</span>' : '<span class="pill ok">Answered from sources</span>';
     const body = ans.status !== 'answered'
@@ -534,4 +542,18 @@ function uiSwitchHTML(me, current) {
 function bindUiSwitch(root) {
   root.querySelector('[data-ui-target]')?.addEventListener('click', e => { window.location.assign(e.currentTarget.dataset.uiTarget); });
 }
+// ---- Site-wide AI answer limit (public deployments) ----
+state.limits = null;
+async function loadLimits() {
+  try { state.limits = await api('/api/limits'); } catch { state.limits = null; }
+}
+function limitsHint() {
+  const l = state.limits;
+  if (!l || !l.enabled || l.exempt) return '';
+  if (l.remaining_today === 0) return ' AI answers for today are used up; keyword search still works.';
+  const left = l.remaining_today != null ? ` ${l.remaining_today} AI answer${l.remaining_today === 1 ? '' : 's'} left today (site-wide).` : '';
+  const wait = l.next_available_in_s ? ` Next one available in ${l.next_available_in_s} s.` : '';
+  return left + wait;
+}
+loadLimits().then(() => { if (route() === 'ask') renderAsk(); });
 start();
