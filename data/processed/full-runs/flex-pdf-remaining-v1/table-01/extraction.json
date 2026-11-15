@@ -1,0 +1,171 @@
+{
+  "contract": "flex-table-extraction-v1",
+  "status": "unreviewed",
+  "plan_sha256": "5738a2d5b8047de89ff57e762dafb219144ff41864ec34c954d7091bd8d69608",
+  "source": {
+    "investigation_id": "PSI-69",
+    "path": "data/raw/preserved-review/PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf",
+    "sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
+    "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+    "file_url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=684344b89e44646b74027069&version=1&redirect=true"
+  },
+  "target": {
+    "label": "1",
+    "evidence_class": "background_data",
+    "role": "extraction",
+    "table_pages": [
+      10
+    ],
+    "context_pages": [
+      9,
+      10,
+      11
+    ],
+    "request_sha256": "47cdd9e041e314bbe22cabea2c49f13cddb8aba480511ff63f8733a7c1bd8941",
+    "image_sha256": {
+      "10": "3ef6ea49dd806b738eda1e6306de1cab9ac447ffe7c5edebfa015394981b0e60"
+    },
+    "reservation_usd": "0.0263472"
+  },
+  "extraction": {
+    "label": "1",
+    "caption": "Table 1: Reduced Damkohler numbers for various flow configurations",
+    "header_notes": [],
+    "rows": 4,
+    "columns": 2,
+    "cells": [
+      {
+        "page": 10,
+        "row": 0,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "Reduced Damkohler Number (δ)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 0,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "Flow Configuration",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 1,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "[(ln(1+B)D_ext)/(ln(1+Y_O∞))²]² (C_p/(4M_F)) (T_f²/T_a)³ exp(−T_a/T_f)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 1,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "Droplet Combustion (Law, 1975)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 2,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "[(1+B)/((1+Y_O∞)F_N)]² √(D_ext/g) (Kρ/M_F) (T_f²/T_a)³ exp(−T_a/T_f)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 2,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "Stagnation-point boundary layer (Wu et al., 1982)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 3,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "[(1+B)/(H_w exp h_f)]² [4ρA_0/(M_F c_p Pr(1+Y_O∞)²)] (T_f²/T_a)³ exp(−T_a/T_f)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 10,
+        "row": 3,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "Rotating disk stagnation point and von Karman flow (Nayagam and Williams, 2000)",
+        "state": "present",
+        "uncertainty": null
+      }
+    ],
+    "footnotes": [],
+    "context_flags": [
+      "The symbols in the formulas are not defined on the supplied pages."
+    ],
+    "uncertainties": []
+  },
+  "check_issues": [
+    {
+      "code": "label_text_not_matched",
+      "cell": "page 10, row 1, column 0",
+      "text": "[(ln(1+B)D_ext)/(ln(1+Y_O∞))²]² (C_p/(4M_F)) (T_f²/T_a)³ exp(−T_a/T_f)"
+    },
+    {
+      "code": "label_text_not_matched",
+      "cell": "page 10, row 2, column 0",
+      "text": "[(1+B)/((1+Y_O∞)F_N)]² √(D_ext/g) (Kρ/M_F) (T_f²/T_a)³ exp(−T_a/T_f)"
+    },
+    {
+      "code": "label_text_not_matched",
+      "cell": "page 10, row 3, column 0",
+      "text": "[(1+B)/(H_w exp h_f)]² [4ρA_0/(M_F c_p Pr(1+Y_O∞)²)] (T_f²/T_a)³ exp(−T_a/T_f)"
+    },
+    {
+      "code": "context_needed",
+      "message": "The symbols in the formulas are not defined on the supplied pages."
+    }
+  ],
+  "response_id": "resp_0b6859ab62278da7016af900ff340487d18dc77795e20a3d9e",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 5069,
+    "input_tokens_details": {
+      "cache_write_tokens": 5066,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 5066
+      }
+    },
+    "output_tokens": 1753,
+    "output_tokens_details": {
+      "reasoning_tokens": 1174
+    },
+    "total_tokens": 6822
+  }
+}

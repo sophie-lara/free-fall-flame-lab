@@ -1,0 +1,148 @@
+{
+  "contract": "flex-table-mapping-v1",
+  "status": "unreviewed",
+  "plan_sha256": "c3063bbf62f54e74bdb7aa676ee3295ccc6e00b75d9a9d8d14b6d6678f0e093d",
+  "target": {
+    "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-07/extraction.json",
+    "extraction_sha256": "e653f2d327e7c183f2f0a090f075df5a203b435bb303ae3c70505aaddf7b08b6",
+    "extraction_reviewer": "Sophie (spot check, not line by line)",
+    "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+    "label": "7",
+    "evidence_class_planned": "planned_test_matrix",
+    "context_pages": [
+      46,
+      47,
+      48
+    ],
+    "request_sha256": "1f3c3fa6187f2cdeb5878f3f963e4bada05c28e7ecb12f90b45ad04f64b58148",
+    "reservation_usd": "0.0121656"
+  },
+  "mapping": {
+    "evidence_class": "planned_test_matrix",
+    "evidence_class_quote": "Slow flow LOI test matrix",
+    "evidence_class_reason": "The caption identifies this as a test matrix, and the columns and full-width rows specify test settings rather than measured outcomes.",
+    "column_mappings": [
+      {
+        "column": 0,
+        "header_text": "Test No.",
+        "canonical_field": "test_number",
+        "unit": null,
+        "quantity_kind": "identifier",
+        "note": null
+      },
+      {
+        "column": 1,
+        "header_text": "P (atm)",
+        "canonical_field": "pressure",
+        "unit": "atm",
+        "quantity_kind": "planned_condition",
+        "note": null
+      },
+      {
+        "column": 2,
+        "header_text": "XO2",
+        "canonical_field": "oxygen_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "No unit is stated; the column gives oxygen mole-fraction values."
+      }
+    ],
+    "condition_rows": [
+      {
+        "source_row": 0,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: C7H16",
+            "value": "C7H16",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent",
+            "source_text": "Diluent: N2",
+            "value": "N2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "fiber_support",
+            "source_text": "SiC fiber support",
+            "value": "SiC",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "flow_velocity",
+            "source_text": "Flow: 1.5 cm/s",
+            "value": "1.5",
+            "unit": "cm/s",
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "droplet_diameter",
+            "source_text": "D0 = 3, 5 mm",
+            "value": "3, 5",
+            "unit": "mm",
+            "status": "multiple_values_unassigned",
+            "note": "The source does not assign a diameter to a particular test."
+          },
+          {
+            "canonical_field": "diluent_mole_fraction",
+            "source_text": "XN2 = 1.0 − XO2.",
+            "value": "1.0 − XO2",
+            "unit": null,
+            "status": "formula",
+            "note": null
+          }
+        ]
+      },
+      {
+        "source_row": 13,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: CH3OH",
+            "value": "CH3OH",
+            "unit": null,
+            "status": "single",
+            "note": null
+          }
+        ]
+      }
+    ],
+    "context_flags": [
+      "The source does not define D0 in the table or the adjacent pages.",
+      "The listed droplet diameters 3 and 5 mm are not assigned to specific tests.",
+      "The diluent mole fraction is given by the formula XN2 = 1.0 − XO2; no separate XN2 values are tabulated."
+    ],
+    "notes": []
+  },
+  "validation_issues": [
+    "context_flag:The source does not define D0 in the table or the adjacent pages.",
+    "context_flag:The listed droplet diameters 3 and 5 mm are not assigned to specific tests.",
+    "context_flag:The diluent mole fraction is given by the formula XN2 = 1.0 − XO2; no separate XN2 values are tabulated."
+  ],
+  "response_id": "resp_01a8c6863dd13ba3016af905e1685c87d1a4717fc56f2b7285",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 6611,
+    "input_tokens_details": {
+      "cache_write_tokens": 6608,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 6608
+      }
+    },
+    "output_tokens": 1581,
+    "output_tokens_details": {
+      "reasoning_tokens": 798
+    },
+    "total_tokens": 8192
+  }
+}

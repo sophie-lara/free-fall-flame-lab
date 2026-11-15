@@ -1,0 +1,84 @@
+{
+  "schema_version": "flex-pdf-extract-plan-v1",
+  "stage": "held_out",
+  "model": "gpt-6-luna",
+  "prompt_version": "flex-table-extract-v1",
+  "budget_usd": "1.00",
+  "reservation_usd": "0.0266842",
+  "environment": {
+    "code_sha256": {
+      "src/combustion_atlas/ingestion/flex_pdf_run.py": "abca4482d8749c9fec43ba3288fcadd498a8a4f7c021a9942a363229aa3d36d2",
+      "src/combustion_atlas/ingestion/full_csv_run.py": "d7d31aa2b9fac043694beb18a0f020b56ed6b9233b5139cfc59ed1a4216a71c2",
+      "src/combustion_atlas/rag/visual_models.py": "d6bbdfe13a98f869fd0c4f813b046c59a13b58e615ac4301cfb05693de58d965"
+    },
+    "packages": {
+      "openai": "2.54.0",
+      "pydantic": "2.14.3",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": "5.15.2",
+      "pillow": "13.0.0"
+    },
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "source": {
+    "investigation_id": "PSI-69",
+    "path": "data/raw/preserved-review/PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf",
+    "sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
+    "catalog_source_id": "980702b9bccecc3d58e12e3b",
+    "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+    "file_url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=684344b89e44646b74027069&version=1&redirect=true",
+    "pages": 81
+  },
+  "targets": [
+    {
+      "label": "8",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        48,
+        49
+      ],
+      "context_pages": [
+        47,
+        48,
+        49,
+        50
+      ],
+      "request_sha256": "59f96e133a2754354522fa177f6ea13b9d77249729b2529a38085804d8a5f5d4",
+      "image_sha256": {
+        "48": "8325df2d6a3be352b234a8037c5949375a72c88b27d69e136b041ab5ae60fc1a",
+        "49": "40001360183b42f4f103144bd46d72279c3705cf45626e12c13df1135e33d1e9"
+      },
+      "reservation_usd": "0.0266842"
+    }
+  ],
+  "excluded": [
+    {
+      "label": "3",
+      "pages": [
+        33
+      ],
+      "reason": "requirements list (science data products); not data"
+    },
+    {
+      "label": "4",
+      "pages": [
+        35
+      ],
+      "reason": "requirements list (hardware); not data"
+    },
+    {
+      "label": "5",
+      "pages": [
+        40
+      ],
+      "reason": "requirements list (diagnostics); not data"
+    },
+    {
+      "label": "Test Plan Tables 2, 6-12",
+      "pages": [],
+      "reason": "duplicates of EIRD tables in PSI-69 FLEX_Test_Plan.pdf; extracted once from the EIRD (optional later cross-check against the Test Plan text layer)"
+    }
+  ],
+  "note": "Transcriptions are unreviewed. Reservations use assumed prices and are not a provider billing cap."
+}

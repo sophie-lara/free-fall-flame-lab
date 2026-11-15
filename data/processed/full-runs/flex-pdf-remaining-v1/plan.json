@@ -1,0 +1,249 @@
+{
+  "schema_version": "flex-pdf-extract-plan-v1",
+  "stage": "remaining",
+  "model": "gpt-6-luna",
+  "prompt_version": "flex-table-extract-v1",
+  "budget_usd": "1.00",
+  "reservation_usd": "0.2614646",
+  "environment": {
+    "code_sha256": {
+      "src/combustion_atlas/ingestion/flex_pdf_run.py": "8093dc235c5a61d840ad78256e3e4675c7f8d5df2f1d355446e50b73513fe950",
+      "src/combustion_atlas/ingestion/full_csv_run.py": "d7d31aa2b9fac043694beb18a0f020b56ed6b9233b5139cfc59ed1a4216a71c2",
+      "src/combustion_atlas/rag/visual_models.py": "d6bbdfe13a98f869fd0c4f813b046c59a13b58e615ac4301cfb05693de58d965"
+    },
+    "packages": {
+      "openai": "2.54.0",
+      "pydantic": "2.14.3",
+      "pdfplumber": "0.11.10",
+      "pypdfium2": "5.15.2",
+      "pillow": "13.0.0"
+    },
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "source": {
+    "investigation_id": "PSI-69",
+    "path": "data/raw/preserved-review/PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf",
+    "sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
+    "catalog_source_id": "980702b9bccecc3d58e12e3b",
+    "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+    "file_url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=684344b89e44646b74027069&version=1&redirect=true",
+    "pages": 81
+  },
+  "targets": [
+    {
+      "label": "1",
+      "evidence_class": "background_data",
+      "role": "extraction",
+      "table_pages": [
+        10
+      ],
+      "context_pages": [
+        9,
+        10,
+        11
+      ],
+      "request_sha256": "47cdd9e041e314bbe22cabea2c49f13cddb8aba480511ff63f8733a7c1bd8941",
+      "image_sha256": {
+        "10": "3ef6ea49dd806b738eda1e6306de1cab9ac447ffe7c5edebfa015394981b0e60"
+      },
+      "reservation_usd": "0.0263472"
+    },
+    {
+      "label": "2",
+      "evidence_class": "background_data",
+      "role": "extraction",
+      "table_pages": [
+        12
+      ],
+      "context_pages": [
+        11,
+        12,
+        13
+      ],
+      "request_sha256": "060be000429270893dc508238a9e8c4e0bd3c0b152745351822ac8b869633815",
+      "image_sha256": {
+        "12": "7f40d2f6dacbe677d223690ae105894ce325f8cd057ce3f0edb534d3d0753ff3"
+      },
+      "reservation_usd": "0.0268122"
+    },
+    {
+      "label": "6",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        46
+      ],
+      "context_pages": [
+        45,
+        46,
+        47
+      ],
+      "request_sha256": "4bf705aa8deb83e0de8832caf20a91e986593c489c04d6bfacea1e29e69c12e3",
+      "image_sha256": {
+        "46": "436852bf31eb8729bdf727569cccacda20330689d043628cd1b7bb7b99cba9de"
+      },
+      "reservation_usd": "0.0257292"
+    },
+    {
+      "label": "7",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        47
+      ],
+      "context_pages": [
+        46,
+        47,
+        48
+      ],
+      "request_sha256": "49d44990922cf9315ac18a75ebd5dbbd82d4b887730d25d4db650f42147dbb5d",
+      "image_sha256": {
+        "47": "9c2c1c7270a2215d44182d02534290286b7b167a48e34420291ef679524546ba"
+      },
+      "reservation_usd": "0.0253034"
+    },
+    {
+      "label": "9",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        50,
+        51
+      ],
+      "context_pages": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "request_sha256": "4cb21cd19736ae2ae4ce365b15cc18ec3854f5218defa738b96b1150a90eaa58",
+      "image_sha256": {
+        "50": "c7a680d1b2b58ab619fd1fea1f0aec3098fe476dcebaf000dc2207b123b092c7",
+        "51": "218e82940ab68ace79cc78be6d63250403e2f2881d4f9370ce7008db8fd0c61d"
+      },
+      "reservation_usd": "0.026658"
+    },
+    {
+      "label": "10",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        52,
+        53
+      ],
+      "context_pages": [
+        51,
+        52,
+        53,
+        54
+      ],
+      "request_sha256": "9888c6480c090738685692add5465ef71aeaf133f63d872fbdcf66ece4c724e9",
+      "image_sha256": {
+        "52": "dc5db1b5841b7bcb5482f318e73c16340c4723fca6008c388d10fd761cf36864",
+        "53": "dc57d619c54395e029e00c58d5cd523d1dba6af8f4c775a276b59271bd0d964b"
+      },
+      "reservation_usd": "0.0266614"
+    },
+    {
+      "label": "11",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        54
+      ],
+      "context_pages": [
+        53,
+        54,
+        55
+      ],
+      "request_sha256": "929c9382f29b46f5dde852184315157f73da29f5a640927d5f7e23a5e3675481",
+      "image_sha256": {
+        "54": "6ba9164db1d87be5a30c8bdd719a2370383cfd1217854d5c18fb71352a8fe645"
+      },
+      "reservation_usd": "0.025337"
+    },
+    {
+      "label": "12",
+      "evidence_class": "planned_test_matrix",
+      "role": "extraction",
+      "table_pages": [
+        55
+      ],
+      "context_pages": [
+        54,
+        55,
+        56
+      ],
+      "request_sha256": "315235ddc7166b6f9b1802c5acc50cdb2c04255bae4958939e417545f6aeedf4",
+      "image_sha256": {
+        "55": "1d44ca0a24e88b14aef859650da08065227127582aa25892a81e57ad196297bc"
+      },
+      "reservation_usd": "0.0259984"
+    },
+    {
+      "label": "13",
+      "evidence_class": "background_data",
+      "role": "regression_only",
+      "table_pages": [
+        76
+      ],
+      "context_pages": [
+        75,
+        76,
+        77
+      ],
+      "request_sha256": "581dc337b66f5adfbf6766aeae4e02f9c97a39af408036e45bf96d8f4034b23e",
+      "image_sha256": {
+        "76": "aab8340541555031b2509a0df378161627601af07936111d3201c5f1b5a71b22"
+      },
+      "reservation_usd": "0.0265618"
+    },
+    {
+      "label": "14",
+      "evidence_class": "background_data",
+      "role": "extraction",
+      "table_pages": [
+        80
+      ],
+      "context_pages": [
+        79,
+        80,
+        81
+      ],
+      "request_sha256": "4724c53c2f18ba77e3583c985c556317e3cc0d1d3cb1d1c77df0809e31265717",
+      "image_sha256": {
+        "80": "c2f32ad2f5eb6f64a575cf6296dd72fdab14742418d34b2005701acf7e111ffc"
+      },
+      "reservation_usd": "0.026056"
+    }
+  ],
+  "excluded": [
+    {
+      "label": "3",
+      "pages": [
+        33
+      ],
+      "reason": "requirements list (science data products); not data"
+    },
+    {
+      "label": "4",
+      "pages": [
+        35
+      ],
+      "reason": "requirements list (hardware); not data"
+    },
+    {
+      "label": "5",
+      "pages": [
+        40
+      ],
+      "reason": "requirements list (diagnostics); not data"
+    },
+    {
+      "label": "Test Plan Tables 2, 6-12",
+      "pages": [],
+      "reason": "duplicates of EIRD tables in PSI-69 FLEX_Test_Plan.pdf; extracted once from the EIRD (optional later cross-check against the Test Plan text layer)"
+    }
+  ],
+  "note": "Transcriptions are unreviewed. Reservations use assumed prices and are not a provider billing cap."
+}

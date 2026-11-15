@@ -1,0 +1,2 @@
+{"label": "8", "status": "reserved", "reservation_usd": "0.0266842"}
+{"label": "8", "status": "complete", "result_sha256": "3cb8b2f76866e99c3cdd2cb998d0be7d9106b76d6de3bb27d4cb4ca8e4bff90f", "usage": {"input_tokens": 7684, "input_tokens_details": {"cache_write_tokens": 7681, "cached_tokens": 0, "cache_write_tokens_details": {"ttl_12h_tokens": 0, "ttl_30m_tokens": 7681}}, "output_tokens": 10235, "output_tokens_details": {"reasoning_tokens": 574}, "total_tokens": 17919}}

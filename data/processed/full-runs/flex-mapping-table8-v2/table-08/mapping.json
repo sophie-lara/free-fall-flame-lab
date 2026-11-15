@@ -1,0 +1,165 @@
+{
+  "contract": "flex-table-mapping-v1",
+  "status": "unreviewed",
+  "plan_sha256": "3b6306d1c9e4633fe553477cfd2615618fd26db602cc121bad7cb5fbe9c48ecc",
+  "target": {
+    "extraction": "data/processed/full-runs/flex-pdf-table8-v1/table-08/extraction.json",
+    "extraction_sha256": "3cb8b2f76866e99c3cdd2cb998d0be7d9106b76d6de3bb27d4cb4ca8e4bff90f",
+    "extraction_reviewer": "Sophie",
+    "extraction_reviewed_at": "2026-11-14T18:40:00-06:00",
+    "label": "8",
+    "evidence_class_planned": "planned_test_matrix",
+    "context_pages": [
+      47,
+      48,
+      49,
+      50
+    ],
+    "request_sha256": "4a473937b5ce9fbf99057b613165b8fc1ba593d79a2046b43fd38e5334977b85",
+    "reservation_usd": "0.016899"
+  },
+  "mapping": {
+    "evidence_class": "planned_test_matrix",
+    "evidence_class_quote": "CO2 suppressant efficacy test matrix.",
+    "evidence_class_reason": "The caption describes the table as a test matrix, and the rows specify combinations of planned pressure and mole-fraction conditions rather than outcomes or measurements.",
+    "column_mappings": [
+      {
+        "column": 0,
+        "header_text": "Test No.",
+        "canonical_field": "test_number",
+        "unit": null,
+        "quantity_kind": "identifier",
+        "note": null
+      },
+      {
+        "column": 1,
+        "header_text": "P (atm)",
+        "canonical_field": "pressure",
+        "unit": "atm",
+        "quantity_kind": "planned_condition",
+        "note": null
+      },
+      {
+        "column": 2,
+        "header_text": "XO2",
+        "canonical_field": "oxygen_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "Mole fraction is dimensionless."
+      },
+      {
+        "column": 3,
+        "header_text": "XCO2",
+        "canonical_field": "suppressant_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "Mole fraction is dimensionless; the suppressant is CO2."
+      }
+    ],
+    "condition_rows": [
+      {
+        "source_row": 0,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: C7H16",
+            "value": "C7H16",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent",
+            "source_text": "Diluent: N2",
+            "value": "N2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "suppressant",
+            "source_text": "Suppressant: CO2",
+            "value": "CO2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "fiber_support",
+            "source_text": "No fiber support",
+            "value": "No fiber support",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "flow_velocity",
+            "source_text": "Flow: 0.0 cm/s",
+            "value": "0.0",
+            "unit": "cm/s",
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "droplet_diameter",
+            "source_text": "D0 = 3, 5 mm",
+            "value": "3, 5",
+            "unit": "mm",
+            "status": "multiple_values_unassigned",
+            "note": "The table does not assign the listed diameters to individual tests."
+          },
+          {
+            "canonical_field": "diluent_mole_fraction",
+            "source_text": "XN2 = 1.0 − XO2 − XCO2",
+            "value": "1.0 − XO2 − XCO2",
+            "unit": null,
+            "status": "formula",
+            "note": "N2 is identified as the diluent."
+          }
+        ]
+      },
+      {
+        "source_row": 30,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: CH3OH.",
+            "value": "CH3OH",
+            "unit": null,
+            "status": "single",
+            "note": null
+          }
+        ]
+      }
+    ],
+    "context_flags": [
+      "D0 is not defined in the provided pages; the row states two possible values without assigning them to tests.",
+      "The formula for XN2 relates it to XO2 and XCO2; the table does not separately define the X notation, though the column headers identify the oxygen and CO2 fractions."
+    ],
+    "notes": [
+      "The second full-width condition row changes the fuel to CH3OH for the rows below it; the other conditions from the preceding row continue to apply."
+    ]
+  },
+  "validation_issues": [
+    "context_flag:D0 is not defined in the provided pages; the row states two possible values without assigning them to tests.",
+    "context_flag:The formula for XN2 relates it to XO2 and XCO2; the table does not separately define the X notation, though the column headers identify the oxygen and CO2 fractions."
+  ],
+  "response_id": "resp_0cd54f02bef8ff30016af90539a1c087d18b75d756c2fab6a2",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 16456,
+    "input_tokens_details": {
+      "cache_write_tokens": 16453,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 16453
+      }
+    },
+    "output_tokens": 1125,
+    "output_tokens_details": {
+      "reasoning_tokens": 472
+    },
+    "total_tokens": 17581
+  }
+}

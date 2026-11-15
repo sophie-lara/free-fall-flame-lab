@@ -1,0 +1,98 @@
+{
+  "schema_version": "flex-table-review-v1",
+  "source_sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
+  "reviewer": "Sophie",
+  "reviewed_at": "2026-11-14T19:05:00-06:00",
+  "tables": {
+    "1": {
+      "status": "excluded",
+      "reason": "Reduced Damkohler number formulas set out as a table; not data."
+    },
+    "8": {
+      "status": "checked",
+      "extraction": "data/processed/full-runs/flex-pdf-table8-v1/table-08/extraction.json",
+      "extraction_sha256": "3cb8b2f76866e99c3cdd2cb998d0be7d9106b76d6de3bb27d4cb4ca8e4bff90f",
+      "comment": "Table, headers and entries look good."
+    },
+    "14": {
+      "status": "checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-14/extraction.json",
+      "extraction_sha256": "b25080e440c634f2a007c7dbc610219bcaa6e4307f8de5f52d1d8d18da5a18a0",
+      "accepted_flags": [
+        "label_text_not_matched: D_IO (cm²/s)",
+        "label_text_not_matched: D_O (cm²/s)"
+      ],
+      "symbol_definitions": {
+        "β": "Soret transport (Soret effect) factor",
+        "φ": "multicomponent diffusion factor",
+        "D_IO": "binary diffusion coefficient of O2 in the diluent",
+        "D_O": "effective O2 diffusion coefficient (D_O = β φ D_IO, EIRD eq. 8)",
+        "Le_O": "oxygen Lewis number"
+      },
+      "definition_source": "reviewer-supplied; formal definitions in EIRD eq. 8, outside the supplied pages; context page 79 links β to Soret effects and φ to multicomponent diffusion"
+    },
+    "13": {
+      "status": "regression_only"
+    },
+    "6": {
+      "status": "spot_checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-06/extraction.json",
+      "extraction_sha256": "26516a3fe61173e703eb22f6c07d86621007278d68ed2a568f14cc74a638ff32",
+      "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    },
+    "7": {
+      "status": "spot_checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-07/extraction.json",
+      "extraction_sha256": "e653f2d327e7c183f2f0a090f075df5a203b435bb303ae3c70505aaddf7b08b6",
+      "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    },
+    "9": {
+      "status": "spot_checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-09/extraction.json",
+      "extraction_sha256": "46e1202cd4e4bd0a503755fc5f31ac728105c1086e805609f7c8e1b0c3cc3386",
+      "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    },
+    "10": {
+      "status": "spot_checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-10/extraction.json",
+      "extraction_sha256": "95dc7b5b91837f61b70552225b5531b5db853879cdd9e1909cce7e7cb50d509d",
+      "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    },
+    "11": {
+      "status": "spot_checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-11/extraction.json",
+      "extraction_sha256": "8c51a3cae4da160619826f242633d0658903e89c3f3842a7fbe0ceaab6918cbc",
+      "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    },
+    "12": {
+      "status": "spot_checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-12/extraction.json",
+      "extraction_sha256": "35639a79796543895f70c0d5d3ad5183a40874c99009594ef77888fb1e6e35eb",
+      "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    }
+  },
+  "pending": [
+    "2"
+  ],
+  "record_notes": [
+    {
+      "id": "N1",
+      "tables": [
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "code": "preliminary_test_matrix",
+      "message": "Per EIRD physical page 45, these test matrices were designed for engineering planning (consumables and safety reviews), do not represent the final test matrix, and define an envelope within which the actual tests will be conducted.",
+      "source_page": 45,
+      "source_quote": "do not represent the final test matrix",
+      "decided_by": "Sophie",
+      "decided_at": "2026-11-14T19:10:00-06:00",
+      "basis": "Applies to all matrices although p. 45 is only within Table 6's page window; reviewer approved applying it to Tables 6-12."
+    }
+  ]
+}

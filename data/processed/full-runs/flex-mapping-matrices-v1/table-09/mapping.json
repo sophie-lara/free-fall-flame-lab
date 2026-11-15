@@ -1,0 +1,163 @@
+{
+  "contract": "flex-table-mapping-v1",
+  "status": "unreviewed",
+  "plan_sha256": "c3063bbf62f54e74bdb7aa676ee3295ccc6e00b75d9a9d8d14b6d6678f0e093d",
+  "target": {
+    "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-09/extraction.json",
+    "extraction_sha256": "46e1202cd4e4bd0a503755fc5f31ac728105c1086e805609f7c8e1b0c3cc3386",
+    "extraction_reviewer": "Sophie (spot check, not line by line)",
+    "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+    "label": "9",
+    "evidence_class_planned": "planned_test_matrix",
+    "context_pages": [
+      49,
+      50,
+      51,
+      52
+    ],
+    "request_sha256": "6be4fc4f32feba4768cd68919b7e3f4a781239cd9a65a78807070663f399c01d",
+    "reservation_usd": "0.0168816"
+  },
+  "mapping": {
+    "evidence_class": "planned_test_matrix",
+    "evidence_class_quote": "He suppressant efficacy test matrix.",
+    "evidence_class_reason": "The caption explicitly calls this a test matrix, and the table lists test numbers alongside set pressure and mole-fraction conditions rather than reporting outcomes.",
+    "column_mappings": [
+      {
+        "column": 0,
+        "header_text": "Test No.",
+        "canonical_field": "test_number",
+        "unit": null,
+        "quantity_kind": "identifier",
+        "note": null
+      },
+      {
+        "column": 1,
+        "header_text": "P (atm)",
+        "canonical_field": "pressure",
+        "unit": "atm",
+        "quantity_kind": "planned_condition",
+        "note": null
+      },
+      {
+        "column": 2,
+        "header_text": "XO2",
+        "canonical_field": "oxygen_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "Mole fraction; dimensionless."
+      },
+      {
+        "column": 3,
+        "header_text": "XHe",
+        "canonical_field": "suppressant_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "He is identified as the suppressant in the condition row; mole fraction is dimensionless."
+      }
+    ],
+    "condition_rows": [
+      {
+        "source_row": 0,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: C7H16",
+            "value": "C7H16",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent",
+            "source_text": "Diluent: N2",
+            "value": "N2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "suppressant",
+            "source_text": "Suppressant: He",
+            "value": "He",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "fiber_support",
+            "source_text": "No fiber support",
+            "value": "No",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "flow_velocity",
+            "source_text": "Flow: 0.0 cm/s",
+            "value": "0.0",
+            "unit": "cm/s",
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "droplet_diameter",
+            "source_text": "D0 = 3, 5 mm",
+            "value": "3, 5",
+            "unit": "mm",
+            "status": "multiple_values_unassigned",
+            "note": "The table does not specify which test uses each diameter."
+          },
+          {
+            "canonical_field": "diluent_mole_fraction",
+            "source_text": "XN2 = 1.0 − XO2 − XHe.",
+            "value": "1.0 − XO2 − XHe",
+            "unit": null,
+            "status": "formula",
+            "note": null
+          }
+        ]
+      },
+      {
+        "source_row": 30,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: CH3OH",
+            "value": "CH3OH",
+            "unit": null,
+            "status": "single",
+            "note": null
+          }
+        ]
+      }
+    ],
+    "context_flags": [
+      "D0 is not defined on the provided pages; the stated droplet-diameter values are unassigned to individual tests.",
+      "The XN2 formula relates the diluent mole fraction to XO2 and XHe; it does not assign a separate per-test value in the condition row."
+    ],
+    "notes": []
+  },
+  "validation_issues": [
+    "context_flag:D0 is not defined on the provided pages; the stated droplet-diameter values are unassigned to individual tests.",
+    "context_flag:The XN2 formula relates the diluent mole fraction to XO2 and XHe; it does not assign a separate per-test value in the condition row."
+  ],
+  "response_id": "resp_0af781abfa134546016af905ef82f087d1a736b9d55945b856",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 16365,
+    "input_tokens_details": {
+      "cache_write_tokens": 16362,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 16362
+      }
+    },
+    "output_tokens": 1451,
+    "output_tokens_details": {
+      "reasoning_tokens": 560
+    },
+    "total_tokens": 17816
+  }
+}

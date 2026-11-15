@@ -1,0 +1,164 @@
+{
+  "contract": "flex-table-mapping-v1",
+  "status": "unreviewed",
+  "plan_sha256": "c3063bbf62f54e74bdb7aa676ee3295ccc6e00b75d9a9d8d14b6d6678f0e093d",
+  "target": {
+    "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-12/extraction.json",
+    "extraction_sha256": "35639a79796543895f70c0d5d3ad5183a40874c99009594ef77888fb1e6e35eb",
+    "extraction_reviewer": "Sophie (spot check, not line by line)",
+    "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+    "label": "12",
+    "evidence_class_planned": "planned_test_matrix",
+    "context_pages": [
+      54,
+      55,
+      56
+    ],
+    "request_sha256": "e395b1a6cb8094f0447b47e537fe641753fae4e42462a67ee6668fb2b3bf0d52",
+    "reservation_usd": "0.014687"
+  },
+  "mapping": {
+    "evidence_class": "planned_test_matrix",
+    "evidence_class_quote": "Table 12: Suppressant in a radiative environment test matrix.",
+    "evidence_class_reason": "The caption explicitly calls this a test matrix, and the rows specify test settings rather than reporting outcomes.",
+    "column_mappings": [
+      {
+        "column": 0,
+        "header_text": "Test No.",
+        "canonical_field": "test_number",
+        "unit": null,
+        "quantity_kind": "identifier",
+        "note": null
+      },
+      {
+        "column": 1,
+        "header_text": "P (atm)",
+        "canonical_field": "pressure",
+        "unit": "atm",
+        "quantity_kind": "planned_condition",
+        "note": null
+      },
+      {
+        "column": 2,
+        "header_text": "XO2",
+        "canonical_field": "oxygen_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "No unit is stated."
+      },
+      {
+        "column": 3,
+        "header_text": "XCO2",
+        "canonical_field": "suppressant_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "The row-header identifies CO2 as the suppressant. No unit is stated."
+      }
+    ],
+    "condition_rows": [
+      {
+        "source_row": 0,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: C7H16",
+            "value": "C7H16",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent",
+            "source_text": "Diluent: N2",
+            "value": "N2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "suppressant",
+            "source_text": "Suppressant: CO2",
+            "value": "CO2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "fiber_support",
+            "source_text": "No fiber\nsupport",
+            "value": "No fiber support",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "flow_velocity",
+            "source_text": "Flow: 0.0 cm/s",
+            "value": "0.0",
+            "unit": "cm/s",
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "droplet_diameter",
+            "source_text": "D0 = 3, 5 mm",
+            "value": "3, 5",
+            "unit": "mm",
+            "status": "multiple_values_unassigned",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent_mole_fraction",
+            "source_text": "XN2 = 1.0 − XO2 − XCO2.",
+            "value": "1.0 − XO2 − XCO2",
+            "unit": null,
+            "status": "formula",
+            "note": "XN2 is the N2 mole fraction; the expression relates it to the oxygen and suppressant mole fractions."
+          }
+        ]
+      },
+      {
+        "source_row": 18,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: CH3OH",
+            "value": "CH3OH",
+            "unit": null,
+            "status": "single",
+            "note": "Overrides the preceding fuel condition for subsequent rows."
+          }
+        ]
+      }
+    ],
+    "context_flags": [
+      "The droplet-diameter condition lists 3 and 5 mm without assigning either value to particular tests.",
+      "The row-header gives XN2 as a formula rather than listing it as a separate table column.",
+      "The caption identifies a radiative environment, but the table does not state a radiative-environment parameter or value."
+    ],
+    "notes": []
+  },
+  "validation_issues": [
+    "context_flag:The droplet-diameter condition lists 3 and 5 mm without assigning either value to particular tests.",
+    "context_flag:The row-header gives XN2 as a formula rather than listing it as a separate table column.",
+    "context_flag:The caption identifies a radiative environment, but the table does not state a radiative-environment parameter or value."
+  ],
+  "response_id": "resp_01b08c926c044ef4016af9061979d887d1abd1efe1519cc2ed",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 10922,
+    "input_tokens_details": {
+      "cache_write_tokens": 10919,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 10919
+      }
+    },
+    "output_tokens": 1691,
+    "output_tokens_details": {
+      "reasoning_tokens": 769
+    },
+    "total_tokens": 12613
+  }
+}

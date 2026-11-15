@@ -1,0 +1,288 @@
+{
+  "contract": "flex-table-extraction-v1",
+  "status": "unreviewed",
+  "plan_sha256": "5738a2d5b8047de89ff57e762dafb219144ff41864ec34c954d7091bd8d69608",
+  "source": {
+    "investigation_id": "PSI-69",
+    "path": "data/raw/preserved-review/PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf",
+    "sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
+    "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+    "file_url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=684344b89e44646b74027069&version=1&redirect=true"
+  },
+  "target": {
+    "label": "13",
+    "evidence_class": "background_data",
+    "role": "regression_only",
+    "table_pages": [
+      76
+    ],
+    "context_pages": [
+      75,
+      76,
+      77
+    ],
+    "request_sha256": "581dc337b66f5adfbf6766aeae4e02f9c97a39af408036e45bf96d8f4034b23e",
+    "image_sha256": {
+      "76": "aab8340541555031b2509a0df378161627601af07936111d3201c5f1b5a71b22"
+    },
+    "reservation_usd": "0.0265618"
+  },
+  "extraction": {
+    "label": "13",
+    "caption": "Table 13: Residence time (τ_res) and flame temperature (T_f) for ethanol droplets burning in ambients with different diluent gases and an oxygen mole fraction of 0.30.",
+    "header_notes": [],
+    "rows": 4,
+    "columns": 5,
+    "cells": [
+      {
+        "page": 76,
+        "row": 0,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "Ambient",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 0,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "d (mm)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 0,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "k (mm²/s)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 0,
+        "column": 3,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "τ_res (s)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 0,
+        "column": 4,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "T_f (K)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 1,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "Ar",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 1,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.94",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 1,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.55",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 1,
+        "column": 3,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.27",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 1,
+        "column": 4,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "2344",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 2,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "N2",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 2,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "2.02",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 2,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.56",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 2,
+        "column": 3,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.25",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 2,
+        "column": 4,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "2105",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 3,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "He",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 3,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.99",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 3,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.96",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 3,
+        "column": 3,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.12",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 76,
+        "row": 3,
+        "column": 4,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1809",
+        "state": "present",
+        "uncertainty": null
+      }
+    ],
+    "footnotes": [],
+    "context_flags": [
+      "The adjacent text identifies k as the burning rate; its precise definition is not stated on the supplied pages."
+    ],
+    "uncertainties": []
+  },
+  "check_issues": [
+    {
+      "code": "context_needed",
+      "message": "The adjacent text identifies k as the burning rate; its precise definition is not stated on the supplied pages."
+    }
+  ],
+  "response_id": "resp_0acf3020ab7b6246016af9023239b887d1bf0971ec4574717b",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 5317,
+    "input_tokens_details": {
+      "cache_write_tokens": 5314,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 5314
+      }
+    },
+    "output_tokens": 2012,
+    "output_tokens_details": {
+      "reasoning_tokens": 443
+    },
+    "total_tokens": 7329
+  }
+}
