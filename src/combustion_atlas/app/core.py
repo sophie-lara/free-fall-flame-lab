@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import os
 import sqlite3
 import threading
 from pathlib import Path
@@ -290,27 +289,48 @@ class Atlas:
 
 
 _SNAPSHOT_LOCK = threading.Lock()
-_SNAPSHOTS: dict[Path, tuple[int, int]] = {}
+_SNAPSHOTS: dict[Path, Path] = {}
+_STALE: set[Path] = set()  # old snapshots still open when they were replaced
+
+
+def _remove_stale() -> None:
+    """Delete replaced snapshots; ones still open (Windows) are retried next time."""
+    for old in list(_STALE):
+        try:
+            old.unlink(missing_ok=True)
+            _STALE.discard(old)
+        except OSError:
+            pass
 
 
 def _local_snapshot(database: Path, cache_dir: Path, signature: tuple[int, int]) -> Path:
     """A consistent copy of the shared index on local disk, refreshed when it changes.
 
     Uses SQLite's online backup (a transactionally consistent snapshot even while the
-    shared file is being written) into a temporary file, then an atomic rename, so
-    readers never see a half-written copy and open handles keep working.
+    shared file is being written). Each version gets its own file, so a snapshot that
+    readers still have open is never overwritten or renamed over (Windows forbids that);
+    older versions are deleted once nothing holds them open.
     """
     cache_dir.mkdir(parents=True, exist_ok=True)
     name = hashlib.sha256(str(database.resolve()).encode()).hexdigest()[:12]
-    target = cache_dir / f"rag-{name}.sqlite3"
+    target = cache_dir / f"rag-{name}-{signature[0]}-{signature[1]}.sqlite3"
     with _SNAPSHOT_LOCK:
-        if _SNAPSHOTS.get(target) == signature and target.is_file():
+        _remove_stale()
+        if _SNAPSHOTS.get(database) == target and target.is_file():
             return target
-        partial = target.with_suffix(".partial")
-        partial.unlink(missing_ok=True)
-        with sqlite3.connect(database) as source, sqlite3.connect(partial) as copy:
-            source.backup(copy)
-        os.replace(partial, target)
-        _SNAPSHOTS[target] = signature
-        LOG.info("refreshed local index snapshot %s", target)
+        if not target.is_file():
+            partial = target.with_suffix(".partial")
+            partial.unlink(missing_ok=True)
+            source = sqlite3.connect(database)
+            copy = sqlite3.connect(partial)
+            try:
+                source.backup(copy)
+            finally:
+                copy.close()
+                source.close()
+            partial.rename(target)
+        _SNAPSHOTS[database] = target
+        _STALE.update(old for old in cache_dir.glob(f"rag-{name}-*.sqlite3") if old != target)
+        _remove_stale()
+        LOG.info("refreshed local index snapshot %s", target.name)
     return target

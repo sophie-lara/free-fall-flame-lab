@@ -36,10 +36,19 @@ def test_snapshot_is_used_for_reads_and_refreshes_after_writes(tmp_path: Path) -
         assert store.chunk_count() == 1
     time.sleep(0.01)
     new = page("b", "Droplet extinction in helium.")
-    with DocumentStore(atlas.database) as store:  # a write to the shared index
-        store.add_document([new], chunk_page(new))
-    with DocumentStore(atlas.read_database) as store:
-        assert store.chunk_count() == 2  # snapshot refreshed
+    reader = DocumentStore(first)  # a request still reading the old snapshot
+    try:
+        with DocumentStore(atlas.database) as store:  # a write to the shared index
+            store.add_document([new], chunk_page(new))
+        refreshed = atlas.read_database
+        assert refreshed != first  # a new file; the open one is never replaced
+        with DocumentStore(refreshed) as store:
+            assert store.chunk_count() == 2  # snapshot refreshed
+        assert reader.chunk_count() == 1  # the open reader keeps a consistent view
+    finally:
+        reader.close()
+    atlas.read_database  # noqa: B018 - a later refresh check cleans up old versions
+    assert len(list((tmp_path / "local").glob("rag-*.sqlite3"))) == 1
     assert Atlas(tmp_path).read_database == Atlas(tmp_path).database  # no cache_dir: direct
 
 
