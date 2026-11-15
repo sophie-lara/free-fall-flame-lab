@@ -301,7 +301,7 @@ const prettyField = f => String(f || '').replace(/^condition_/, '').replace(/_/g
 const evidencePill = kind => { const [label, cls] = EVIDENCE[kind] || ['Table data', '']; return `<span class="pill ${cls}">${esc(label)}</span>`; };
 const visibleNotes = notes => (notes || []).filter(n => n.kind !== 'model');
 const noteMarks = notes => visibleNotes(notes).map(n => `<span class="note-mark note-${esc(n.kind)}" tabindex="0" title="${esc(`${NOTE_LABEL[n.kind] || n.kind}: ${n.text}`)}" aria-label="${esc(`${NOTE_LABEL[n.kind] || n.kind} note: ${n.text}`)}">${NOTE_MARK[n.kind] || '•'}</span>`).join('');
-const sourceLink = (r, label) => r.source_id ? `<a class="small" href="${docLink(r.source_id, r.physical_page || null)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>` : '';
+const tableSourceLink = (r, label) => r.source_id ? `<a class="small" href="${docLink(r.source_id, r.physical_page || null)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>` : '';
 const caveatList = items => (items || []).length ? `<ul class="caveats">${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '';
 function rowHitHTML(r) {
   const c = r.record_card;
@@ -313,7 +313,7 @@ function rowHitHTML(r) {
     ? `<p class="small" style="margin:6px 0">Matched your values: ${c.match.map(m => `<strong>${esc(m.query)}</strong> → ${esc(prettyField(m.field))}${m.conversion ? ` <span class="pill warn">${esc(m.conversion)}</span>` : ''}`).join(' · ')}</p>`
     : '<p class="small muted" style="margin:6px 0">Named by its test ID in your question.</p>';
   return `<article class="table-hit">
-    <div class="row"><span class="pill ok">Table row</span>${evidencePill(c.evidence_kind)}<strong>${esc(c.test_id)}</strong><span class="muted small">${esc(c.table_title || '')}</span><span class="spacer"></span>${sourceLink(r, r.physical_page ? `Open page ${r.physical_page}` : 'Open source table')}</div>
+    <div class="row"><span class="pill ok">Table row</span>${evidencePill(c.evidence_kind)}<strong>${esc(c.test_id)}</strong><span class="muted small">${esc(c.table_title || '')}</span><span class="spacer"></span>${tableSourceLink(r, r.physical_page ? `Open page ${r.physical_page}` : 'Open source table')}</div>
     ${c.provenance ? `<p class="provenance">${esc(c.provenance)}</p>` : ''}
     ${match}
     ${caveatList(c.caveats)}
@@ -329,7 +329,7 @@ function tableHitHTML(r) {
   const c = r.record_card;
   const kinds = Object.keys(c.evidence_kinds || {});
   return `<article class="table-hit">
-    <div class="row"><span class="pill ok">Table</span>${kinds.map(evidencePill).join('')}<strong>${esc(c.table_title)}</strong><span class="muted small">${count(c.rows)} row${c.rows === 1 ? '' : 's'}</span><span class="spacer"></span>${sourceLink(r, 'Open source table')}</div>
+    <div class="row"><span class="pill ok">Table</span>${kinds.map(evidencePill).join('')}<strong>${esc(c.table_title)}</strong><span class="muted small">${count(c.rows)} row${c.rows === 1 ? '' : 's'}</span><span class="spacer"></span>${tableSourceLink(r, 'Open source table')}</div>
     ${c.provenance ? `<p class="provenance">${esc(c.provenance)}</p>` : ''}
     ${caveatList(c.caveats)}
     ${(c.notes || []).length ? `<ul class="note-list">${c.notes.slice(0, 4).map(n => `<li><span class="note-mark note-${esc(n.kind)}" aria-hidden="true">${NOTE_MARK[n.kind] || '•'}</span><strong>${esc(NOTE_LABEL[n.kind] || n.kind)}</strong> (${count(n.rows)} of ${count(c.rows)} rows): ${esc(n.text)}</li>`).join('')}</ul>` : ''}
