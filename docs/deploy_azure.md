@@ -24,7 +24,7 @@ Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, 
 - **AI answer limit** for visitors: `COMBUSTION_ATLAS_PAID_DAILY_LIMIT` (24) per UTC
   day and `COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S` (60) between answers, site-wide,
   persisted in `/home/site/data/usage`. Over the limit, answers fall back to free
-  keyword search and "Plan next steps" returns 429. `/api/limits` reports what is left.
+  keyword search. `/api/limits` reports what is left.
 - **Visitor uploads** (`public_uploads = true`): anyone can upload a PDF (15 MB, 60
   pages; 3 per person per UTC day, keyed by signed-in name or hashed client IP; each
   upload also uses one site-wide AI call). Uploads are indexed under the reserved

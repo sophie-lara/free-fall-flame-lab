@@ -9,12 +9,6 @@ from pypdf import PdfWriter
 from test_app import request, server, workspace  # noqa: F401  (pytest fixtures)
 
 from combustion_atlas.app.server import ingest_upload
-from combustion_atlas.providers.openai_answers import Claim, Support
-from combustion_atlas.providers.research_directions import (
-    ResearchDirections,
-    Suggestion,
-    validate_directions,
-)
 from combustion_atlas.rag.chunk import chunk_page
 from combustion_atlas.rag.corpus import corpus_summary, page_sections, topic_map
 from combustion_atlas.rag.models import PageRecord
@@ -158,32 +152,3 @@ def test_corpus_endpoints(server, workspace) -> None:  # noqa: F811
     populated(workspace.database)
     status, body = request(server, "/api/corpus")
     assert status == 200 and body["totals"]["pages"] == 4
-
-
-def directions(**changes: object) -> ResearchDirections:
-    claim = Claim(
-        text="Thin samples spread.", supports=[Support(chunk_id="c", quote="thin samples")]
-    )
-    base = {
-        "status": "answered",
-        "evidence": [claim],
-        "open_questions": [],
-        "gaps": ["Pressure effects not found in the indexed collection."],
-        "suggestions": [Suggestion(text="Test thicker samples.", kind="experiment", basis=[0])],
-    }
-    return ResearchDirections.model_validate({**base, **changes})
-
-
-def test_directions_require_cited_evidence_and_valid_basis() -> None:
-    context = [{"chunk_id": "c", "text": "Oxygen flame spread over thin samples."}]
-    validate_directions(directions(), context)
-    bad_basis = directions(suggestions=[Suggestion(text="x", kind="analysis", basis=[3])])
-    with pytest.raises(ValueError, match="reference cited evidence"):
-        validate_directions(bad_basis, context)
-    with pytest.raises(ValueError, match="invalid supporting excerpt"):
-        validate_directions(
-            directions(evidence=[Claim(text="x", supports=[Support(chunk_id="c", quote="nope")])]),
-            context,
-        )
-    with pytest.raises(ValueError, match="abstention"):
-        validate_directions(directions(status="insufficient_evidence"), context)

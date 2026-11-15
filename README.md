@@ -8,8 +8,7 @@ Live at **https://combustion-atlas.azurewebsites.net**.
 
 - **Ask:** a chat that answers from 29 indexed NASA reports and PSI tables (BASS, BASS-II,
   FLEX, Saffire). Every claim quotes its source page; numbers are checked against the
-  quotes. Supports follow-up questions, figure browsing, reviewed table records, and
-  "Plan next steps" (evidence, author-stated open questions, gaps and suggestions).
+  quotes. Supports follow-up questions, figure browsing and reviewed table records.
 - **Explore:** experiment coverage heatmaps (which conditions were run or planned) and an
   evidence landscape: a 2-D and rotatable 3-D topic map of every indexed passage, figure
   and table, with related evidence for each item.

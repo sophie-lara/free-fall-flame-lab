@@ -6,7 +6,7 @@ function loadChat() { try { return (JSON.parse(sessionStorage.getItem('atlas-cha
 function saveChat() { try { sessionStorage.setItem('atlas-chat', JSON.stringify(state.ask.turns.filter(t => !t.loading).slice(-12))); } catch { /* storage full or blocked */ } }
 const state = {
   me: null, corpus: null, coverage: null, coverageError: '',
-  ask: { mode: 'answer', draft: '', turns: loadChat(), loading: false, ai: localStorage.getItem('atlas-ai') !== 'off' },
+  ask: { draft: '', turns: loadChat(), loading: false, ai: localStorage.getItem('atlas-ai') !== 'off' },
   cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'heatmap', grid: 'flex', facets: {}, cell: null, detail: null, initialized: false },
   land: { data: null, error: '', slots: [null, null, null], view: 'chart', selected: null, initialized: false },
 };
@@ -105,7 +105,7 @@ function renderHome() {
   <section class="section fs-section" id="fire-story" aria-labelledby="fs-title"></section>
   <section class="section">
     <div class="grid cols-${state.me?.can_upload ? 4 : 3}">
-      ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
+      ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Ask follow-ups in a chat.')}
       ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
       ${tile('#/landscape', '⁘', 'Evidence landscape', 'A map of every indexed passage, figure and table, grouped into topics, with related evidence one click away.')}
       ${state.me?.can_upload ? tile('#/upload', '+', 'Add to corpus', state.me?.is_admin ? 'Upload a NASA report or paper (PDF) and review visitor uploads.' : 'Upload a PDF and ask questions about it. It stays private until reviewed.') : ''}
@@ -137,6 +137,11 @@ function renderHome() {
 // Recommended questions, grouped by what they demonstrate. Each was checked against the
 // indexed corpus; the last group intentionally shows an honest "not in this collection".
 const RECOMMENDED = [
+  { group: 'Big picture', hint: 'General questions, answered across several reports', questions: [
+    'How do flames behave in microgravity compared with on Earth?',
+    'Why is fire safety on spacecraft different from fire safety on Earth?',
+    'How does airflow affect whether a flame keeps burning in microgravity?',
+  ] },
   { group: 'Answers from NASA reports', hint: 'Cited, quoted passages with page links', questions: [
     'Which variables were tested in BASS-II?',
     'How does opposed-flow velocity affect flame spread over thin PMMA?',
@@ -157,45 +162,37 @@ const RECOMMENDED = [
     'What flame spread rates were measured for titanium alloy at Martian surface pressure?',
   ] },
 ];
-const PLAN_EXAMPLES = [
-  'Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen',
-  'Flammability limits of PMMA rods in microgravity',
-  'Extinction of fuel droplets in helium-diluted atmospheres',
-];
 const HOME_TRY = [
   'How does opposed-flow velocity affect flame spread over thin PMMA?',
   'What was the initial CO reading for BASS-II test O12?',
   'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?',
   'What did the Saffire experiments show about flame spread on large samples?',
 ];
-function recommendedHTML(mode) {
+function recommendedHTML() {
   const chip = q => `<button type="button" class="chip" data-example="${esc(q)}">${esc(q)}</button>`;
-  if (mode === 'plan') return `<div class="chips" aria-label="Example topics">${PLAN_EXAMPLES.map(chip).join('')}</div>`;
   return `<details class="recommended" open><summary>Recommended questions</summary><div class="recommended-groups">${RECOMMENDED.map(g =>
     `<div class="recommended-group"><div class="recommended-title">${esc(g.group)}</div><div class="hint" style="margin:2px 0 8px">${esc(g.hint)}</div><div class="chips">${g.questions.map(chip).join('')}</div></div>`).join('')}</div></details>`;
 }
 function askQuestion(q) {
-  state.ask.mode = 'answer';
   if (route() !== 'ask') location.hash = '#/ask';
   setTimeout(() => sendQuestion(q), 0);
 }
 const SEND_ICON = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M10 16V4M4.5 9.5 10 4l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function renderAsk() {
   const a = state.ask, turns = a.turns;
-  const placeholder = a.mode === 'answer' ? (turns.length ? 'Ask a follow-up or a new question…' : 'Ask about materials, conditions, results or methods…') : 'Describe a topic or proposed experiment…';
+  const placeholder = turns.length ? 'Ask a follow-up or a new question…' : 'Ask about materials, conditions, results or methods…';
   main.innerHTML = `<div class="chat">
     <div class="chat-head"><div><div class="eyebrow">Ask</div><h1>Ask the evidence</h1></div><span class="spacer"></span>${turns.length ? '<button type="button" class="btn small" id="new-chat">New chat</button>' : ''}</div>
     <div class="chat-thread" id="chat-thread" aria-live="polite">${turns.length ? turns.map(turnHTML).join('') : `
-      <p class="chat-intro">Answers are built only from indexed NASA documents and quote them verbatim. Ask follow-up questions and the conversation carries over. “Plan next steps” lists what the evidence shows, what authors leave open, and grounded suggestions.</p>
-      ${recommendedHTML(a.mode)}`}</div>
+      <p class="chat-intro">Answers are built only from indexed NASA documents and quote them verbatim. Ask follow-up questions and the conversation carries over.</p>
+      ${recommendedHTML()}`}</div>
     <form class="chat-composer" id="ask-form">
-      <div class="composer-box"><label for="q" class="visually-hidden">${a.mode === 'answer' ? 'Question' : 'Topic or proposed test condition'}</label>
+      <div class="composer-box"><label for="q" class="visually-hidden">Question</label>
         <textarea id="q" rows="1" maxlength="1000" placeholder="${placeholder}">${esc(a.draft)}</textarea>
-        <button class="send" type="submit" aria-label="Send" ${a.loading || (a.mode === 'plan' && !a.ai) ? 'disabled' : ''}>${SEND_ICON}</button></div>
+        <button class="send" type="submit" aria-label="Send" ${a.loading ? 'disabled' : ''}>${SEND_ICON}</button></div>
       <div class="composer-meta">
-        <div class="segmented small-seg" role="group" aria-label="Mode"><button type="button" data-mode="answer" aria-pressed="${a.mode === 'answer'}">Answer</button><button type="button" data-mode="plan" aria-pressed="${a.mode === 'plan'}">Plan next steps</button></div>
         <span class="ui-switch"><button type="button" class="ui-switch-track" id="ai-toggle" role="switch" aria-checked="${a.ai}" aria-label="AI answers"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${a.ai ? ' active' : ''}">AI ${a.ai ? 'on' : 'off'}</span></span>
-        <span class="hint" style="margin:0">${a.mode === 'plan' && !a.ai ? 'Plan next steps needs AI; turn it on.' : a.ai ? `Cited answers from the indexed documents.${limitsHint()}` : 'Keyword search only: no AI calls.'}</span>
+        <span class="hint" style="margin:0">${a.ai ? `Cited answers from the indexed documents.${limitsHint()}` : 'Keyword search only: no AI calls.'}</span>
       </div>
     </form></div>`;
   const q = main.querySelector('#q');
@@ -204,14 +201,13 @@ function renderAsk() {
   q.addEventListener('input', () => { a.draft = q.value; grow(); });
   q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); main.querySelector('#ask-form').requestSubmit(); } });
   main.querySelector('#ask-form').addEventListener('submit', e => { e.preventDefault(); const text = q.value.trim(); if (text) sendQuestion(text); });
-  main.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { if (a.loading) return; a.mode = b.dataset.mode; renderAsk(); main.querySelector('#q').focus(); }));
   main.querySelector('#ai-toggle').addEventListener('click', () => { if (a.loading) return; a.ai = !a.ai; localStorage.setItem('atlas-ai', a.ai ? 'on' : 'off'); renderAsk(); });
   main.querySelector('#new-chat')?.addEventListener('click', () => { if (a.loading) return; a.turns = []; a.draft = ''; saveChat(); renderAsk(); main.querySelector('#q').focus(); });
   main.querySelectorAll('[data-example]').forEach(b => b.addEventListener('click', () => sendQuestion(b.dataset.example)));
 }
 function turnHTML(t) {
   return `<article class="turn" id="turn-${t.id}">
-    <div class="msg user"><div class="bubble">${t.mode === 'plan' ? '<span class="pill">Plan next steps</span> ' : ''}${esc(t.question)}</div></div>
+    <div class="msg user"><div class="bubble">${esc(t.question)}</div></div>
     <div class="msg bot"><img class="avatar" src="/p/logo.svg" alt="" width="28" height="28"><div class="turn-body">${turnBodyHTML(t)}</div></div>
   </article>`;
 }
@@ -222,20 +218,18 @@ function rerenderTurn(t) {
 const scrollToTurn = t => main.querySelector(`#turn-${t.id}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 // Earlier answered turns, compacted, so follow-ups ("what about FLEX?") can be understood.
 function historyFor(turn) {
-  return state.ask.turns.filter(t => t !== turn && t.mode === 'answer' && t.result && !t.error).slice(-3)
+  return state.ask.turns.filter(t => t !== turn && t.result && !t.error).slice(-3)
     .map(t => ({ question: t.question.slice(0, 1000), answer: (t.result.answer?.claims || []).map(c => c.text).join(' ').slice(0, 4000) }));
 }
 async function sendQuestion(question) {
   const a = state.ask;
   if (!question || a.loading) return;
-  const turn = { id: Date.now().toString(36), mode: a.mode, question, ai: a.ai, loading: true, progress: [], result: null, error: '' };
+  const turn = { id: Date.now().toString(36), question, ai: a.ai, loading: true, progress: [], result: null, error: '' };
   const history = historyFor(turn);
   a.turns.push(turn); a.loading = true; a.draft = '';
   if (route() === 'ask') { renderAsk(); scrollToTurn(turn); }
   try {
-    turn.result = turn.mode === 'answer'
-      ? { kind: 'answer', ...(await streamAnswer(turn, history)) }
-      : { kind: 'plan', ...(await postJSON('/api/directions', { topic: question, allow_provider_calls: true })) };
+    turn.result = { kind: 'answer', ...(await streamAnswer(turn, history)) };
   } catch (e) { turn.error = e.message; }
   turn.loading = false; a.loading = false;
   saveChat();
@@ -418,17 +412,17 @@ function sourcesSummary(allResults, fold = false) {
       <div class="muted small">${esc(String(r.visual ? r.visual.caption : r.text || '').replace(/\s+/g, ' ').slice(0, 220))}…</div>${r.visual && String(r.crop_url || '').startsWith('/api/visuals/') ? `<img class="crop result-thumb" loading="lazy" src="${esc(r.crop_url)}" alt="Original page image for ${esc(r.visual.kind)} ${esc(r.visual.label)}">` : ''}</li>`).join('')}</ul></${fold ? 'details' : 'section'}>`;
 }
 function turnBodyHTML(t) {
-  if (t.loading) return t.mode === 'answer' ? progressHTML(t) : '<p class="loading">Reading the evidence and drafting next steps…</p>';
+  if (t.loading) return progressHTML(t);
   if (t.error) return stepsSummaryHTML(t.progress, true) + `<div class="error" role="alert">${esc(t.error)}</div>`;
   if (!t.result) return '';
-  if (t.result.kind === 'answer' && t.progress.length) return stepsSummaryHTML(t.progress) + askResultBody(t);
+  if (t.progress.length) return stepsSummaryHTML(t.progress) + askResultBody(t);
   return askResultBody(t);
 }
 function askResultBody(t) {
   const a = t;
   const results = a.result.results || [];
   const byId = Object.fromEntries(results.map(r => [r.chunk_id, r]));
-  if (a.result.kind === 'answer') {
+  {
     const ans = a.result.answer;
     const notices = [
       a.result.limited ? `<strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing keyword search results below.` : '',
@@ -448,24 +442,7 @@ function askResultBody(t) {
       ${(ans.limitations || []).map(l => `<p class="notice">${esc(l)}</p>`).join('')}
       </section>${sourcesSummary(results, true)}`;
   }
-  const d = a.result.directions;
-  if (!d || d.status !== 'answered') return `<section class="card"><div class="row"><h2 style="margin:0">Next steps</h2><span class="pill bad">Insufficient evidence</span></div><p>${esc((d?.gaps || [])[0] || 'No indexed passages address this topic.')}</p></section>${sourcesSummary(results)}`;
-  const claims = [...d.evidence, ...d.open_questions];
-  const claimList = (items, offset) => items.map((c, i) => `<div class="claim" id="t${a.id}-claim-${i + offset}"><p><span class="ref">[${i + offset + 1}]</span>${esc(c.text)}</p>${c.supports.map(s => citeHTML(s, byId)).join('')}</div>`).join('');
-  const block = (title, hint, content) => `<section class="card stack"><div><h2>${title}</h2><p class="muted small" style="margin:0">${hint}</p></div>${content}</section>`;
-  return `<div class="stack">
-    ${block('What the evidence shows', 'Reported conditions, observations and conclusions, quoted from the source.', d.evidence.length ? claimList(d.evidence, 0) : '<p class="muted">No direct findings retrieved.</p>')}
-    ${block('Open questions stated by the authors', 'Limitations and future work in the authors’ own words.', d.open_questions.length ? claimList(d.open_questions, d.evidence.length) : '<p class="muted">None stated in the retrieved passages.</p>')}
-    ${block('Not found in this collection', 'Aspects of the topic the retrieved passages do not cover.', d.gaps.length ? `<ul>${d.gaps.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="muted">No gaps identified.</p>')}
-    ${block('Suggested next steps', 'Built from the cited items above.', d.suggestions.length ? d.suggestions.map(s => `<div class="suggestion"><span class="pill">${esc(s.kind)}</span><p style="margin:8px 0">${esc(s.text)}</p><span class="cite">Based on ${s.basis.filter(i => i < claims.length).map(i => `<a href="#t${a.id}-claim-${i}" data-claim="t${a.id}-claim-${i}">[${i + 1}]</a>`).join(' ')}</span></div>`).join('') : '<p class="muted">No suggestions could be grounded in the retrieved evidence.</p>')}
-  </div>${sourcesSummary(results)}`;
 }
-document.addEventListener('click', e => {
-  const a = e.target.closest('[data-claim]');
-  if (!a) return;
-  e.preventDefault();
-  document.querySelector(`#${CSS.escape(a.dataset.claim)}`)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
-});
 
 // ---------- coverage ----------
 function niceTicks(lo, hi, n = 6) {
@@ -1105,19 +1082,54 @@ function renderLandscapeDetail() {
 }
 
 // ---------- sources ----------
+// Sources, organized by the three kinds of fire NASA studied in orbit.
+const EXPERIMENT_TYPES = [
+  { key: 'bass', grid: 'bass', title: 'BASS and BASS-II: burning solid materials', investigations: ['PSI-26', 'PSI-25'], families: ['bass', 'bass-ii'],
+    text: 'Burning and Suppression of Solids. Small samples of solid materials, such as PMMA plastic rods and sheets and cotton-fiberglass fabric, were burned in a small flow duct inside the International Space Station’s Microgravity Science Glovebox. Crews varied airflow, oxygen and sample shape to see how flames spread, how they go out, and how readily materials burn without gravity.' },
+  { key: 'flex', grid: 'flex', title: 'FLEX: burning fuel droplets', investigations: ['PSI-69', 'PSI-68'], families: ['flex'],
+    text: 'Flame Extinguishment Experiment. Single droplets of liquid fuel, such as heptane and methanol, free-floating or held on a thin fiber, were ignited in the station’s Combustion Integrated Rack. Without buoyancy the flame forms a sphere around the droplet, which makes it possible to measure burning rates, extinction, and the effect of diluent gases such as helium and carbon dioxide.' },
+  { key: 'saffire', grid: 'saffire', title: 'Saffire: spacecraft-scale fires', investigations: ['SAFFIRE', 'PSI-98', 'PSI-99', 'PSI-100'], families: ['saffire'],
+    text: 'Spacecraft Fire Safety Demonstration. Large material samples were burned inside uncrewed Cygnus cargo vehicles after they left the space station, so fire growth could be studied at a realistic spacecraft scale with no risk to crews.' },
+];
+const psiLink = id => /^PSI-\d+$/.test(id) ? `https://psi.nasa.gov/physci/repo/data/investigations/${id}` : '';
+function sourceRunsTable(records) {
+  const cov = state.coverage, fields = (cov.fields || []).filter(f => records.some(r => Number.isFinite(r[f.key]))).slice(0, 5);
+  return `<div class="table-scroll"><table><thead><tr><th>Test</th><th>Material</th>${fields.map(f => `<th class="num">${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''}</th>`).join('')}<th>Status</th><th>Source table</th></tr></thead><tbody>
+    ${records.map(r => `<tr><td>${esc(r.test_id)}</td><td>${esc(r.material || '—')}</td>${fields.map(f => `<td class="num">${fmt(r[f.key])}</td>`).join('')}<td>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : '<span class="pill">Transcribed</span>'}</td><td class="small muted">${esc(r.source?.file || '')}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
 function renderSources() {
   if (!state.corpus) { main.innerHTML = '<p class="loading">Loading sources…</p>'; Promise.all([loadCorpus(), loadCoverage()]).then(() => route() === 'sources' && renderSources()); return; }
-  const docs = state.corpus.documents || [];
-  const fams = state.coverage?.families || [];
-  main.innerHTML = pageHead('Sources', 'What the atlas draws on', 'Documents are indexed page by page; experiment runs come from PSI experiment tables. Open any document at its original pages.') + `
-  <section class="section"><div class="section-head"><h2>Documents</h2><span class="muted small">${count(docs.length)} documents</span></div>
-    ${docs.length ? `<div class="grid cols-3">${docs.map(d => `<article class="card stack"><h3 style="overflow-wrap:anywhere">${esc(d.filename)}</h3><div class="row">${(d.investigation_ids || []).map(i => `<span class="pill">${esc(invName(i))}</span>`).join('')}</div>
-      <p class="muted small" style="margin:0">${count(d.pages)} pages · ${count(d.passages)} passages · ${count(d.figures)} figures${d.tables ? ` · ${count(d.tables)} tables` : ''}</p>
-      <div class="row"><a class="btn small" href="${docLink(d.source_id)}" target="_blank" rel="noopener noreferrer">Open PDF ↗</a>${d.source_url ? `<a class="btn small" href="${safeURL(d.source_url)}" target="_blank" rel="noopener noreferrer">Source record ↗</a>` : ''}</div></article>`).join('')}</div>` : emptyBox('No documents yet', 'Documents will appear here once indexed.')}
-  </section>
-  <section class="section"><div class="section-head"><h2>Experiment tables</h2><span class="muted small">${state.coverageError ? 'not available yet' : `${count(fams.length)} families`}</span></div>
-    ${fams.length ? `<div class="table-scroll"><table><thead><tr><th>Family</th><th>Investigations</th><th class="num">Runs</th></tr></thead><tbody>${fams.map(f => `<tr><td>${esc(f.label)}</td><td>${(f.investigation_ids || []).map(i => esc(invName(i))).join(', ')}</td><td class="num">${count(f.count)}</td></tr>`).join('')}</tbody></table></div>` : emptyBox('No experiment tables yet', state.coverageError || 'Experiment runs will appear once parsed.')}
-  </section>`;
+  const docs = state.corpus.documents || [], cov = state.coverage, t = state.corpus.totals || {};
+  const typeOf = d => EXPERIMENT_TYPES.find(x => (d.investigation_ids || []).some(i => x.investigations.includes(i)));
+  const other = docs.filter(d => !typeOf(d));
+  const docRow = d => `<li class="doc-row"><div class="doc-main"><strong>${esc(d.filename)}</strong><span class="muted small">${(d.investigation_ids || []).map(i => esc(invName(i))).join(', ')} · ${count(d.pages)} page${d.pages === 1 ? '' : 's'}${d.figures ? ` · ${count(d.figures)} figure${d.figures === 1 ? '' : 's'}` : ''}</span></div>
+    <div class="row doc-links"><a class="small" href="${docLink(d.source_id)}" target="_blank" rel="noopener noreferrer">Open PDF ↗</a>${d.source_url ? `<a class="small" href="${safeURL(d.source_url)}" target="_blank" rel="noopener noreferrer">NASA record ↗</a>` : ''}</div></li>`;
+  const section = x => {
+    const mine = docs.filter(d => typeOf(d) === x);
+    const runs = cov ? cov.records.filter(r => x.families.includes(String(r.family || '').toLowerCase())) : [];
+    const reviewed = runs.filter(r => r.review_status === 'reviewed').length;
+    const links = x.investigations.map(i => psiLink(i) ? `<a class="small" href="${psiLink(i)}" target="_blank" rel="noopener noreferrer">${esc(invName(i))} dataset ↗</a>` : '').filter(Boolean).join('');
+    return `<section class="card source-type" id="src-${x.key}" aria-labelledby="src-${x.key}-h">
+      <h2 id="src-${x.key}-h">${esc(x.title)}</h2>
+      <p class="source-type-text">${esc(x.text)}</p>
+      <div class="source-cols">
+        <div><h3>Reports <span class="muted small">${count(mine.length)}</span></h3>${mine.length ? `<ul class="doc-list">${mine.map(docRow).join('')}</ul>` : '<p class="muted small">None indexed.</p>'}</div>
+        <div><h3>Experiment data</h3>
+          ${runs.length ? `<p class="source-stat"><strong>${count(runs.length)}</strong> experiment runs from NASA PSI tables${reviewed ? `, <strong>${count(reviewed)}</strong> reviewed` : ''}.</p>` : '<p class="muted small">No experiment tables indexed.</p>'}
+          <div class="row doc-links">${runs.length ? `<a class="btn small" href="#/coverage" data-src-grid="${x.grid}">Coverage heatmap →</a>` : ''}<a class="btn small" href="#/ask" data-src-ask="${esc(x.title.split(':')[0])}">Ask about ${esc(x.title.split(':')[0])}</a></div>
+          ${links ? `<div class="row doc-links" style="margin-top:8px">${links}</div>` : ''}
+          ${runs.length ? `<details class="source-runs"><summary>Experiment runs (${count(runs.length)})</summary>${sourceRunsTable(runs)}</details>` : ''}
+        </div>
+      </div></section>`;
+  };
+  main.innerHTML = pageHead('Sources', 'What the atlas draws on', `${count(t.documents || docs.length)} NASA reports and ${count(cov?.records?.length || 0)} experiment runs from three kinds of fire experiments flown in orbit. Every answer links back to these pages and tables.`) + `
+  <nav class="row source-jump" aria-label="Experiment types">${EXPERIMENT_TYPES.map(x => `<a class="chip" href="#/sources" data-jump="src-${x.key}">${esc(x.title.split(':')[0])}</a>`).join('')}</nav>
+  <div class="stack">${EXPERIMENT_TYPES.map(section).join('')}
+  ${other.length ? `<section class="card source-type"><h2>Other documents</h2><ul class="doc-list">${other.map(docRow).join('')}</ul></section>` : ''}</div>`;
+  main.querySelectorAll('[data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); main.querySelector(`#${a.dataset.jump}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }));
+  main.querySelectorAll('[data-src-grid]').forEach(a => a.addEventListener('click', () => { state.cov.grid = a.dataset.srcGrid; }));
+  main.querySelectorAll('[data-src-ask]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); askQuestion(`What did the ${a.dataset.srcAsk} experiments study and find?`); }));
 }
 
 // ---------- upload (admin) ----------
@@ -1230,7 +1242,7 @@ document.querySelector('.nav-toggle').addEventListener('click', e => {
   const nav = document.querySelector('#site-nav'), open = !nav.classList.contains('open');
   nav.classList.toggle('open', open); e.currentTarget.setAttribute('aria-expanded', String(open));
 });
-window.addEventListener('hashchange', () => { render(); if (!location.hash.includes('claim-')) main.focus({ preventScroll: true }); window.scrollTo(0, 0); });
+window.addEventListener('hashchange', () => { render(); main.focus({ preventScroll: true }); window.scrollTo(0, 0); });
 async function start() {
   try { state.me = await api('/api/me'); } catch { state.me = { name: null, is_admin: false, mode: 'public' }; }
   const slot = document.querySelector('#ui-switch-slot'); if (slot) { slot.innerHTML = uiSwitchHTML(state.me, 'public'); bindUiSwitch(slot); }

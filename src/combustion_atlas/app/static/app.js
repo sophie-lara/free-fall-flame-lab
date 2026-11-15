@@ -69,9 +69,9 @@ function render() {
   document.querySelectorAll('[data-nav]').forEach(link => { link.classList.toggle('active', link.dataset.nav === page); if (link.dataset.nav === page) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
   const review = ['overview','experiments','conditions','sources'].includes(page);
   const group = document.querySelector('.nav-group'); if(group && review) group.open = true;
-  const titles = {ask:'Ask the corpus',corpus:'Corpus',directions:'Research directions',overview:'Review workspace / Overview',experiments:'Review workspace / Experiments',conditions:'Review workspace / Proposed conditions',sources:'Review workspace / Source library'};
+  const titles = {ask:'Ask the corpus',corpus:'Corpus',overview:'Review workspace / Overview',experiments:'Review workspace / Experiments',conditions:'Review workspace / Proposed conditions',sources:'Review workspace / Source library'};
   document.querySelector('#breadcrumb').textContent = titles[page] || 'Ask the corpus';
-  ({ ask: renderSearch, corpus: renderCorpus, directions: renderDirections, overview: renderOverview, experiments: renderExperiments, sources: renderSources, conditions: renderConditions }[page] || renderSearch)();
+  ({ ask: renderSearch, corpus: renderCorpus, overview: renderOverview, experiments: renderExperiments, sources: renderSources, conditions: renderConditions }[page] || renderSearch)();
 }
 function renderConditions() {
   main.innerHTML = heading('PROPOSED CONDITIONS','Find the evidence for your experiment.','Compare proposed conditions with recorded experiments and inspect supporting sources.') +
@@ -374,45 +374,6 @@ function bindUpload() {
   });
 }
 
-// ---- Research directions page ----
-state.directions = { topic: '', result: null, loading: false, error: '' };
-function renderDirections() {
-  const d = state.directions;
-  main.innerHTML = heading('RESEARCH DIRECTIONS', 'Plan the next experiment from the evidence.', 'Describe a topic or proposed test condition. The atlas gathers what the corpus reports, what the authors say is still open, what the collection does not cover, and suggests next steps tied to those citations.') +
-  `<div class="notice"><strong>Suggestions are starting points for expert judgment, not validated recommendations or predictions.</strong> Each one cites the passages it builds on. “Not found” means not found in this indexed collection, not that it has never been studied.</div>
-  <form id="directions-form" class="panel panel-body"><label for="topic">Topic or proposed condition</label><textarea id="topic" rows="3" maxlength="1000" required placeholder="e.g. Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen">${esc(d.topic)}</textarea>
-    <div class="filters" style="margin:14px 0 0"><select id="directions-investigation" aria-label="Investigation scope">${optionList(state.investigation)}</select><button class="btn primary" type="submit" ${d.loading || !state.ragStatus.answer_ready ? 'disabled' : ''}>${d.loading ? 'Analyzing evidence…' : 'Find research directions'}</button></div>
-    <p class="form-hint">Sends the topic and retrieved passages to OpenAI (${esc(state.ragStatus.answer_model || 'no model configured')}). Takes up to a minute.</p></form>
-  <div class="suggestions"><span>TRY</span>${['Flame spread over thin PMMA at low opposed-flow velocity and reduced oxygen', 'Flammability limits of PMMA rods in microgravity', 'Concurrent-flow flame spread over cotton-fiberglass fabric'].map(q => `<button data-topic="${esc(q)}" ${d.loading ? 'disabled' : ''}>${esc(q)}</button>`).join('')}</div>
-  <div id="directions-results" aria-live="polite">${renderDirectionsResult()}</div>`;
-  main.querySelector('#directions-form').addEventListener('submit', e => { e.preventDefault(); runDirections(main.querySelector('#topic').value.trim()); });
-  main.querySelectorAll('[data-topic]').forEach(b => b.addEventListener('click', () => runDirections(b.dataset.topic)));
-}
-async function runDirections(topic) {
-  if (!topic || state.directions.loading) return;
-  state.investigation = main.querySelector('#directions-investigation')?.value || state.investigation;
-  Object.assign(state.directions, { topic, loading: true, error: '', result: null }); renderDirections();
-  try { state.directions.result = await api('/api/directions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, investigation: state.investigation || null, allow_provider_calls: true }) }); }
-  catch (err) { state.directions.error = err.message; }
-  state.directions.loading = false; if (route() === 'directions') renderDirections();
-}
-function renderDirectionsResult() {
-  const d = state.directions;
-  if (d.loading) return '<div class="loading">Reading the evidence and drafting directions…</div>';
-  if (d.error) return `<div class="error" role="alert">${esc(d.error)}</div>`;
-  if (!d.result) return '';
-  const r = d.result.directions, byId = Object.fromEntries(d.result.results.map(x => [x.chunk_id, x]));
-  if (r.status !== 'answered') return empty('Not enough evidence in the corpus', (r.gaps || [])[0] || 'No passages address this topic.');
-  const claims = [...r.evidence, ...r.open_questions];
-  const claimHTML = (c, i) => `<li id="dir-claim-${i}" class="draft-note"><span class="ref">[${i + 1}]</span> ${esc(c.text)}${c.supports.map(s => { const src = byId[s.chunk_id] || {}; return `<blockquote>${esc(s.quote)}</blockquote><small>${src.visual ? `${esc(pretty(src.visual.kind))} ${esc(src.visual.label)} · unreviewed AI description · ` : ''}<a href="${pageLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a></small>`; }).join('')}</li>`;
-  const section = (title, hint, body) => `<section class="panel"><div class="panel-head"><div><h2>${title}</h2><p>${hint}</p></div></div><div class="panel-body">${body}</div></section>`;
-  return section('What the corpus shows', 'Reported conditions, observations and conclusions, quoted from the source.', r.evidence.length ? `<ol class="claim-list">${r.evidence.map((c, i) => claimHTML(c, i)).join('')}</ol>` : '<p class="form-hint">No direct findings retrieved.</p>') +
-    section('Open questions stated by the authors', 'Limitations, uncertainties and future work in the authors’ own words.', r.open_questions.length ? `<ol class="claim-list">${r.open_questions.map((c, i) => claimHTML(c, i + r.evidence.length)).join('')}</ol>` : '<p class="form-hint">The retrieved passages do not state open questions on this topic.</p>') +
-    section('Not found in the indexed collection', 'Aspects of the topic the retrieved passages do not cover.', r.gaps.length ? `<ul class="gap-list">${r.gaps.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="form-hint">No gaps identified in the retrieved passages.</p>') +
-    section('Suggested next steps', 'AI-drafted from the cited items above. Review before acting on them.', r.suggestions.length ? r.suggestions.map(s => `<div class="suggestion-card">${tag(pretty(s.kind), s.kind === 'experiment' ? 'amber' : s.kind === 'analysis' ? 'green' : '')}<p>${esc(s.text)}</p><small>Based on ${s.basis.map(i => `<a href="#directions" data-claim="${i}">[${i + 1}]</a>`).join(' ')}</small></div>`).join('') : '<p class="form-hint">No suggestions could be grounded in the retrieved evidence.</p>') +
-    `<p class="form-hint">${claims.length} cited items from ${d.result.results.length} retrieved passages.</p>`;
-}
-document.addEventListener('click', e => { const a = e.target.closest('[data-claim]'); if (!a) return; e.preventDefault(); document.querySelector(`#dir-claim-${a.dataset.claim}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
 // ---- Streaming answers: progress events, then the result ----
 state.progress = [];
 function progressHTML() {

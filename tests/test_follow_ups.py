@@ -91,3 +91,58 @@ def test_earlier_turns_reach_the_model_only_as_context() -> None:
     assert [t["question"] for t in sent["earlier_turns"]] == ["q2", "q3", "q4"]  # last three
     assert all(len(t["answer"]) <= 1500 for t in sent["earlier_turns"])
     assert "Never cite them or take facts from them" in calls[0]["instructions"]
+
+
+def test_broad_questions_get_diverse_passages_and_extra_searches(tmp_path: Path) -> None:
+    from combustion_atlas.rag.search import diversify, is_broad
+
+    assert is_broad("Explain how flames behave in microgravity")
+    assert is_broad("why do flames go out in low flow?")
+    assert not is_broad("What was the initial CO reading for BASS-II test O12?")
+    assert not is_broad("Which components are labelled in Figure 5.1?")
+
+    same = "Approach: microgravity combustion tests were performed aboard the station"
+    items = [
+        {"chunk_id": "1", "source_id": "a", "text": same},
+        {"chunk_id": "2", "source_id": "b", "text": same + " again"},  # near-duplicate
+        {"chunk_id": "3", "source_id": "a", "text": "Flame spread slowed at low flow."},
+        {"chunk_id": "4", "source_id": "a", "text": "Extinction occurred near one cm/s."},
+        {"chunk_id": "5", "source_id": "c", "text": "Oxygen limits were lower in orbit."},
+    ]
+    assert [i["chunk_id"] for i in diversify(items, 4, per_source=2)] == ["1", "3", "5"]
+
+    with store_with(tmp_path) as store:
+        steps: list[str] = []
+        merged = retrieve_conversation(
+            store,
+            "Explain dilution effects",
+            [],
+            extra_queries=["carbon dioxide dilution methanol droplets"],
+            progress=lambda _s, message: steps.append(message),
+        )
+    assert any(r["filename"] == "b.pdf" for r in merged)
+    assert any(m.startswith("Also searching:") for m in steps)
+
+
+def test_query_expansion_failure_returns_no_queries() -> None:
+    from combustion_atlas.providers.openai_answers import expand_query
+
+    class Broken:
+        def __init__(self) -> None:
+            self.responses = self
+
+        def parse(self, **_: Any) -> Any:
+            raise RuntimeError("down")
+
+    assert expand_query("Explain flames in microgravity", client=Broken(), model="m") == []
+
+    class Works(Broken):
+        def parse(self, **kwargs: Any) -> Any:
+            assert "untrusted" in kwargs["instructions"]
+            parsed = kwargs["text_format"](queries=[" flame spread low flow ", "", "extinction"])
+            return SimpleNamespace(output_parsed=parsed)
+
+    assert expand_query("Explain flames", client=Works(), model="m") == [
+        "flame spread low flow",
+        "extinction",
+    ]

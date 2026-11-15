@@ -3,15 +3,7 @@
 from datetime import UTC, datetime
 from pathlib import Path
 
-import pytest
-
-from combustion_atlas.app.server import (
-    DirectionsRequest,
-    EvidenceRequest,
-    PaidLimitReached,
-    apply_paid_limit,
-    research_directions,
-)
+from combustion_atlas.app.server import EvidenceRequest, apply_paid_limit
 from combustion_atlas.app.usage import PaidCallLimiter
 
 NOON = datetime(2026, 11, 15, 12, 0, tzinfo=UTC).timestamp()
@@ -49,17 +41,3 @@ def test_limited_answers_fall_back_to_free_keyword_search(tmp_path: Path) -> Non
     assert limited is None and admin.generate_answer  # admins are not counted
     keyword = EvidenceRequest(question="flame spread")
     assert apply_paid_limit(keyword, limiter, exempt=False)[1] is None  # free search
-
-
-def test_directions_over_the_limit_are_refused(tmp_path: Path) -> None:
-    limiter = PaidCallLimiter(tmp_path / "paid.json", daily_limit=1)
-    limiter.acquire()
-    workspace = type("W", (), {"database": tmp_path / "rag.sqlite3"})()
-    (tmp_path / "rag.sqlite3").write_bytes(b"")
-    with pytest.raises(PaidLimitReached) as caught:
-        research_directions(
-            workspace,  # type: ignore[arg-type]
-            DirectionsRequest(topic="PMMA flame spread", allow_provider_calls=True),
-            limiter=limiter,
-        )
-    assert caught.value.retry_after_s > 0

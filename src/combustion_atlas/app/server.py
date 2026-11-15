@@ -117,6 +117,7 @@ def ask_evidence(
                 store,
                 request.question,
                 [turn.question for turn in request.history],
+                extra_queries=broad_queries(request),
                 method=request.method,
                 investigation=request.investigation or None,
                 visible_sources=frozenset(request.include_sources),
@@ -161,11 +162,20 @@ def ask_evidence(
     return payload
 
 
-class DirectionsRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    topic: str = Field(min_length=3, max_length=1000)
-    investigation: str | None = Field(default=None, max_length=80)
-    allow_provider_calls: bool = False
+def broad_queries(request: EvidenceRequest) -> list[str]:
+    """Focused extra searches for broad questions when AI answers are on (else none)."""
+    from combustion_atlas.rag.search import is_broad
+
+    if (
+        not (request.generate_answer and request.allow_provider_calls)
+        or request.method == "keyword"
+    ):
+        return []
+    if not is_broad(request.question):
+        return []
+    from combustion_atlas.providers.openai_answers import expand_query
+
+    return expand_query(request.question)
 
 
 class PaidLimitReached(Exception):
@@ -174,50 +184,6 @@ class PaidLimitReached(Exception):
     def __init__(self, reason: str, retry_after_s: int):
         super().__init__(reason)
         self.retry_after_s = retry_after_s
-
-
-def research_directions(
-    workspace: Workspace,
-    request: DirectionsRequest,
-    *,
-    limiter: PaidCallLimiter | None = None,
-    exempt: bool = False,
-) -> dict[str, object]:
-    from combustion_atlas.providers.research_directions import ResearchDirectionsProvider
-
-    if not workspace.database.is_file():
-        raise ValueError("Build the document index first")
-    if not request.allow_provider_calls:
-        raise ValueError("Enable OpenAI calls to generate research directions")
-    if limiter is not None and not exempt:
-        decision = limiter.acquire()
-        if not decision.allowed:
-            raise PaidLimitReached(decision.reason or "AI limit reached", decision.retry_after_s)
-    investigation = request.investigation or None
-    with DocumentStore(workspace.database) as store:
-        # Topic passages plus passages where authors discuss limitations or future work.
-        primary = retrieve(store, request.topic, method="hybrid", investigation=investigation)
-        forward = retrieve(
-            store,
-            request.topic + " future work recommendations limitations further research",
-            method="hybrid",
-            investigation=investigation,
-            top_k=4,
-        )
-    seen: set[str] = set()
-    results = []
-    for item in [*primary, *forward]:
-        if str(item["chunk_id"]) not in seen:
-            seen.add(str(item["chunk_id"]))
-            results.append(item)
-    provider = ResearchDirectionsProvider(ProviderConfig.from_environment())
-    try:
-        directions = provider.directions(request.topic, results).model_dump()
-    except OpenAIError:
-        if limiter is not None and not exempt:
-            limiter.refund()  # the provider failed after retries: not counted
-        raise
-    return {"topic": request.topic, "results": results, "directions": directions}
 
 
 MAX_UPLOAD_BYTES = 80 * 1024 * 1024
@@ -993,7 +959,6 @@ class AtlasHandler(BaseHTTPRequestHandler):
             "/api/reviews",
             "/api/review-notes",
             "/api/ask",
-            "/api/directions",
             "/api/predict",
             "/api/uploads/approve",
             "/api/uploads/delete",
@@ -1046,16 +1011,6 @@ class AtlasHandler(BaseHTTPRequestHandler):
                     ask_evidence(
                         self.atlas,
                         EvidenceRequest.model_validate_json(raw),
-                        limiter=self.limiter,
-                        exempt=self._is_paid_exempt(),
-                    )
-                )
-                return
-            if path == "/api/directions":
-                self._json(
-                    research_directions(
-                        self.atlas,
-                        DirectionsRequest.model_validate_json(raw),
                         limiter=self.limiter,
                         exempt=self._is_paid_exempt(),
                     )

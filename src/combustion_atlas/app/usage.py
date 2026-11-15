@@ -1,4 +1,4 @@
-"""Site-wide limit on paid model calls (answers and research directions).
+"""Site-wide limit on paid model calls (AI answers and uploads).
 
 A hosted public deployment allows at most `daily_limit` paid calls per UTC day and at
 least `min_interval_s` seconds between them, across all visitors. State is saved on

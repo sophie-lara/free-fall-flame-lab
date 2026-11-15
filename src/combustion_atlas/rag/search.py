@@ -26,6 +26,51 @@ _INVESTIGATION_NAMES = [
     (re.compile(r"\bflex\b", re.IGNORECASE), "PSI-69"),
 ]
 FIGURE_BROWSE_LIMIT = 8
+# Broad questions ("explain how flames behave in microgravity") get more passages,
+# spread across documents, so the answer can synthesize instead of echoing one slide.
+_BROAD_START = re.compile(
+    r"^\s*(explain|describe|summari[sz]e|overview|tell me about|what (is|are|happens|do we know)|"
+    r"why|how (do|does|is|are|did|can))\b",
+    re.IGNORECASE,
+)
+BROAD_TOP_K = 8
+BROAD_PER_SOURCE = 2
+_TOKEN = re.compile(r"[a-z0-9]+")
+
+
+def is_broad(question: str) -> bool:
+    """General, explanatory questions with no test IDs, numbers or figure references."""
+    return bool(_BROAD_START.search(question)) and not re.search(r"\d", question)
+
+
+def _tokens(item: dict[str, object]) -> set[str]:
+    return set(_TOKEN.findall(str(item.get("text", "")).lower()))
+
+
+def diversify(
+    candidates: list[dict[str, object]], top_k: int, per_source: int | None = None
+) -> list[dict[str, object]]:
+    """Best-ranked passages, skipping near-duplicates and capping passages per document.
+
+    Repeated boilerplate (the same "Approach" slide in five presentations) would
+    otherwise fill every slot.
+    """
+    chosen: list[dict[str, object]] = []
+    seen: list[set[str]] = []
+    per_doc: dict[str, int] = {}
+    for item in candidates:
+        if len(chosen) >= top_k:
+            break
+        source = str(item.get("source_id", ""))
+        if per_source is not None and per_doc.get(source, 0) >= per_source:
+            continue
+        words = _tokens(item)
+        if words and any(len(words & other) / len(words | other) >= 0.6 for other in seen):
+            continue
+        chosen.append(item)
+        seen.append(words)
+        per_doc[source] = per_doc.get(source, 0) + 1
+    return chosen
 
 
 def wants_figures(question: str) -> bool:
@@ -49,6 +94,7 @@ def retrieve(
     top_k: int = 5,
     progress: Callable[[str, str], None] | None = None,
     visible_sources: frozenset[str] = frozenset(),
+    per_source: int | None = None,
 ) -> list[dict[str, object]]:
     # Quarantined visitor uploads are only searchable by the browser that uploaded them.
     store.visible_sources = frozenset(visible_sources)
@@ -75,7 +121,7 @@ def retrieve(
     pinned = _pinned_cards(store, question, investigation, say)
     if method == "keyword":
         say("keyword", "Searching the keyword index")
-        results = store.search(question, investigation, top_k)
+        results = diversify(store.search(question, investigation, top_k * 3), top_k, per_source)
         say("retrieved", f"Found {len(results)} matching passages")
         return _merge_pinned(pinned, results, top_k)
     provider = OpenAIEmbeddingProvider(ProviderConfig.from_environment())
@@ -97,7 +143,8 @@ def retrieve(
         top_k=max(top_k * 3, 10),
     )
     if method == "dense":
-        say("retrieved", f"Selected the {min(top_k, len(dense))} closest passages")
+        dense = diversify(dense, top_k, per_source)
+        say("retrieved", f"Selected the {len(dense)} closest passages")
         return _merge_pinned(pinned, dense, top_k)
     say("keyword", "Searching the keyword index")
     keyword = store.search(question, investigation, max(top_k * 3, 10))
@@ -109,7 +156,7 @@ def retrieve(
         ]
     )
     by_id = {str(item["chunk_id"]): item for item in [*keyword, *dense]}
-    fused = [{**by_id[key], "score": score} for key, score in ranked[:top_k]]
+    fused = diversify([{**by_id[key], "score": score} for key, score in ranked], top_k, per_source)
     say("retrieved", f"Selected {len(fused)} passages")
     return _merge_pinned(pinned, fused, top_k)
 
@@ -216,12 +263,18 @@ def retrieve_conversation(
     top_k: int = 5,
     progress: Callable[[str, str], None] | None = None,
     visible_sources: frozenset[str] = frozenset(),
+    extra_queries: list[str] | None = None,
 ) -> list[dict[str, object]]:
-    """Retrieve for a follow-up: the question alone, and with the previous question.
+    """Retrieve for a question, using the previous question for follow-ups.
 
     "What about FLEX?" needs the earlier question to find anything; a change of topic
     should not be dragged back to it. Both result lists are merged by rank fusion.
     """
+    per_source = None
+    if is_broad(question):
+        top_k, per_source = max(top_k, BROAD_TOP_K), BROAD_PER_SOURCE
+        if progress is not None:
+            progress("context", "Broad question: gathering passages from several documents")
     current = retrieve(
         store,
         question,
@@ -230,26 +283,44 @@ def retrieve_conversation(
         top_k=top_k,
         progress=progress,
         visible_sources=visible_sources,
+        per_source=per_source,
     )
     earlier = [q for q in history[-FOLLOW_UP_TURNS:] if q.strip()]
-    if not earlier:
+    lists = [current]
+    if earlier:
+        if progress is not None:
+            progress("context", "Adding the previous question as context for this follow-up")
+        lists.append(
+            retrieve(
+                store,
+                f"{earlier[-1]} {question}",
+                method=method,
+                investigation=investigation,
+                top_k=top_k,
+                visible_sources=visible_sources,
+                per_source=per_source,
+            )
+        )
+    for query in extra_queries or []:
+        if progress is not None:
+            progress("context", f"Also searching: {query}")
+        lists.append(
+            retrieve(
+                store,
+                query,
+                method=method,
+                investigation=investigation,
+                top_k=6,
+                visible_sources=visible_sources,
+                per_source=per_source,
+            )
+        )
+    if len(lists) == 1:
         return current
+    ranked = reciprocal_rank_fusion([[str(r["chunk_id"]) for r in items] for items in lists])
+    by_id = {str(r["chunk_id"]): r for items in reversed(lists) for r in items}
+    limit = max(top_k, *(len(items) for items in lists))
+    merged = diversify([by_id[key] for key, _score in ranked], limit, per_source)
     if progress is not None:
-        progress("context", "Adding the previous question as context for this follow-up")
-    with_context = retrieve(
-        store,
-        f"{earlier[-1]} {question}",
-        method=method,
-        investigation=investigation,
-        top_k=top_k,
-        visible_sources=visible_sources,
-    )
-    ranked = reciprocal_rank_fusion(
-        [[str(r["chunk_id"]) for r in current], [str(r["chunk_id"]) for r in with_context]]
-    )
-    by_id = {str(r["chunk_id"]): r for r in [*with_context, *current]}
-    limit = max(top_k, len(current), len(with_context))
-    merged = [by_id[key] for key, _score in ranked[:limit]]
-    if progress is not None:
-        progress("retrieved", f"Selected {len(merged)} passages using the conversation")
+        progress("retrieved", f"Selected {len(merged)} passages across all searches")
     return merged

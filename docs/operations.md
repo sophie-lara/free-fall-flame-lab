@@ -252,10 +252,7 @@ passages. `#corpus` shows per-document page strips (text density, figures,
 sections from top-level headings), a topic map (2-D principal-component
 projection of stored embeddings, cached in `data/processed/rag/topic-map.json`;
 axes have no units), and a PDF upload that saves to `data/raw/uploads/` and runs
-`rag add` (optionally embedding the new passages). `#directions` returns cited
-findings, author-stated open questions, collection gaps, and suggested next steps
-that must reference those citations; suggestions are not validated
-recommendations. Review pages (overview, experiments, conditions, sources) are
+`rag add` (optionally embedding the new passages). Review pages (overview, experiments, conditions, sources) are
 under "Review workspace" in the sidebar.
 
 For the local text-RAG POC, open `http://127.0.0.1:8765/#search` after launching

@@ -48,7 +48,7 @@ def stream_ask(
     from combustion_atlas.rag.search import retrieve_conversation
     from combustion_atlas.rag.store import DocumentStore
 
-    from .server import EvidenceRequest, apply_paid_limit
+    from .server import EvidenceRequest, apply_paid_limit, broad_queries
 
     started = time.monotonic()
     handler.send_response(200)
@@ -96,6 +96,7 @@ def stream_ask(
                     store,
                     request.question,
                     [turn.question for turn in request.history],
+                    extra_queries=broad_queries(request),
                     method=request.method,
                     investigation=request.investigation or None,
                     visible_sources=frozenset(request.include_sources),
