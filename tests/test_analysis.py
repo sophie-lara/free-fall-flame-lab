@@ -58,6 +58,7 @@ def test_only_plain_numbers_become_values_and_raw_text_is_kept(
     assert first["pressure_kpa"] == pytest.approx(101.325, abs=0.01)
     assert first["outcomes"]["burn_time_s"] == {"value": 4.5, "raw": "4.5 s", "unit": "s"}
     assert first["geometry"] == "droplet" and first["review_status"] == "unreviewed"
+    assert first["source"]["url"] == "https://psi.nasa.gov/physci/repo/data/investigations/T-1"
     assert second["oxygen_pct"] is None and second["pressure_kpa"] is None  # ~, range kept
     assert second["droplet_diameter_mm"] is None
     assert second["raw"]["Pressure; mmHg"] == "21–23"

@@ -172,3 +172,5 @@ def test_proposed_layer_converts_and_omits_ambiguous_values() -> None:
     assert "pressure 0.85 atm → 86.126 kPa" in point["conversions"]
     assert any("droplet_diameter" in o for o in point["omitted"])
     assert any("not an observed result" in c for c in point["caveats"])
+    assert point["document_id"] and len(point["document_id"]) == 16
+    assert point["source_url"] == RECORDS[0]["candidate"].raw_cells[0].provenance.source_url

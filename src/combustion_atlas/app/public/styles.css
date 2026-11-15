@@ -265,6 +265,32 @@ dl.kv dd { margin: 0; }
 .hero-try { margin-top: 16px; align-items: center; }
 .cite.also { margin-top: -4px; opacity: .85; }
 
+/* Coverage heatmap: one sequential hue for observed run counts; planned-only cells tinted violet */
+.hm-strong { fill: var(--s1); }
+.hm-moderate { fill: color-mix(in srgb, var(--s1) 58%, var(--surface)); }
+.hm-sparse { fill: color-mix(in srgb, var(--s1) 28%, var(--surface)); }
+.hm-planned { fill: color-mix(in srgb, #8b5cf6 22%, var(--surface)); stroke: color-mix(in srgb, #8b5cf6 65%, var(--surface)); stroke-width: 1; }
+.hm-gap { fill: color-mix(in srgb, var(--ink) 3%, var(--surface)); stroke: var(--grid); stroke-width: 1; }
+.chart .hm-count { fill: var(--ink); font-weight: 700; font-size: 14px; pointer-events: none; }
+.chart .hm-planned-count { fill: var(--ink-2); font-size: 10px; font-weight: 600; pointer-events: none; }
+.chart .hm-count.on-dark, .chart .hm-planned-count.on-dark { fill: #fff; }
+.hm-hit { cursor: pointer; outline: none; }
+.hm-hit:hover .hm-cell, .hm-hit:focus-visible .hm-cell { stroke: var(--ink); stroke-width: 2; }
+.hm-hit.selected .hm-cell { stroke: var(--brand); stroke-width: 3; }
+.y-axis-title { margin: 0 0 2px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.gaps { margin-top: 20px; }
+.gaps h3 { margin-bottom: 2px; }
+.gaps h4 { margin: 12px 0 4px; font-size: 14px; color: var(--ink-2); }
+.gaps > p { margin: 0 0 4px; }
+.gap-list { list-style: none; margin: 0; padding: 0; }
+.gap-pick { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid transparent; background: none; color: var(--ink); font: 15px var(--font); padding: 5px 10px; border-radius: 0 6px 6px 0; cursor: pointer; }
+.gap-pick:hover { background: var(--brand-soft); }
+.gap-pick.active { border-left-color: var(--brand); background: var(--brand-soft); }
+@media (forced-colors: active) {
+  .hm-strong, .hm-moderate, .hm-sparse { fill: Highlight; }
+  .hm-hit.selected .hm-cell { stroke: CanvasText; }
+}
+
 .check { display: flex; align-items: flex-start; gap: 10px; font-weight: 500; cursor: pointer; }
 .check input[type=checkbox] { margin: 3px 0 0; flex: none; width: 16px; height: 16px; }
 ul.plain { margin: 0; padding-left: 18px; }
