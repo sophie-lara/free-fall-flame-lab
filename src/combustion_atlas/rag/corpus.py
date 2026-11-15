@@ -11,7 +11,7 @@ from operator import mul
 from pathlib import Path
 from typing import Any
 
-from .store import DocumentStore
+from .store import QUARANTINE, DocumentStore
 from .vectors import decode_vector
 
 HEADING = re.compile(
@@ -55,7 +55,9 @@ def corpus_summary(store: DocumentStore) -> dict[str, Any]:
     visual_chunks = {row[0] for row in connection.execute("SELECT chunk_id FROM visual_chunks")}
     documents = []
     for source_id, filename, url, sha in connection.execute(
-        "SELECT DISTINCT source_id, filename, source_url, sha256 FROM pages ORDER BY filename"
+        "SELECT DISTINCT source_id, filename, source_url, sha256 FROM pages "
+        "WHERE investigation_id IS NULL OR investigation_id != ? ORDER BY filename",
+        (QUARANTINE,),
     ).fetchall():
         investigations = sorted(
             {
@@ -148,6 +150,7 @@ def topic_map(store: DocumentStore, *, model_key: str, cache_dir: Path) -> dict[
     rows = store.connection.execute(
         "SELECT c.chunk_id, c.source_id, c.filename, c.physical_page, c.text, v.vector "
         "FROM vectors v JOIN chunks c ON c.chunk_id=v.chunk_id WHERE v.model_key=? "
+        f"AND (c.investigation_id IS NULL OR c.investigation_id != '{QUARANTINE}') "
         "ORDER BY c.chunk_id",
         (model_key,),
     ).fetchall()

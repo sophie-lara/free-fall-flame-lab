@@ -88,20 +88,21 @@ def test_workspace_mode_unchanged_with_public_preview(servers) -> None:
 def test_identity_trusts_easy_auth_header_only_when_hosted(servers) -> None:
     spoof = {"X-MS-CLIENT-PRINCIPAL-NAME": "intruder@example.org"}
     # Loopback without allowed hosts: header ignored, local user is admin.
-    assert call(servers["public_local"], "/api/me", headers=spoof)[1] == {
+    identity = lambda me: {k: me[k] for k in ("name", "is_admin", "mode")}  # noqa: E731
+    assert identity(call(servers["public_local"], "/api/me", headers=spoof)[1]) == {
         "name": None,
         "is_admin": True,
         "mode": "public",
     }
     hosted = servers["public_hosted"]
     assert call(hosted, "/api/me", hosted=True, headers=spoof)[1]["is_admin"] is False
-    assert call(hosted, "/api/me", hosted=True)[1] == {
+    assert identity(call(hosted, "/api/me", hosted=True)[1]) == {
         "name": None,
         "is_admin": False,
         "mode": "public",
     }
     me = call(hosted, "/api/me", hosted=True, headers={"X-MS-CLIENT-PRINCIPAL-NAME": ADMIN})[1]
-    assert me == {"name": ADMIN, "is_admin": True, "mode": "public"}
+    assert identity(me) == {"name": ADMIN, "is_admin": True, "mode": "public"}
     # Hosted workspace mode with no admins configured: nobody is admin.
     assert call(servers["workspace_hosted"], "/api/me", hosted=True)[1]["is_admin"] is False
 

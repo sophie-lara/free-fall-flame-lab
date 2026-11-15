@@ -25,6 +25,15 @@ Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, 
   day and `COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S` (60) between answers, site-wide,
   persisted in `/home/site/data/usage`. Over the limit, answers fall back to free
   keyword search and "Plan next steps" returns 429. `/api/limits` reports what is left.
+- **Visitor uploads** (`public_uploads = true`): anyone can upload a PDF (15 MB, 60
+  pages; 3 per person per UTC day, keyed by signed-in name or hashed client IP; each
+  upload also uses one site-wide AI call). Uploads are indexed under the reserved
+  investigation `VISITOR-UPLOAD`: searchable only by the uploading browser and hidden
+  from shared search, corpus counts and the topic map until an admin approves them on
+  the *Add to corpus* page (Approve assigns an investigation ID; Delete removes the
+  document, vectors and file). Optional `upload_code` (via `TF_VAR_upload_code`) makes
+  visitors enter a code. **Review or approve pending uploads before re-uploading the
+  database with `--overwrite`**, which replaces everything on the server.
 - `/home` is App Service's persistent network share (like EFS, but included in the
   plan: 1 GB on F1, 10 GB on B1). Code deploys never touch `/home/site/data`.
   SQLite on this share is safe for **one instance only**.
@@ -59,6 +68,8 @@ Key variables:
 | `allowed_users` | `[]` | With `public_access = false`, the only accounts allowed in (GitHub sign-in admits any account otherwise; Terraform refuses that combination) |
 | `admin_emails` | GitHub username / emails | Admin identities |
 | `paid_daily_limit`, `paid_min_interval_s` | `24`, `60` | Visitor AI answer limits |
+| `public_uploads`, `uploads_per_user_day` | `true`, `3` | Visitor uploads into quarantine |
+| `upload_code` | empty | Optional code visitors must enter to upload (`TF_VAR_upload_code`) |
 
 The state file (`infra/terraform.tfstate`) contains secrets in plain text: keep it
 local or in a private backend; never commit it.

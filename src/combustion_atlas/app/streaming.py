@@ -81,6 +81,7 @@ def stream_ask(
                     request.question,
                     method=request.method,
                     investigation=request.investigation or None,
+                    visible_sources=frozenset(request.include_sources),
                     progress=progress,
                 )
             except (ValueError, OpenAIError) as exc:
@@ -94,6 +95,7 @@ def stream_ask(
                     request.question,
                     method="keyword",
                     investigation=request.investigation or None,
+                    visible_sources=frozenset(request.include_sources),
                     progress=progress,
                 )
         payload: dict[str, Any] = {
