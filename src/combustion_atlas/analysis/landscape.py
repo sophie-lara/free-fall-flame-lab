@@ -205,6 +205,16 @@ def build(
         metric="euclidean",
         random_state=0,
     ).fit_transform(space)
+    # A separate 3-D layout for the spin-and-zoom view (t-SNE supports up to 3 dims).
+    coords3 = TSNE(
+        n_components=3,
+        perplexity=min(perplexity, (len(points) - 1) / 3),
+        init="pca",
+        metric="euclidean",
+        random_state=0,
+    ).fit_transform(space)
+    coords3 -= coords3.mean(axis=0)
+    coords3 /= max(float(np.linalg.norm(coords3, axis=1).max()), 1e-12)  # unit sphere
     core = HDBSCAN(
         min_cluster_size=min_cluster_size,
         min_samples=5,
@@ -242,6 +252,7 @@ def build(
                 "ai_label": False,
                 "x": float(coords[members, 0].mean()),
                 "y": float(coords[members, 1].mean()),
+                "p3": [round(float(v), 4) for v in coords3[members].mean(axis=0)],
                 "investigations": dict(sorted(investigations.items(), key=lambda kv: -kv[1])),
                 "kinds": {
                     k: sum(points[i]["kind"] == k for i in members)
@@ -270,6 +281,7 @@ def build(
             | {
                 "x": round(float(coords[i, 0]), 4),
                 "y": round(float(coords[i, 1]), 4),
+                "p3": [round(float(v), 4) for v in coords3[i]],
                 "cluster": int(labels[i]),
                 "core": bool(core[i] >= 0),
                 "neighbors": [points[j]["id"] for j in index[i] if j != i][:neighbors],
@@ -280,7 +292,7 @@ def build(
         "clusters": clusters,
         "noise": int(sum(1 for value in labels if value < 0)),
         "params": {
-            "projection": "PCA(50) + t-SNE(2)",
+            "projection": "PCA(50) + t-SNE (2-D map and 3-D view)",
             "perplexity": min(perplexity, (len(points) - 1) / 3),
             "clustering": (
                 f"HDBSCAN(min_cluster_size={min_cluster_size}, min_samples=5, leaf); "
@@ -338,6 +350,31 @@ def sentence_case(label: str) -> str:
     return " ".join(out)
 
 
+def reuse_labels(result: dict[str, Any], previous: dict[str, Any] | None) -> int:
+    """Copy AI names from a previous build for clusters with exactly the same members."""
+    if not previous:
+        return 0
+    old_members: dict[int, frozenset[str]] = {}
+    for point in previous.get("points", []):
+        if point.get("cluster", -1) >= 0:
+            old_members.setdefault(point["cluster"], frozenset())
+            old_members[point["cluster"]] = old_members[point["cluster"]] | {point["id"]}
+    by_members = {
+        old_members.get(c["id"]): c for c in previous.get("clusters", []) if c.get("ai_label")
+    }
+    new_members: dict[int, set[str]] = {}
+    for point in result["points"]:
+        if point["cluster"] >= 0:
+            new_members.setdefault(point["cluster"], set()).add(point["id"])
+    reused = 0
+    for cluster in result["clusters"]:
+        old = by_members.get(frozenset(new_members.get(cluster["id"], set())))
+        if old:
+            cluster.update(label=old["label"], description=old["description"], ai_label=True)
+            reused += 1
+    return reused
+
+
 def fingerprint(ids: list[str], model_key: str) -> str:
     digest = hashlib.sha256(f"{VERSION}|{model_key}".encode())
     for chunk_id in sorted(ids):
@@ -389,7 +426,9 @@ def main(argv: list[str] | None = None) -> int:
     with DocumentStore(args.database) as store:
         points = _load(store, model_key)
     result = build(points, min_cluster_size=args.min_cluster_size)
-    if args.labels:
+    path = args.root / OUTPUT
+    reused = reuse_labels(result, load_cached(path))
+    if args.labels and reused < len(result["clusters"]):
         label_clusters(result, points)
     result.update(
         version=VERSION,
@@ -402,11 +441,10 @@ def main(argv: list[str] | None = None) -> int:
             "experimental conditions.",
             "Clusters are found automatically (HDBSCAN); grey points belong to no cluster.",
             "Cluster names are AI-generated summaries of keywords and example passages."
-            if args.labels
+            if any(c["ai_label"] for c in result["clusters"])
             else "Cluster names are their most distinctive keywords.",
         ],
     )
-    path = args.root / OUTPUT
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
     sizes = sorted((c["size"] for c in result["clusters"]), reverse=True)

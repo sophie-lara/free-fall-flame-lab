@@ -137,3 +137,42 @@ def test_cited_identifiers_are_not_measurements() -> None:
     assert ungrounded_numbers(other_test, passages) == ["13"]
     invented = claim("Test O12 initial CO was 40 ppm.", "initial_co = OR ppm")
     assert ungrounded_numbers(invented, passages) == ["40"]
+
+
+def test_cited_figure_labels_are_not_measurements() -> None:
+    passages = {"f": "Figure 9: Figure 9. Flame spread rate against opposed flow, 2.2 mm/s peak."}
+
+    def fig(text: str, quote: str) -> Claim:
+        return Claim(text=text, supports=[Support(chunk_id="f", quote=quote)])
+
+    assert (
+        ungrounded_numbers(fig("Figure 9 plots spread rate.", "Flame spread rate"), passages) == []
+    )
+    assert ungrounded_numbers(fig("Fig. 9 plots spread rate.", "Flame spread rate"), passages) == []
+    assert ungrounded_numbers(fig("Figure 10 plots spread.", "Flame spread rate"), passages) == [
+        "10"
+    ]
+    assert ungrounded_numbers(fig("Figure 9 peaks at 3.1 mm/s.", "2.2 mm/s peak"), passages) == [
+        "3.1"
+    ]
+
+
+def test_chunk_ids_are_removed_from_claim_text() -> None:
+    from combustion_atlas.providers.openai_answers import strip_chunk_ids
+
+    chunk = "e9c1286f0903700c:p2:figure:1:vb80cfbf3406a:c0"
+    context: list[dict[str, object]] = [{"chunk_id": chunk, "text": "Figure 1. BASS-II hardware."}]
+    answer = GroundedAnswer(
+        status="answered",
+        claims=[
+            Claim(
+                text=f"Figure 1 shows the BASS-II hardware ({chunk}).",
+                supports=[Support(chunk_id=chunk, quote="BASS-II hardware")],
+            )
+        ],
+        limitations=[],
+    )
+    cleaned = strip_chunk_ids(answer, context)
+    assert cleaned.claims[0].text == "Figure 1 shows the BASS-II hardware."
+    passages = {chunk: "Figure 1. BASS-II hardware."}
+    assert ungrounded_numbers(cleaned.claims[0], passages) == []

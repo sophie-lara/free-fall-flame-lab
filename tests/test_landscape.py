@@ -16,6 +16,7 @@ from combustion_atlas.analysis.landscape import (
     build,
     fingerprint,
     load_cached,
+    reuse_labels,
     sentence_case,
 )
 from combustion_atlas.app.server import AtlasHandler
@@ -59,6 +60,7 @@ def test_build_recovers_topics_with_neighbours_and_keywords() -> None:
         assert len({by_id[f"c{t}-{i:02d}"]["cluster"] for i in range(30)}) == 1
     for point in result["points"]:
         assert 0 <= point["x"] <= 1 and 0 <= point["y"] <= 1
+        assert len(point["p3"]) == 3 and sum(v * v for v in point["p3"]) <= 1.0001  # unit ball
         assert len(point["neighbors"]) == 5 and point["id"] not in point["neighbors"]
         same = {n.split("-")[0] for n in point["neighbors"]}
         assert same == {point["id"].split("-")[0]}  # related evidence stays on topic
@@ -66,6 +68,31 @@ def test_build_recovers_topics_with_neighbours_and_keywords() -> None:
     keywords = {kw for c in result["clusters"] for kw in c["keywords"]}
     assert {"droplet", "pmma", "hardware"} <= keywords
     assert all(c["kinds"]["figure"] == 1 for c in result["clusters"])
+
+
+def test_3d_layout_keeps_topics_apart() -> None:
+    from sklearn.neighbors import NearestNeighbors  # type: ignore[import-untyped]
+
+    result = build(synthetic_points(), min_cluster_size=10)
+    xyz = np.array([p["p3"] for p in result["points"]])
+    topic = np.array([p["cluster"] for p in result["points"]])
+    _, index = NearestNeighbors(n_neighbors=6).fit(xyz).kneighbors(xyz)
+    # On screen, a point's nearest neighbours in 3-D belong to its own topic.
+    assert (topic[index[:, 1:]] == topic[:, None]).mean() > 0.9
+
+
+def test_ai_names_are_reused_only_for_identical_topics() -> None:
+    result = build(synthetic_points(), min_cluster_size=10)
+    previous = json.loads(json.dumps(result))
+    for c in previous["clusters"]:
+        c.update(label=f"Name {c['id']}", description="d", ai_label=True)
+    assert reuse_labels(result, previous) == 3
+    assert {c["label"] for c in result["clusters"]} == {"Name 0", "Name 1", "Name 2"}
+    fresh = build(synthetic_points(), min_cluster_size=10)
+    moved = next(p for p in previous["points"] if p["cluster"] == 0)
+    moved["cluster"] = 1  # cluster 0 and 1 memberships no longer match
+    assert reuse_labels(fresh, previous) == 1
+    assert reuse_labels(fresh, None) == 0
 
 
 def test_strays_join_only_a_clear_majority() -> None:

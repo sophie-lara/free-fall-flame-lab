@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from typing import Literal
 
@@ -9,6 +10,34 @@ from combustion_atlas.providers import OpenAIEmbeddingProvider, ProviderConfig
 from combustion_atlas.retrieval import reciprocal_rank_fusion
 
 from .store import DocumentStore
+
+# "Show me figures from BASS-II": a request to browse figures, not a question to answer.
+_VISUAL_PLURAL = re.compile(
+    r"\b(figures|figs|images|photos|photographs|pictures|plots|graphs|charts|diagrams|"
+    r"schematics|visuals)\b",
+    re.IGNORECASE,
+)
+_SPECIFIC_FIGURE = re.compile(r"\bfig(?:ure)?s?\.?\s*[A-Z]?\d", re.IGNORECASE)
+# Investigation names visitors type, most specific first.
+_INVESTIGATION_NAMES = [
+    (re.compile(r"\bbass[\s-]*(?:ii|2)\b", re.IGNORECASE), "PSI-25"),
+    (re.compile(r"\bbass\b", re.IGNORECASE), "PSI-26"),
+    (re.compile(r"\bflex[\s-]*(?:ii|2)\b", re.IGNORECASE), "PSI-68"),
+    (re.compile(r"\bflex\b", re.IGNORECASE), "PSI-69"),
+]
+FIGURE_BROWSE_LIMIT = 8
+
+
+def wants_figures(question: str) -> bool:
+    """True for figure-browsing requests ("figures from BASS-II"), not one specific figure."""
+    return bool(_VISUAL_PLURAL.search(question)) and not _SPECIFIC_FIGURE.search(question)
+
+
+def named_investigation(question: str) -> str | None:
+    for pattern, investigation in _INVESTIGATION_NAMES:
+        if pattern.search(question):
+            return investigation
+    return None
 
 
 def retrieve(
@@ -28,6 +57,21 @@ def retrieve(
         if progress is not None:
             progress(stage, message)
 
+    if wants_figures(question):
+        scope = investigation or named_investigation(question)
+        top = max(top_k, FIGURE_BROWSE_LIMIT)
+        say("figures", f"Looking for figures{f' from {scope}' if scope else ''}")
+        vector, key = None, None
+        if method != "keyword":
+            provider = OpenAIEmbeddingProvider(ProviderConfig.from_environment())
+            say("embedding", "Embedding the request to rank figures by relevance")
+            vector, key = provider.embed([question])[0], provider.model_key
+        figures = store.figure_search(
+            investigation_id=scope, query_vector=vector, model_key=key, top_k=top
+        )
+        if figures:
+            say("retrieved", f"Found {len(figures)} figures")
+            return figures
     pinned = _pinned_cards(store, question, investigation, say)
     if method == "keyword":
         say("keyword", "Searching the keyword index")
@@ -157,3 +201,55 @@ def _merge_pinned(
     seen = {str(p["chunk_id"]) for p in pinned}
     rest = [r for r in results if str(r["chunk_id"]) not in seen]
     return [*pinned, *rest][: max(top_k, len(pinned))]
+
+
+FOLLOW_UP_TURNS = 3
+
+
+def retrieve_conversation(
+    store: DocumentStore,
+    question: str,
+    history: list[str],
+    *,
+    method: Literal["keyword", "dense", "hybrid"] = "keyword",
+    investigation: str | None = None,
+    top_k: int = 5,
+    progress: Callable[[str, str], None] | None = None,
+    visible_sources: frozenset[str] = frozenset(),
+) -> list[dict[str, object]]:
+    """Retrieve for a follow-up: the question alone, and with the previous question.
+
+    "What about FLEX?" needs the earlier question to find anything; a change of topic
+    should not be dragged back to it. Both result lists are merged by rank fusion.
+    """
+    current = retrieve(
+        store,
+        question,
+        method=method,
+        investigation=investigation,
+        top_k=top_k,
+        progress=progress,
+        visible_sources=visible_sources,
+    )
+    earlier = [q for q in history[-FOLLOW_UP_TURNS:] if q.strip()]
+    if not earlier:
+        return current
+    if progress is not None:
+        progress("context", "Adding the previous question as context for this follow-up")
+    with_context = retrieve(
+        store,
+        f"{earlier[-1]} {question}",
+        method=method,
+        investigation=investigation,
+        top_k=top_k,
+        visible_sources=visible_sources,
+    )
+    ranked = reciprocal_rank_fusion(
+        [[str(r["chunk_id"]) for r in current], [str(r["chunk_id"]) for r in with_context]]
+    )
+    by_id = {str(r["chunk_id"]): r for r in [*with_context, *current]}
+    limit = max(top_k, len(current), len(with_context))
+    merged = [by_id[key] for key, _score in ranked[:limit]]
+    if progress is not None:
+        progress("retrieved", f"Selected {len(merged)} passages using the conversation")
+    return merged

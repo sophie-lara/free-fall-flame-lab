@@ -95,7 +95,9 @@ def test_claim_numbers_must_come_from_its_own_quotes() -> None:
         }
     )
     context = [{"chunk_id": "p1", "text": "Black samples burnt 17. Clear samples burnt 3."}]
-    with pytest.raises(ValueError, match="numbers not found in its quotes: 20"):
+    with pytest.raises(
+        ValueError, match="states the number 20, which its quoted source text does not contain"
+    ):
         validate_support(computed, context)
     grounded = computed.model_copy(deep=True)
     grounded.claims[0].text = "17 black and 3 clear rods were burnt."

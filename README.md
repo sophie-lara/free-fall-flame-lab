@@ -2,16 +2,26 @@
 
 Combustion Atlas is an evidence-preserving research workspace for NASA microgravity-combustion experiments. It keeps raw source values and provenance intact while producing run-level records suitable for audited structured retrieval.
 
-## Project status
+## What it does
 
-This repository contains an executable MVP scaffold for the evidence pipeline. The first scientific target is the BASS-II PSI-25 B1–B5 normalization slice; the repository intentionally does not ship NASA data, generated review artifacts, model caches, or credentials.
+Live at **https://combustion-atlas.azurewebsites.net**.
 
-Project architecture, scientific review notes, and operating instructions are maintained in [`docs/`](docs/).
+- **Ask:** a chat that answers from 29 indexed NASA reports and PSI tables (BASS, BASS-II,
+  FLEX, Saffire). Every claim quotes its source page; numbers are checked against the
+  quotes. Supports follow-up questions, figure browsing, reviewed table records, and
+  "Plan next steps" (evidence, author-stated open questions, gaps and suggestions).
+- **Explore:** experiment coverage heatmaps (which conditions were run or planned) and an
+  evidence landscape: a 2-D and rotatable 3-D topic map of every indexed passage, figure
+  and table, with related evidence for each item.
+- **Sources** and **Add to corpus** (PDF uploads, held for admin approval).
 
-The [review workspace guide](docs/review_ui.md) covers experiment field inspection,
-draft review notes, condition filters, cited keyword search, and source browsing.
-See the [design assessment](docs/design_assessment.md) for architecture alignment,
-verified implementation gaps, and the recommended execution order.
+NASA data, generated artifacts, model caches and credentials are not stored in this
+repository; see [`docs/local_artifacts.md`](docs/local_artifacts.md).
+
+Architecture, scientific review notes and operating instructions are in [`docs/`](docs/):
+the [review workspace guide](docs/review_ui.md) covers experiment field inspection, review
+notes, condition filters, cited search and source browsing, and
+[`docs/deploy_azure.md`](docs/deploy_azure.md) covers hosting.
 
 ## Local setup
 

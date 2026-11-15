@@ -8,6 +8,7 @@
   <title>Combustion Atlas</title>
   <link rel="icon" href="/p/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/p/styles.css">
+  <link rel="stylesheet" href="/p/flame-story.css">
   <script type="module" src="/p/app.js"></script>
 </head>
 <body>
@@ -21,9 +22,13 @@
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
       <nav id="site-nav" class="site-nav" aria-label="Main">
         <a href="#/ask" data-route="ask">Ask</a>
-        <a href="#/coverage" data-route="coverage">Coverage</a>
-        <a href="#/landscape" data-route="landscape">Landscape</a>
-        <a href="#/predict" data-route="predict">Prediction</a>
+        <div class="nav-drop">
+          <button type="button" class="nav-drop-btn" data-route="explore" aria-expanded="false" aria-haspopup="true" aria-controls="explore-menu">Explore <span aria-hidden="true">▾</span></button>
+          <div class="nav-menu" id="explore-menu" hidden>
+            <a href="#/coverage" data-route="coverage">Experiment coverage</a>
+            <a href="#/landscape" data-route="landscape">Evidence landscape</a>
+          </div>
+        </div>
         <a href="#/sources" data-route="sources">Sources</a>
         <a href="#/upload" data-route="upload" class="admin-only" hidden>Add to corpus</a>
       </nav>
@@ -34,8 +39,8 @@
   <main id="main" tabindex="-1" class="container"><p class="loading">Loading…</p></main>
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>Built for the NASA Space Apps Challenge 2026. Not an official NASA product.</span>
-      <span>Answers quote NASA documents verbatim. Figure descriptions and experiment records are unreviewed.</span>
+      <span>Not an official NASA product.</span>
+      <span>Answers quote NASA documents verbatim.</span>
     </div>
   </footer>
 </body>

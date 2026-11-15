@@ -45,7 +45,7 @@ def stream_ask(
     """Run /api/ask with live progress events written to the handler's socket."""
     from combustion_atlas.providers import ProviderConfig
     from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
-    from combustion_atlas.rag.search import retrieve
+    from combustion_atlas.rag.search import retrieve_conversation
     from combustion_atlas.rag.store import DocumentStore
 
     from .server import EvidenceRequest, apply_paid_limit
@@ -92,9 +92,10 @@ def stream_ask(
         fallback = None
         with DocumentStore(workspace.database) as store:
             try:
-                results = retrieve(
+                results = retrieve_conversation(
                     store,
                     request.question,
+                    [turn.question for turn in request.history],
                     method=request.method,
                     investigation=request.investigation or None,
                     visible_sources=frozenset(request.include_sources),
@@ -106,9 +107,10 @@ def stream_ask(
                 # Semantic search unavailable: keep going with free keyword search.
                 fallback = semantic_unavailable(exc)
                 progress("fallback", fallback)
-                results = retrieve(
+                results = retrieve_conversation(
                     store,
                     request.question,
+                    [turn.question for turn in request.history],
                     method="keyword",
                     investigation=request.investigation or None,
                     visible_sources=frozenset(request.include_sources),
@@ -127,7 +129,10 @@ def stream_ask(
             try:
                 provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
                 payload["answer"] = provider.answer(
-                    request.question, results, progress=progress
+                    request.question,
+                    results,
+                    progress=progress,
+                    history=[turn.model_dump() for turn in request.history],
                 ).model_dump()
                 payload["answered_by"] = provider.answered_by()
             except (ValueError, OpenAIError) as exc:

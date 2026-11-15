@@ -1,10 +1,13 @@
 // Combustion Atlas public UI. Self-contained; talks only to this server's /api.
+import { renderFlameStory, heroFlamesSVG } from './flame-story.js';
 const main = document.querySelector('#main');
+// The conversation survives a refresh (this tab only); finished turns only.
+function loadChat() { try { return (JSON.parse(sessionStorage.getItem('atlas-chat') || '[]') || []).filter(t => !t.loading); } catch { return []; } }
+function saveChat() { try { sessionStorage.setItem('atlas-chat', JSON.stringify(state.ask.turns.filter(t => !t.loading).slice(-12))); } catch { /* storage full or blocked */ } }
 const state = {
-  me: null, corpus: null, coverage: null, coverageError: '', options: null, optionsError: '',
-  ask: { mode: 'answer', question: '', loading: false, error: '', result: null, progress: [], ai: localStorage.getItem('atlas-ai') !== 'off' },
+  me: null, corpus: null, coverage: null, coverageError: '',
+  ask: { mode: 'answer', draft: '', turns: loadChat(), loading: false, ai: localStorage.getItem('atlas-ai') !== 'off' },
   cov: { x: 'oxygen_pct', y: 'flow_cm_s', slots: [null, null, null], view: 'heatmap', grid: 'flex', facets: {}, cell: null, detail: null, initialized: false },
-  predict: { target: '', inputs: {}, loading: false, error: '', result: null },
   land: { data: null, error: '', slots: [null, null, null], view: 'chart', selected: null, initialized: false },
 };
 const NAMES = { 'PSI-25': 'BASS-II', 'PSI-26': 'BASS', 'PSI-69': 'FLEX', 'PSI-68': 'FLEX-2', 'PSI-98': 'Saffire-I', 'PSI-99': 'Saffire-II', 'PSI-100': 'Saffire-III', 'PSI-102': 'SAME', 'PSI-101': 'SAME-R' };
@@ -26,6 +29,16 @@ async function api(path, options) {
 }
 const postJSON = (path, body) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 function route() { const h = location.hash.replace(/^#\/?/, ''); return h.split(/[/?]/)[0] || 'home'; }
+// "Explore" is a menu of two pages: experiment coverage and the evidence landscape.
+const isExplore = () => ['explore', 'coverage', 'landscape'].includes(route());
+const isCoverage = () => ['explore', 'coverage'].includes(route());
+const isLandscape = () => route() === 'landscape';
+function exploreRoot(which) {
+  const id = which === 'land' ? 'explore-land' : 'explore-cov';
+  if (!main.querySelector(`#${id}`)) main.innerHTML = which === 'land' ? '<section id="explore-land" aria-labelledby="land-title"></section>' : '<div id="explore-cov"></div>';
+  return main.querySelector(`#${id}`);
+}
+function renderExplore() { if (isLandscape()) renderLandscape(); else renderCoverage(); }
 const pageHead = (eyebrow, title, lead) => `<header class="page-head"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${lead ? `<p>${lead}</p>` : ''}</header>`;
 function toast(message) {
   let el = document.querySelector('#toast');
@@ -41,11 +54,6 @@ async function loadCoverage() {
   try { state.coverage = await api('/api/coverage'); }
   catch (e) { state.coverageError = e.status === 503 ? 'Experiment coverage is being prepared and is not available yet.' : e.message; }
 }
-async function loadOptions() {
-  if (state.options || state.optionsError) return;
-  try { state.options = await api('/api/predict/options'); }
-  catch (e) { state.optionsError = e.status === 503 ? 'Prediction is being prepared and is not available yet.' : e.message; }
-}
 async function loadCorpus(force = false) {
   if (state.corpus && !force) return;
   try { state.corpus = await api('/api/corpus'); } catch { state.corpus = { documents: [], totals: {} }; }
@@ -54,7 +62,8 @@ async function loadCorpus(force = false) {
 // ---------- shell ----------
 function renderShell() {
   const page = route();
-  document.querySelectorAll('[data-route]').forEach(a => { if (a.dataset.route === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  document.querySelectorAll('[data-route]').forEach(a => { const current = a.dataset.route === page || (a.dataset.route === 'explore' && isExplore()) || (a.dataset.route === 'coverage' && page === 'explore');
+    if (current) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   document.querySelectorAll('.admin-only').forEach(el => { el.hidden = !(state.me?.is_admin || state.me?.can_upload); });
   const badge = document.querySelector('#user-badge');
   const hosted = !['127.0.0.1', 'localhost'].includes(location.hostname);
@@ -68,9 +77,9 @@ function renderShell() {
 function render() {
   renderShell();
   const page = route();
-  const pages = { home: renderHome, ask: renderAsk, coverage: renderCoverage, landscape: renderLandscape, predict: renderPredict, sources: renderSources, upload: renderUpload };
+  const pages = { home: renderHome, ask: renderAsk, explore: renderExplore, coverage: renderExplore, landscape: renderExplore, sources: renderSources, upload: renderUpload };
   (pages[page] || renderHome)();
-  document.title = `${{ home: 'Combustion Atlas', ask: 'Ask', coverage: 'Experiment coverage', landscape: 'Evidence landscape', predict: 'Prediction', sources: 'Sources', upload: 'Add to corpus' }[page] || 'Combustion Atlas'} · Combustion Atlas`;
+  document.title = `${{ home: 'Combustion Atlas', ask: 'Ask', explore: 'Experiment coverage', coverage: 'Experiment coverage', landscape: 'Evidence landscape', sources: 'Sources', upload: 'Add to corpus' }[page] || 'Combustion Atlas'} · Combustion Atlas`;
 }
 
 // ---------- home ----------
@@ -82,7 +91,6 @@ function renderHome() {
   main.innerHTML = `
   <section class="hero">
     <div>
-      <div class="eyebrow">Built for the NASA Space Apps Challenge 2026</div>
       <h1>Decades of NASA microgravity-combustion research, at your fingertips.</h1>
       <p class="lead">Combustion Atlas makes NASA's spacecraft fire-safety experiments searchable and comparable: every answer quotes the original report and page, and the coverage map shows where the evidence is thin.</p>
       <form class="hero-search" id="hero-search" role="search">
@@ -92,14 +100,14 @@ function renderHome() {
       </form>
       <div class="chips hero-try" aria-label="Try asking"><span class="hint" style="margin:0">Try:</span>${HOME_TRY.map(q => `<button type="button" class="chip" data-try="${esc(q)}">${esc(q)}</button>`).join('')}</div>
     </div>
-    <div class="hero-art" aria-hidden="true"></div>
+    <button type="button" class="fs-hero" id="fs-hero" aria-label="Why fire is different in space: open the story">${heroFlamesSVG()}<span>Why fire is different in space ↓</span></button>
   </section>
+  <section class="section fs-section" id="fire-story" aria-labelledby="fs-title"></section>
   <section class="section">
-    <div class="grid cols-${state.me?.can_upload ? 5 : 4}">
+    <div class="grid cols-${state.me?.can_upload ? 4 : 3}">
       ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
       ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
       ${tile('#/landscape', '⁘', 'Evidence landscape', 'A map of every indexed passage, figure and table, grouped into topics, with related evidence one click away.')}
-      ${tile('#/predict', '≈', 'Prediction', 'Enter conditions to find the closest observed runs and a statistical estimate, or “insufficient data”.')}
       ${state.me?.can_upload ? tile('#/upload', '+', 'Add to corpus', state.me?.is_admin ? 'Upload a NASA report or paper (PDF) and review visitor uploads.' : 'Upload a PDF and ask questions about it. It stays private until reviewed.') : ''}
     </div>
   </section>
@@ -112,16 +120,16 @@ function renderHome() {
       ${stat(count(t.figures), 'Figures described')}
       ${stat(runs == null ? '—' : count(runs), 'Experiment runs')}
     </div>
-    <p class="hint">Documents come from NASA's Physical Sciences Informatics repository and technical reports. Experiment runs are parsed from PSI experiment tables and are unreviewed candidates.</p>
+    <p class="hint">Documents come from NASA's Physical Sciences Informatics repository and technical reports. Experiment runs come from NASA PSI experiment tables.</p>
   </section>`;
   main.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => askQuestion(b.dataset.try)));
+  renderFlameStory(main.querySelector('#fire-story'), { onAsk: askQuestion });
+  main.querySelector('#fs-hero').addEventListener('click', () => main.querySelector('#fire-story').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }));
   main.querySelector('#hero-search').addEventListener('submit', e => {
     e.preventDefault();
     const q = main.querySelector('#hero-q').value.trim();
     if (!q) return;
-    Object.assign(state.ask, { mode: 'answer', question: q });
-    location.hash = '#/ask';
-    setTimeout(runAsk, 0);
+    askQuestion(q);
   });
 }
 
@@ -167,53 +175,80 @@ function recommendedHTML(mode) {
     `<div class="recommended-group"><div class="recommended-title">${esc(g.group)}</div><div class="hint" style="margin:2px 0 8px">${esc(g.hint)}</div><div class="chips">${g.questions.map(chip).join('')}</div></div>`).join('')}</div></details>`;
 }
 function askQuestion(q) {
-  Object.assign(state.ask, { mode: 'answer', question: q });
-  location.hash = '#/ask';
-  setTimeout(runAsk, 0);
+  state.ask.mode = 'answer';
+  if (route() !== 'ask') location.hash = '#/ask';
+  setTimeout(() => sendQuestion(q), 0);
 }
+const SEND_ICON = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M10 16V4M4.5 9.5 10 4l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function renderAsk() {
-  const a = state.ask;
-  main.innerHTML = pageHead('Ask', 'Ask the evidence', 'Answers are built only from indexed NASA documents and quote them verbatim. “Plan next steps” lists what the evidence shows, what authors leave open, and grounded suggestions.') + `
-  <form class="card ask-form stack" id="ask-form">
-    <div class="segmented" role="group" aria-label="Mode">
-      <button type="button" data-mode="answer" aria-pressed="${a.mode === 'answer'}">Answer a question</button>
-      <button type="button" data-mode="plan" aria-pressed="${a.mode === 'plan'}">Plan next steps</button>
-    </div>
-    <div><label for="q">${a.mode === 'answer' ? 'Question' : 'Topic or proposed test condition'}</label>
-      <textarea id="q" maxlength="1000" required placeholder="${a.mode === 'answer' ? 'Ask about materials, conditions, results or methods…' : 'Describe a topic or proposed experiment…'}">${esc(a.question)}</textarea></div>
-    <div class="row ai-row"><span class="ui-switch"><button type="button" class="ui-switch-track" id="ai-toggle" role="switch" aria-checked="${a.ai}" aria-label="AI answers"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${a.ai ? ' active' : ''}">AI answers ${a.ai ? 'on' : 'off'}</span></span>
-      <span class="hint" style="margin:0">${a.ai ? 'Uses OpenAI to write a cited answer.' : 'Free keyword search only: no AI calls. Table data and passages are still shown.'}</span></div>
-    <div class="row"><button class="btn primary" type="submit" ${a.loading || (a.mode === 'plan' && !a.ai) ? 'disabled' : ''}>${a.loading ? (a.mode === 'answer' ? 'Searching…' : 'Analyzing…') : (a.mode === 'answer' ? (a.ai ? 'Get answer' : 'Search') : 'Find next steps')}</button>
-      <span class="hint" style="margin:0">${a.mode === 'plan' && !a.ai ? 'Plan next steps needs AI answers; turn them on above.' : `Takes a few seconds${a.mode === 'plan' ? ' to a minute' : ''}.${a.ai ? limitsHint() : ''}`}</span></div>
-    ${recommendedHTML(a.mode)}
-  </form>
-  <div id="ask-results" class="section" aria-live="polite">${askResults()}</div>`;
-  main.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { if (a.loading) return; state.ask.question = main.querySelector('#q').value; Object.assign(a, { mode: b.dataset.mode, result: null, error: '' }); renderAsk(); }));
-  main.querySelector('#ai-toggle').addEventListener('click', () => { if (a.loading) return; a.question = main.querySelector('#q').value; a.ai = !a.ai; localStorage.setItem('atlas-ai', a.ai ? 'on' : 'off'); renderAsk(); });
-  main.querySelector('#ask-form').addEventListener('submit', e => { e.preventDefault(); a.question = main.querySelector('#q').value.trim(); runAsk(); });
-  main.querySelectorAll('[data-example]').forEach(b => b.addEventListener('click', () => { a.question = b.dataset.example; runAsk(); }));
+  const a = state.ask, turns = a.turns;
+  const placeholder = a.mode === 'answer' ? (turns.length ? 'Ask a follow-up or a new question…' : 'Ask about materials, conditions, results or methods…') : 'Describe a topic or proposed experiment…';
+  main.innerHTML = `<div class="chat">
+    <div class="chat-head"><div><div class="eyebrow">Ask</div><h1>Ask the evidence</h1></div><span class="spacer"></span>${turns.length ? '<button type="button" class="btn small" id="new-chat">New chat</button>' : ''}</div>
+    <div class="chat-thread" id="chat-thread" aria-live="polite">${turns.length ? turns.map(turnHTML).join('') : `
+      <p class="chat-intro">Answers are built only from indexed NASA documents and quote them verbatim. Ask follow-up questions and the conversation carries over. “Plan next steps” lists what the evidence shows, what authors leave open, and grounded suggestions.</p>
+      ${recommendedHTML(a.mode)}`}</div>
+    <form class="chat-composer" id="ask-form">
+      <div class="composer-box"><label for="q" class="visually-hidden">${a.mode === 'answer' ? 'Question' : 'Topic or proposed test condition'}</label>
+        <textarea id="q" rows="1" maxlength="1000" placeholder="${placeholder}">${esc(a.draft)}</textarea>
+        <button class="send" type="submit" aria-label="Send" ${a.loading || (a.mode === 'plan' && !a.ai) ? 'disabled' : ''}>${SEND_ICON}</button></div>
+      <div class="composer-meta">
+        <div class="segmented small-seg" role="group" aria-label="Mode"><button type="button" data-mode="answer" aria-pressed="${a.mode === 'answer'}">Answer</button><button type="button" data-mode="plan" aria-pressed="${a.mode === 'plan'}">Plan next steps</button></div>
+        <span class="ui-switch"><button type="button" class="ui-switch-track" id="ai-toggle" role="switch" aria-checked="${a.ai}" aria-label="AI answers"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${a.ai ? ' active' : ''}">AI ${a.ai ? 'on' : 'off'}</span></span>
+        <span class="hint" style="margin:0">${a.mode === 'plan' && !a.ai ? 'Plan next steps needs AI; turn it on.' : a.ai ? `Cited answers from the indexed documents.${limitsHint()}` : 'Keyword search only: no AI calls.'}</span>
+      </div>
+    </form></div>`;
+  const q = main.querySelector('#q');
+  const grow = () => { q.style.height = 'auto'; q.style.height = `${Math.min(q.scrollHeight, 200)}px`; };
+  grow();
+  q.addEventListener('input', () => { a.draft = q.value; grow(); });
+  q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); main.querySelector('#ask-form').requestSubmit(); } });
+  main.querySelector('#ask-form').addEventListener('submit', e => { e.preventDefault(); const text = q.value.trim(); if (text) sendQuestion(text); });
+  main.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { if (a.loading) return; a.mode = b.dataset.mode; renderAsk(); main.querySelector('#q').focus(); }));
+  main.querySelector('#ai-toggle').addEventListener('click', () => { if (a.loading) return; a.ai = !a.ai; localStorage.setItem('atlas-ai', a.ai ? 'on' : 'off'); renderAsk(); });
+  main.querySelector('#new-chat')?.addEventListener('click', () => { if (a.loading) return; a.turns = []; a.draft = ''; saveChat(); renderAsk(); main.querySelector('#q').focus(); });
+  main.querySelectorAll('[data-example]').forEach(b => b.addEventListener('click', () => sendQuestion(b.dataset.example)));
 }
-async function runAsk() {
+function turnHTML(t) {
+  return `<article class="turn" id="turn-${t.id}">
+    <div class="msg user"><div class="bubble">${t.mode === 'plan' ? '<span class="pill">Plan next steps</span> ' : ''}${esc(t.question)}</div></div>
+    <div class="msg bot"><img class="avatar" src="/p/logo.svg" alt="" width="28" height="28"><div class="turn-body">${turnBodyHTML(t)}</div></div>
+  </article>`;
+}
+function rerenderTurn(t) {
+  const el = main.querySelector(`#turn-${t.id} .turn-body`);
+  if (el && route() === 'ask') el.innerHTML = turnBodyHTML(t);
+}
+const scrollToTurn = t => main.querySelector(`#turn-${t.id}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+// Earlier answered turns, compacted, so follow-ups ("what about FLEX?") can be understood.
+function historyFor(turn) {
+  return state.ask.turns.filter(t => t !== turn && t.mode === 'answer' && t.result && !t.error).slice(-3)
+    .map(t => ({ question: t.question.slice(0, 1000), answer: (t.result.answer?.claims || []).map(c => c.text).join(' ').slice(0, 4000) }));
+}
+async function sendQuestion(question) {
   const a = state.ask;
-  if (!a.question || a.loading) return;
-  Object.assign(a, { loading: true, error: '', result: null, progress: [] });
-  if (route() === 'ask') renderAsk();
+  if (!question || a.loading) return;
+  const turn = { id: Date.now().toString(36), mode: a.mode, question, ai: a.ai, loading: true, progress: [], result: null, error: '' };
+  const history = historyFor(turn);
+  a.turns.push(turn); a.loading = true; a.draft = '';
+  if (route() === 'ask') { renderAsk(); scrollToTurn(turn); }
   try {
-    a.result = a.mode === 'answer'
-      ? { kind: 'answer', ...(await streamAnswer(a.question, a.ai)) }
-      : { kind: 'plan', ...(await postJSON('/api/directions', { topic: a.question, allow_provider_calls: true })) };
-  } catch (e) { a.error = e.message; }
-  a.loading = false;
+    turn.result = turn.mode === 'answer'
+      ? { kind: 'answer', ...(await streamAnswer(turn, history)) }
+      : { kind: 'plan', ...(await postJSON('/api/directions', { topic: question, allow_provider_calls: true })) };
+  } catch (e) { turn.error = e.message; }
+  turn.loading = false; a.loading = false;
+  saveChat();
   await loadLimits();
-  if (route() === 'ask') renderAsk();
+  if (route() === 'ask') { renderAsk(); scrollToTurn(turn); main.querySelector('#q')?.focus({ preventScroll: true }); }
 }
 // Streams NDJSON progress from /api/ask/stream; falls back to /api/ask when the route is absent.
-async function streamAnswer(question, ai = true) {
-  // AI off: free keyword search only, no provider calls of any kind.
+async function streamAnswer(turn, history = []) {
+  // AI off: keyword search only, no provider calls of any kind.
   const include_sources = myUploads().map(u => u.source_id);
-  const body = ai
-    ? { question, method: 'hybrid', generate_answer: true, allow_provider_calls: true, include_sources }
-    : { question, method: 'keyword', generate_answer: false, allow_provider_calls: false, include_sources };
+  const body = turn.ai
+    ? { question: turn.question, history, method: 'hybrid', generate_answer: true, allow_provider_calls: true, include_sources }
+    : { question: turn.question, history, method: 'keyword', generate_answer: false, allow_provider_calls: false, include_sources };
   const response = await fetch('/api/ask/stream', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (response.status === 404) return postJSON('/api/ask', body);
   if (!response.ok || !response.body) {
@@ -226,7 +261,7 @@ async function streamAnswer(question, ai = true) {
   const handle = line => {
     if (!line.trim()) return;
     let event; try { event = JSON.parse(line); } catch { return; }
-    if (event.type === 'progress') { state.ask.progress.push(event); updateProgress(); }
+    if (event.type === 'progress') { turn.progress.push(event); rerenderTurn(turn); }
     else if (event.type === 'result') { const { type, ...payload } = event; result = payload; }
     else if (event.type === 'error') throw new Error(event.error || 'The request failed.');
   };
@@ -237,23 +272,41 @@ async function streamAnswer(question, ai = true) {
     lines.forEach(handle);
     if (done) { handle(buffer); break; }
   }
-  if (!result) throw new Error('The answer stream ended before a result arrived.');
+  if (!result) throw new Error('The connection closed before the answer arrived. Please try again.');
   return result;
 }
-function progressHTML() {
-  const steps = state.ask.progress;
-  return `<section class="card" aria-label="Progress"><div class="row"><h3 style="margin:0">Working on it</h3><span class="spacer"></span><span class="muted small">${steps.length ? `${fmt(steps[steps.length - 1].elapsed_s, 3)} s` : ''}</span></div>
-    <ol class="steps">${steps.length ? steps.map((s, i) => `<li class="${i === steps.length - 1 ? 'current' : 'done'}"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('') : '<li class="current"><span>Starting…</span></li>'}</ol></section>`;
+// ---- Progress as a fire: search steps add logs, writing the answer ignites it ----
+const FUEL_STAGES = new Set(['keyword', 'embedding', 'semantic', 'ranking', 'records', 'figures', 'retrieved', 'context']);
+const STEP_ICON = {
+  log: '<svg viewBox="0 0 20 12" width="20" height="12" aria-hidden="true"><rect x="1" y="2" width="15" height="8" rx="4" fill="#9a6232"/><ellipse cx="16" cy="6" rx="3" ry="4" fill="#d9a066"/><ellipse cx="16" cy="6" rx="1.4" ry="2" fill="none" stroke="#9a6232" stroke-width=".8"/></svg>',
+  flame: '<svg viewBox="0 0 12 16" width="12" height="16" aria-hidden="true"><path d="M6 1c1 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 1.5.8 2.5 1.8 2.5C4 6 5 3 6 1z" fill="#ef6a2a"/><path d="M6 8c.6 1.4 2.2 2.2 2.2 4a2.2 2.2 0 0 1-4.4 0c0-1 .6-1.7 1.1-2.2C5 9 5.6 8.7 6 8z" fill="#ffc94a"/></svg>',
+  check: '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.4 10.4 14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  dot: '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><circle cx="5" cy="5" r="3" fill="currentColor"/></svg>',
+};
+function stepIcon(stage) {
+  if (FUEL_STAGES.has(stage)) return STEP_ICON.log;                       // search adds fuel
+  if (['generating', 'retrying', 'fallback', 'answer'].includes(stage)) return STEP_ICON.flame; // writing burns it
+  if (['checking', 'repairing', 'filtering'].includes(stage)) return STEP_ICON.check;            // fact checks
+  return STEP_ICON.dot;
+}
+const stepHTML = (s, cls) => `<li class="${cls}"><span class="step-icon">${stepIcon(s.stage)}</span><span class="step-text">${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`;
+function progressHTML(t) {
+  const steps = t.progress;
+  const logs = steps.filter(s => FUEL_STAGES.has(s.stage)).length;
+  const lit = steps.some(s => ['generating', 'retrying', 'fallback', 'answer'].includes(s.stage));
+  const title = lit ? 'Burning…' : logs ? 'Adding logs to the fire…' : 'Striking a match…';
+  return `<section class="card burn-card" aria-label="Progress"><div class="row"><span class="burn-flame${lit ? ' lit' : ''}" style="--fuel:${Math.min(logs, 6)}" aria-hidden="true"><img src="/p/logo.svg" alt="" width="28" height="28"></span><h3 style="margin:0" aria-live="polite">${title}</h3><span class="burn-logs" aria-label="${logs} search steps">${STEP_ICON.log.repeat(Math.min(logs, 6))}</span><span class="spacer"></span><span class="muted small">${steps.length ? `${fmt(steps[steps.length - 1].elapsed_s, 3)} s` : ''}</span></div>
+    <ol class="steps fire-steps">${steps.length ? steps.map((s, i) => stepHTML(s, i === steps.length - 1 ? 'current' : 'done')).join('') : `<li class="current"><span class="step-icon">${STEP_ICON.dot}</span><span class="step-text">Starting…</span></li>`}</ol></section>`;
 }
 // After the answer arrives, keep the steps as a collapsed summary above it.
-function stepsSummaryHTML(steps, failed = false) {
+function stepsSummaryHTML(steps, failed = false) { // steps of one turn
   if (!steps?.length) return '';
   const total = fmt(steps[steps.length - 1].elapsed_s, 3);
-  const label = failed ? `Stopped after ${total} s` : state.ask.result?.answer ? `Answered in ${total} s` : `Searched in ${total} s`;
-  return `<details class="card steps-summary"><summary><span>${failed ? '⚠' : '✓'} ${esc(label)}</span><span class="muted small">${steps.length} step${steps.length === 1 ? '' : 's'}</span></summary>
-    <ol class="steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('')}</ol></details>`;
+  const label = failed ? `Fizzled out after ${total} s` : `Burned in ${total} s`;
+  const icon = failed ? '⚠' : `<img src="/p/logo.svg" alt="" width="18" height="18" class="burn-done">`;
+  return `<details class="card steps-summary"><summary><span class="row" style="gap:8px">${icon}<span>${esc(label)}</span></span><span class="muted small">${steps.length} step${steps.length === 1 ? '' : 's'}</span></summary>
+    <ol class="steps fire-steps">${steps.map(s => stepHTML(s, 'done')).join('')}</ol></details>`;
 }
-function updateProgress() { const el = main.querySelector('#ask-results'); if (el && route() === 'ask' && state.ask.loading) el.innerHTML = progressHTML(); }
 // ---- Claim display: evidence tag, no label prefixes, near-duplicate quotes grouped ----
 const LABEL_PREFIX = /^\s*(?:structured\s+)?(?:document|table(?:\s+record)?|record|figure|visual)(?:\s+description)?\s+evidence\s*[:\-–—]\s*/i;
 function quoteTokens(text) {
@@ -294,7 +347,7 @@ function citeHTML(support, byId) {
   const where = card
     ? `<span class="pill ok">${esc(what)}</span>${card.evidence_kind ? ` ${evidencePill(card.evidence_kind)}` : ''} <span>${esc(card.locator || src.filename || 'Reviewed evidence')}</span>${open ? ` · <span class="pill warn">${esc(open)} open question${open === 1 ? '' : 's'}</span>` : ''}`
     : src.source_id ? `<a href="${docLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a>` : esc(support.chunk_id);
-  const visual = src.visual ? ` · <span class="pill warn">${esc(src.visual.kind)} ${esc(src.visual.label)} · unreviewed AI description</span>` : '';
+  const visual = src.visual ? ` · <span class="pill warn">${esc(src.visual.kind)} ${esc(src.visual.label)} · AI description</span>` : '';
   const crop = src.visual && String(src.crop_url || '').startsWith('/api/visuals/') ? `<details><summary class="cite">View original page image</summary><img class="crop" loading="lazy" src="${esc(src.crop_url)}" alt="Original page for ${esc(src.visual.kind)} ${esc(src.visual.label)}"></details>` : '';
   return `<blockquote>${esc(support.quote)}</blockquote><div class="cite">${where}${visual}</div>${crop}`;
 }
@@ -353,66 +406,65 @@ function tableDataSection(results) {
     <p class="muted small" style="margin:0">Values transcribed from NASA tables and reviewed. Marks beside a value (◐ ambiguous, ? unresolved, ≈ assumed or inferred, i definition) carry a note; hover or tap them.</p>
     ${hits.map(r => r.record_card.kind === 'row' ? rowHitHTML(r) : tableHitHTML(r)).join('')}</section>`;
 }
-function sourcesSummary(allResults) {
+function sourcesSummary(allResults, fold = false) {
   if (!allResults?.length) return '';
   const tableData = tableDataSection(allResults);
   const results = allResults.filter(r => !(r.record_card && (r.record_card.kind === 'row' || r.record_card.kind === 'table')));
   if (!results.length) return tableData;
   const docs = new Set(results.map(r => r.source_id));
-  return tableData + `<section class="card"><div class="section-head"><h3>Sources searched</h3><span class="muted small">${results.length} passages · ${docs.size} document${docs.size === 1 ? '' : 's'}</span></div>
-    <ul class="source-list">${results.map(r => `<li><div class="row"><strong>${esc(r.filename)}</strong>${r.record_card ? `<span class="pill ok">Table record · ${esc(r.record_card.review_action)}</span>` : `<span class="pill">page ${esc(r.physical_page)}</span>`}${r.visual ? `<span class="pill warn">${esc(r.visual.kind)} ${esc(r.visual.label)} · unreviewed</span>` : ''}${r.investigation_id ? `<span class="pill">${esc(invName(r.investigation_id))}</span>` : ''}<span class="spacer"></span>${r.record_card ? `<span class="small muted">${esc(r.record_card.locator || '')}</span>` : `<a class="small" href="${docLink(r.source_id, r.physical_page)}" target="_blank" rel="noopener noreferrer">Open page ↗</a>`}</div>
-      <div class="muted small">${esc(String(r.visual ? r.visual.caption : r.text || '').replace(/\s+/g, ' ').slice(0, 220))}…</div></li>`).join('')}</ul></section>`;
+  const head = `<h3>Sources searched</h3><span class="muted small">${results.length} passages · ${docs.size} document${docs.size === 1 ? '' : 's'}</span>`;
+  return tableData + `<${fold ? 'details' : 'section'} class="card sources-card">${fold ? `<summary class="section-head">${head}</summary>` : `<div class="section-head">${head}</div>`}
+    <ul class="source-list">${results.map(r => `<li><div class="row"><strong>${esc(r.filename)}</strong>${r.record_card ? `<span class="pill ok">Table record · ${esc(r.record_card.review_action)}</span>` : `<span class="pill">page ${esc(r.physical_page)}</span>`}${r.visual ? `<span class="pill warn">${esc(r.visual.kind)} ${esc(r.visual.label)} · AI description</span>` : ''}${r.investigation_id ? `<span class="pill">${esc(invName(r.investigation_id))}</span>` : ''}<span class="spacer"></span>${r.record_card ? `<span class="small muted">${esc(r.record_card.locator || '')}</span>` : `<a class="small" href="${docLink(r.source_id, r.physical_page)}" target="_blank" rel="noopener noreferrer">Open page ↗</a>`}</div>
+      <div class="muted small">${esc(String(r.visual ? r.visual.caption : r.text || '').replace(/\s+/g, ' ').slice(0, 220))}…</div>${r.visual && String(r.crop_url || '').startsWith('/api/visuals/') ? `<img class="crop result-thumb" loading="lazy" src="${esc(r.crop_url)}" alt="Original page image for ${esc(r.visual.kind)} ${esc(r.visual.label)}">` : ''}</li>`).join('')}</ul></${fold ? 'details' : 'section'}>`;
 }
-function askResults() {
-  const a = state.ask;
-  if (a.loading) return a.mode === 'answer' ? progressHTML() : '<p class="loading">Reading the evidence and drafting next steps…</p>';
-  if (a.error) return stepsSummaryHTML(a.progress, true) + `<div class="error" role="alert">${esc(a.error)}</div>`;
-  if (!a.result) return '';
-  if (a.result.kind === 'answer' && a.progress.length) return stepsSummaryHTML(a.progress) + askResultBody();
-  return askResultBody();
+function turnBodyHTML(t) {
+  if (t.loading) return t.mode === 'answer' ? progressHTML(t) : '<p class="loading">Reading the evidence and drafting next steps…</p>';
+  if (t.error) return stepsSummaryHTML(t.progress, true) + `<div class="error" role="alert">${esc(t.error)}</div>`;
+  if (!t.result) return '';
+  if (t.result.kind === 'answer' && t.progress.length) return stepsSummaryHTML(t.progress) + askResultBody(t);
+  return askResultBody(t);
 }
-function askResultBody() {
-  const a = state.ask;
+function askResultBody(t) {
+  const a = t;
   const results = a.result.results || [];
   const byId = Object.fromEntries(results.map(r => [r.chunk_id, r]));
   if (a.result.kind === 'answer') {
     const ans = a.result.answer;
     const notices = [
-      a.result.limited ? `<strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing free keyword search results below.` : '',
+      a.result.limited ? `<strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing keyword search results below.` : '',
       a.result.answer_unavailable ? `<strong>No AI answer this time.</strong> ${esc(a.result.answer_unavailable)}` : '',
       a.result.retrieval_fallback ? esc(a.result.retrieval_fallback) : '',
       a.result.answered_by?.backup ? `Answered by the backup model ${esc(a.result.answered_by.model)} (${esc(a.result.answered_by.provider)}) because the main model was unavailable. The same quote and number checks applied.` : '',
-      !ans && !a.result.limited && !a.result.answer_unavailable ? '<strong>AI answers are off.</strong> Showing free keyword search results: reviewed table data first, then document passages.' : '',
+      !ans && !a.result.limited && !a.result.answer_unavailable ? '<strong>AI answers are off.</strong> Showing keyword search results: reviewed table data first, then document passages.' : '',
     ].filter(Boolean);
     const limited = notices.length ? `<section class="card notice" role="status">${notices.join('<br>')}</section>` : '';
     if (!ans) return limited + sourcesSummary(results);
     const partial = ans.status === 'answered' && (ans.limitations || []).length > 0;
     const status = ans.status !== 'answered' ? '<span class="pill bad">Insufficient evidence</span>' : partial ? '<span class="pill warn">Partial evidence</span>' : '<span class="pill ok">Answered from sources</span>';
     const body = ans.status !== 'answered'
-      ? `<p>The indexed documents do not support an answer to this question. That means it is missing from this collection, not that it was never studied.</p>`
+      ? `<p>The indexed documents do not contain an answer to this question.</p>`
       : ans.claims.map(c => claimHTML(c, byId)).join('');
     return `<section class="card stack"><div class="row"><h2 style="margin:0">Answer</h2>${status}</div>${body}
       ${(ans.limitations || []).map(l => `<p class="notice">${esc(l)}</p>`).join('')}
-      <p class="hint">Every quote is checked against the retrieved text. Verify scientific meaning and numbers against the original page.</p></section>${sourcesSummary(results)}`;
+      </section>${sourcesSummary(results, true)}`;
   }
   const d = a.result.directions;
   if (!d || d.status !== 'answered') return `<section class="card"><div class="row"><h2 style="margin:0">Next steps</h2><span class="pill bad">Insufficient evidence</span></div><p>${esc((d?.gaps || [])[0] || 'No indexed passages address this topic.')}</p></section>${sourcesSummary(results)}`;
   const claims = [...d.evidence, ...d.open_questions];
-  const claimList = (items, offset) => items.map((c, i) => `<div class="claim" id="claim-${i + offset}"><p><span class="ref">[${i + offset + 1}]</span>${esc(c.text)}</p>${c.supports.map(s => citeHTML(s, byId)).join('')}</div>`).join('');
+  const claimList = (items, offset) => items.map((c, i) => `<div class="claim" id="t${a.id}-claim-${i + offset}"><p><span class="ref">[${i + offset + 1}]</span>${esc(c.text)}</p>${c.supports.map(s => citeHTML(s, byId)).join('')}</div>`).join('');
   const block = (title, hint, content) => `<section class="card stack"><div><h2>${title}</h2><p class="muted small" style="margin:0">${hint}</p></div>${content}</section>`;
   return `<div class="stack">
-    <p class="notice">Suggestions are starting points for expert judgment, not validated recommendations or predictions. Each cites the passages it builds on.</p>
     ${block('What the evidence shows', 'Reported conditions, observations and conclusions, quoted from the source.', d.evidence.length ? claimList(d.evidence, 0) : '<p class="muted">No direct findings retrieved.</p>')}
     ${block('Open questions stated by the authors', 'Limitations and future work in the authors’ own words.', d.open_questions.length ? claimList(d.open_questions, d.evidence.length) : '<p class="muted">None stated in the retrieved passages.</p>')}
-    ${block('Not found in this collection', 'Aspects of the topic the retrieved passages do not cover. This is not a claim that they are unstudied.', d.gaps.length ? `<ul>${d.gaps.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="muted">No gaps identified.</p>')}
-    ${block('Suggested next steps', 'Drafted from the cited items above. Review before acting.', d.suggestions.length ? d.suggestions.map(s => `<div class="suggestion"><span class="pill">${esc(s.kind)}</span><p style="margin:8px 0">${esc(s.text)}</p><span class="cite">Based on ${s.basis.filter(i => i < claims.length).map(i => `<a href="#claim-${i}" data-claim="${i}">[${i + 1}]</a>`).join(' ')}</span></div>`).join('') : '<p class="muted">No suggestions could be grounded in the retrieved evidence.</p>')}
+    ${block('Not found in this collection', 'Aspects of the topic the retrieved passages do not cover.', d.gaps.length ? `<ul>${d.gaps.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '<p class="muted">No gaps identified.</p>')}
+    ${block('Suggested next steps', 'Built from the cited items above.', d.suggestions.length ? d.suggestions.map(s => `<div class="suggestion"><span class="pill">${esc(s.kind)}</span><p style="margin:8px 0">${esc(s.text)}</p><span class="cite">Based on ${s.basis.filter(i => i < claims.length).map(i => `<a href="#t${a.id}-claim-${i}" data-claim="t${a.id}-claim-${i}">[${i + 1}]</a>`).join(' ')}</span></div>`).join('') : '<p class="muted">No suggestions could be grounded in the retrieved evidence.</p>')}
   </div>${sourcesSummary(results)}`;
 }
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-claim]');
   if (!a) return;
   e.preventDefault();
-  document.querySelector(`#claim-${a.dataset.claim}`)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  document.querySelector(`#${CSS.escape(a.dataset.claim)}`)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
 });
 
 // ---------- coverage ----------
@@ -451,12 +503,12 @@ function initCoverageSelection() {
   c.initialized = true;
 }
 function renderCoverage() {
-  if (!state.coverage && !state.coverageError) { main.innerHTML = '<p class="loading">Loading experiment coverage…</p>'; loadCoverage().then(() => route() === 'coverage' && renderCoverage()); return; }
-  const head = pageHead('Coverage', 'Experiment coverage', 'Where have experiments actually been run? Each heatmap cell counts the runs whose test conditions fall in that range. An empty cell means no runs in this collection, not that a condition is unstudied.');
-  if (state.coverageError) { main.innerHTML = head + emptyBox('Not available yet', state.coverageError); return; }
+  if (!state.coverage && !state.coverageError) { exploreRoot('cov').innerHTML = '<p class="loading">Loading experiment coverage…</p>'; loadCoverage().then(() => isCoverage() && renderCoverage()); return; }
+  const head = pageHead('Explore', 'Experiment coverage', 'Where have experiments actually been run? Each heatmap cell counts the runs whose test conditions fall in that range. Empty cells are conditions with no runs in this collection.');
+  if (state.coverageError) { exploreRoot('cov').innerHTML = head + emptyBox('Not available yet', state.coverageError); return; }
   initCoverageSelection();
   const cov = state.coverage, c = state.cov;
-  // Points and Table views are hidden for now (code kept); the heatmap is the only view.
+  // The heatmap is the only coverage view; the points and table views are not shown.
   const viewSwitch = '';
   c.view = 'heatmap';
   if (c.view === 'heatmap' && (cov.grids || []).length) { renderHeatmapPage(head, viewSwitch); return; }
@@ -468,7 +520,7 @@ function renderCoverage() {
     const sw = slot >= 0 ? legendShape(SHAPES[slot], `var(--s${slot + 1})`) : legendShape('circle', 'var(--neutral)');
     return `<button type="button" class="chip" data-family="${esc(f.key)}" aria-pressed="${slot >= 0}">${sw}${esc(f.label)} <span class="muted">${count(f.count)}</span></button>`;
   }).join('');
-  main.innerHTML = head + `
+  exploreRoot('cov').innerHTML = head + `
   <div class="row" style="margin-bottom:16px">${reviewed ? `<span class="pill ok">${count(reviewed)} reviewed</span>` : ''}${(cov.notes || []).filter(n => !/not been reviewed/.test(n)).map(n => `<span class="muted small">${esc(n)}</span>`).join('')}</div>
   <section class="card">
     <div class="controls">
@@ -521,7 +573,7 @@ function renderHeatmapPage(head, viewSwitch) {
   const cov = state.coverage, c = state.cov, g = currentGrid();
   const tabs = (cov.grids || []).map(x => `<button type="button" data-grid="${esc(x.key)}" aria-pressed="${x.key === g.key}">${esc(x.label)}</button>`).join('');
   const facets = g.facets.map(f => `<div class="field"><label for="facet-${esc(f.key)}">${esc(f.label)}</label><select id="facet-${esc(f.key)}" data-facet="${esc(f.key)}">${f.options.map(o => `<option value="${esc(o.key)}" ${(gridFacets(g)[f.key] || 'all') === o.key ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div>`).join('');
-  main.innerHTML = head + `
+  exploreRoot('cov').innerHTML = head + `
   <section class="card">
     <div class="controls">
       <div class="field"><label>Investigation family</label><div class="segmented" role="group" aria-label="Investigation family">${tabs}</div></div>
@@ -754,47 +806,80 @@ async function loadLandscape() {
 const landSlot = id => state.land.slots.indexOf(id);
 const topicName = id => state.land.data?.byCluster[id]?.label || 'No topic';
 function renderLandscape() {
-  const L = state.land;
-  if (!L.data && !L.error) { main.innerHTML = '<p class="loading">Loading the evidence landscape…</p>'; loadLandscape().then(() => route() === 'landscape' && renderLandscape()); return; }
-  const head = pageHead('Landscape', 'Evidence landscape', 'Every indexed passage, figure description and reviewed table, placed so that passages with similar meaning sit close together. Topics are found automatically. Use it to see what the collection covers and to jump between related evidence.');
-  if (L.error) { main.innerHTML = head + emptyBox('Not available yet', L.error); return; }
+  const L = state.land, root = exploreRoot('land');
+  const head = pageHead('Explore', '<span id="land-title">Evidence landscape</span>', 'Every indexed passage, figure description and reviewed table, placed so that passages with similar meaning sit close together. Topics are found automatically. Use it to see what the collection covers and to jump between related evidence.');
+  if (!L.data && !L.error) { root.innerHTML = head + '<p class="loading">Loading the evidence landscape…</p>'; loadLandscape().then(() => isLandscape() && renderLandscape()); return; }
+  if (L.error) { root.innerHTML = head + emptyBox('Not available yet', L.error); return; }
   const d = L.data;
   if (!L.initialized) { // start with the three largest topics highlighted
+    if (/[?&]view=3d\b/.test(location.hash)) L.view = 'three';
     [...d.clusters].sort((a, b) => b.size - a.size).slice(0, 3).forEach((c, i) => { L.slots[i] = c.id; });
     L.initialized = true;
   }
-  const chips = [...d.clusters].sort((a, b) => b.size - a.size).map(c => {
-    const slot = landSlot(c.id);
-    const sw = slot >= 0 ? legendShape('circle', `var(--s${slot + 1})`) : legendShape('circle', 'var(--neutral)');
-    return `<button type="button" class="chip" data-topic="${c.id}" aria-pressed="${slot >= 0}" title="${esc(c.description || c.keywords.join(', '))}">${sw}${esc(c.label)} <span class="muted">${count(c.size)}</span></button>`;
-  }).join('');
-  main.innerHTML = head + `
+  const options = [...d.clusters].sort((a, b) => b.size - a.size).map(c => `<label class="topic-opt" title="${esc(c.description || c.keywords.join(', '))}"><input type="checkbox" data-topic="${c.id}"><span class="topic-sw" data-sw="${c.id}"></span><span class="topic-name">${esc(c.label)}</span><span class="muted small">${count(c.size)}</span></label>`).join('');
+  root.innerHTML = head + `
   <div class="row" style="margin-bottom:16px">${d.stale ? '<span class="pill warn">Documents changed since this map was built; new ones are not shown yet</span>' : ''}<span class="muted small">${count(d.points.length)} items · ${count(d.clusters.length)} topics · ${count(d.noise)} without a clear topic</span></div>
   <section class="card">
     <div class="controls">
-      <div><label>Highlight up to three topics</label></div>
+      <details class="topic-menu"${L.menuOpen ? ' open' : ''}>
+        <summary class="btn small"><span>Topics</span> <span class="muted" data-land-count></span> <span aria-hidden="true">▾</span></summary>
+        <div class="topic-menu-panel">
+          <div class="row topic-menu-head"><span class="small muted">Highlight up to three topics</span><span class="spacer"></span><button type="button" class="linklike" data-land-clear>Clear</button></div>
+          <div class="topic-menu-list" role="group" aria-label="Topics to highlight (up to three)">${options}</div>
+        </div>
+      </details>
+      <div class="legend land-selected" data-land-selected aria-label="Highlighted topics"></div>
       <span class="spacer"></span>
-      <div class="segmented" role="group" aria-label="View"><button type="button" data-view="chart" aria-pressed="${L.view === 'chart'}">Map</button><button type="button" data-view="table" aria-pressed="${L.view === 'table'}">Topic list</button></div>
+      <button type="button" class="btn small" data-land-table aria-pressed="${L.view === 'table'}">${L.view === 'table' ? 'Show map' : 'Topic list'}</button>
     </div>
-    <div class="chips family-chips" role="group" aria-label="Topics">${chips}</div>
     <div id="land-view" style="margin-top:16px"></div>
   </section>
   <div id="land-detail" class="section" aria-live="polite"></div>
-  <details class="section small muted"><summary>How this map is made</summary><ul class="plain">${(d.notes || []).map(n => `<li>${esc(n)}</li>`).join('')}<li>Method: ${esc(d.params?.projection)}; ${esc(d.params?.clustering)}; related evidence by ${esc(d.params?.neighbors)}. Distances on the map are approximate; only nearby structure is meaningful.</li>${d.generated_at ? `<li>Built ${esc(d.generated_at.slice(0, 10))}.</li>` : ''}</ul></details>`;
-  main.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { L.view = b.dataset.view; renderLandscape(); }));
-  main.querySelectorAll('[data-topic]').forEach(b => b.addEventListener('click', () => toggleTopic(Number(b.dataset.topic))));
+  <details class="section small muted"><summary>How this map is made</summary><ul class="plain">${(d.notes || []).map(n => `<li>${esc(n)}</li>`).join('')}<li>Method: ${esc(d.params?.projection)}; ${esc(d.params?.clustering)}; related evidence by ${esc(d.params?.neighbors)}. Nearby points have similar meaning.</li>${d.generated_at ? `<li>Built ${esc(d.generated_at.slice(0, 10))}.</li>` : ''}</ul></details>`;
+  const menu = root.querySelector('.topic-menu');
+  menu.addEventListener('toggle', () => { L.menuOpen = menu.open; });
+  root.querySelectorAll('[data-topic]').forEach(b => b.addEventListener('change', () => toggleTopic(Number(b.dataset.topic))));
+  root.querySelector('[data-land-clear]').addEventListener('click', () => { L.slots = [null, null, null]; refreshLandscape(); });
+  root.querySelector('[data-land-table]').addEventListener('click', e => {
+    if (L.view === 'table') L.view = L.lastMap || 'chart'; else { L.lastMap = L.view; L.view = 'table'; }
+    e.currentTarget.textContent = L.view === 'table' ? 'Show map' : 'Topic list'; e.currentTarget.setAttribute('aria-pressed', String(L.view === 'table'));
+    drawLandscapeView();
+  });
+  if (!renderLandscape.bound) { // close the dropdown on outside click or Escape
+    renderLandscape.bound = true;
+    document.addEventListener('click', e => { const m = main.querySelector('.topic-menu[open]'); if (m && !m.contains(e.target)) { m.open = false; } });
+    document.addEventListener('keydown', e => { const m = main.querySelector('.topic-menu[open]'); if (e.key === 'Escape' && m) { m.open = false; m.querySelector('summary').focus(); } });
+  }
+  syncTopicMenu();
   drawLandscapeView();
   renderLandscapeDetail();
 }
+// Update checkboxes, swatches and the selected-topic legend in place (keeps the menu open).
+function syncTopicMenu() {
+  const L = state.land, root = main.querySelector('#explore-land'); if (!root) return;
+  const full = !L.slots.includes(null);
+  root.querySelectorAll('[data-topic]').forEach(b => {
+    const id = Number(b.dataset.topic), slot = landSlot(id);
+    b.checked = slot >= 0; b.disabled = full && slot < 0;
+    b.closest('label').classList.toggle('disabled', b.disabled);
+    root.querySelector(`[data-sw="${id}"]`).innerHTML = legendShape('circle', slot >= 0 ? `var(--s${slot + 1})` : 'var(--neutral)');
+  });
+  const n = L.slots.filter(x => x !== null).length;
+  root.querySelector('[data-land-count]').textContent = `${n} of 3 highlighted`;
+  root.querySelector('[data-land-selected]').innerHTML = L.slots.map((id, i) => id !== null ? `<span>${legendShape('circle', `var(--s${i + 1})`)}${esc(topicName(id))}</span>` : '').join('');
+}
+function refreshLandscape() { syncTopicMenu(); drawLandscapeView(); renderLandscapeDetail(); }
 function toggleTopic(id) {
   const L = state.land, slot = landSlot(id);
   if (slot >= 0) L.slots[slot] = null; // freeing a slot never repaints the others
-  else { const free = L.slots.indexOf(null); if (free < 0) { const el = main.querySelector('#land-detail'); if (el) el.innerHTML = '<p class="notice">Three topics are highlighted. Deselect one first.</p>'; return; } L.slots[free] = id; }
-  renderLandscape();
+  else { const free = L.slots.indexOf(null); if (free < 0) { syncTopicMenu(); return; } L.slots[free] = id; L.flyTo = id; }
+  refreshLandscape();
 }
 function drawLandscapeView() {
   const el = main.querySelector('#land-view'); if (!el) return;
   const L = state.land, d = L.data;
+  if (L.raf) { cancelAnimationFrame(L.raf); L.raf = 0; }
+  if (L.view === 'three') { drawLandscape3D(el); bindDimSwitch(el); return; }
   if (L.view === 'table') {
     el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Topic</th><th>What it covers</th><th class="num">Items</th><th>Main investigations</th><th>Keywords</th></tr></thead><tbody>
       ${[...d.clusters].sort((a, b) => b.size - a.size).map(c => `<tr data-trow="${c.id}" tabindex="0" style="cursor:pointer"${landSlot(c.id) >= 0 ? ' aria-selected="true"' : ''}><td><strong>${esc(c.label)}</strong></td><td class="small">${esc(c.description || '')}</td><td class="num">${count(c.size)}</td><td class="small">${Object.entries(c.investigations).slice(0, 3).map(([k, n]) => `${esc(invName(k))} ${count(n)}`).join(' · ')}</td><td class="small muted">${esc(c.keywords.slice(0, 5).join(', '))}</td></tr>`).join('')}
@@ -821,7 +906,7 @@ function drawLandscapeView() {
     + `<span>${legendShape('circle', 'var(--neutral)')}${active ? 'Other topics' : 'All items'}</span>`
     + Object.entries(KIND_SHAPE).map(([k, sh]) => `<span>${legendShape(sh, 'var(--ink-2)')}${KIND_LABEL[k]}</span>`).join('')
     + (sel ? '<span><svg width="22" height="14" aria-hidden="true"><line class="knn" x1="1" y1="7" x2="21" y2="7"/></svg>Link to related evidence</span>' : '');
-  el.innerHTML = `<div class="chart-wrap"><svg class="chart land-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Map of ${d.points.length} indexed items in ${d.clusters.length} topics. The topic list view gives the same information as a table.`)}">${links}${marks}${labels}</svg><div class="tooltip" id="land-tip" hidden></div></div>
+  el.innerHTML = `<div class="chart-wrap">${dimSwitchHTML()}<svg class="chart land-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Map of ${d.points.length} indexed items in ${d.clusters.length} topics. The topic list view gives the same information as a table.`)}">${links}${marks}${labels}</svg><div class="tooltip" id="land-tip" hidden></div></div>
     <div class="legend" aria-label="Legend">${legend}</div>
     <p class="hint">Hover to preview, click an item for its source and related evidence. Position reflects meaning of the text, not test conditions.</p>`;
   const tip = el.querySelector('#land-tip'), svg = el.querySelector('svg');
@@ -837,6 +922,160 @@ function drawLandscapeView() {
   });
   svg.addEventListener('mouseleave', () => { tip.hidden = true; });
   svg.addEventListener('click', ev => { const g = itemAt(ev); if (g) selectLandItem(g.dataset.pid); });
+  bindDimSwitch(el);
+}
+// ---------- evidence landscape: 3-D view (canvas, no libraries) ----------
+// Home view: centred on the middle of the cloud's bounding box, so outlying topics stay in frame.
+function landHome() {
+  const pts = state.land.data.points, lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (const p of pts) for (let i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p.p3[i]); hi[i] = Math.max(hi[i], p.p3[i]); }
+  const radius = Math.max(...hi.map((v, i) => v - lo[i])) / 2 || 1;
+  return { yaw: 0.6, pitch: 0.35, zoom: 1.15 / radius, target: lo.map((v, i) => (v + hi[i]) / 2) };
+}
+const CAM_HOME = () => landHome();
+function drawLandscape3D(el) {
+  const L = state.land, d = L.data;
+  L.cam = L.cam || CAM_HOME();
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (L.spin === undefined) L.spin = !reduced;
+  const active = L.slots.some(s => s !== null);
+  el.innerHTML = `<div class="chart-wrap land3d-wrap">${dimSwitchHTML()}<canvas class="land3d" tabindex="0" role="img" aria-label="${esc(`Rotatable 3-D map of ${d.points.length} indexed items in ${d.clusters.length} topics. Use the topic list view for the same information as a table.`)}"></canvas><div class="tooltip" id="land-tip" hidden></div>
+      <div class="land3d-tools"><button type="button" class="btn small" id="land-spin">${L.spin ? 'Pause spin' : 'Spin'}</button><button type="button" class="btn small" id="land-reset">Reset view</button></div></div>
+    <div class="legend" aria-label="Legend">${L.slots.map((id, i) => id !== null ? `<span>${legendShape('circle', `var(--s${i + 1})`)}${esc(topicName(id))}</span>` : '').join('')}<span>${legendShape('circle', 'var(--neutral)')}${active ? 'Other topics' : 'All items'}</span>${Object.entries(KIND_SHAPE).map(([k, sh]) => `<span>${legendShape(sh, 'var(--ink-2)')}${KIND_LABEL[k]}</span>`).join('')}</div>
+    <p class="hint">Drag to spin · scroll or pinch to zoom · click a point for details · click a topic above to fly to it · double-click to reset. Arrow keys and +/− work too.</p>`;
+  const canvas = el.querySelector('canvas'), tip = el.querySelector('#land-tip'), ctx = canvas.getContext('2d');
+  const css = getComputedStyle(document.body), cv = n => css.getPropertyValue(n).trim();
+  const colors = { s: [cv('--s1'), cv('--s2'), cv('--s3')], neutral: cv('--neutral'), ink: cv('--ink'), ink2: cv('--ink-2'), surface: cv('--surface') };
+  let W = 0, H = 0, projected = [], dirty = true;
+  const resize = () => {
+    const dpr = window.devicePixelRatio || 1; W = canvas.clientWidth; H = Math.min(680, Math.max(420, Math.round(W * 0.68)));
+    canvas.style.height = `${H}px`; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); dirty = true;
+  };
+  const project = (p3) => {
+    const c = L.cam, x0 = p3[0] - c.target[0], y0 = p3[1] - c.target[1], z0 = p3[2] - c.target[2];
+    const cy = Math.cos(c.yaw), sy = Math.sin(c.yaw), cp = Math.cos(c.pitch), sp = Math.sin(c.pitch);
+    const x1 = cy * x0 + sy * z0, z1 = -sy * x0 + cy * z0;      // yaw around vertical axis
+    const y2 = cp * y0 - sp * z1, z2 = sp * y0 + cp * z1;        // pitch around horizontal axis
+    const dist = 2.8 / c.zoom, depth = dist - z2;
+    if (depth < 0.08) return null;                                // behind the camera
+    const f = Math.min(W, H) * 0.95 / depth;
+    return { x: W / 2 + x1 * f, y: H / 2 - y2 * f, s: 1 / depth, z: z2 };
+  };
+  const shape = (kind, x, y, r) => {
+    ctx.beginPath();
+    if (kind === 'figure') ctx.rect(x - r, y - r, 2 * r, 2 * r);
+    else if (kind === 'table') { const h = r * 1.2; ctx.moveTo(x, y - h); ctx.lineTo(x + h, y + h * .8); ctx.lineTo(x - h, y + h * .8); ctx.closePath(); }
+    else ctx.arc(x, y, r, 0, Math.PI * 2);
+  };
+  const draw = () => {
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = colors.surface; ctx.fillRect(0, 0, W, H);
+    projected = [];
+    for (const p of d.points) { const q = project(p.p3); if (q) projected.push({ p, ...q }); }
+    projected.sort((a, b) => a.z - b.z); // far to near (painter's order)
+    const sel = L.selected ? d.byId[L.selected] : null;
+    if (sel) {
+      const a = project(sel.p3);
+      if (a) {
+        ctx.save(); ctx.strokeStyle = colors.ink2; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+        for (const id of sel.neighbors) { const n = d.byId[id], b = n && project(n.p3); if (b) { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); } }
+        ctx.restore();
+      }
+    }
+    for (const q of projected) {
+      const slot = q.p.cluster >= 0 ? landSlot(q.p.cluster) : -1;
+      const r = Math.max(1.6, Math.min(7, (slot >= 0 ? 4.4 : 3.2) * Math.sqrt(q.s * 2.8)));
+      ctx.globalAlpha = slot >= 0 ? 1 : active ? 0.32 : Math.max(0.45, Math.min(1, q.s * 2.4));
+      ctx.fillStyle = slot >= 0 ? colors.s[slot] : colors.neutral;
+      shape(q.p.kind, q.x, q.y, r); ctx.fill();
+      ctx.globalAlpha = 1;
+      if (slot >= 0 || q.p.id === L.selected) { ctx.lineWidth = q.p.id === L.selected ? 2.5 : 1; ctx.strokeStyle = q.p.id === L.selected ? colors.ink : colors.surface; ctx.stroke(); }
+      q.r = r;
+    }
+    const labelled = active ? d.clusters.filter(c => landSlot(c.id) >= 0) : [...d.clusters].sort((a, b) => b.size - a.size).slice(0, 8);
+    ctx.font = `${active ? 700 : 600} ${active ? 13 : 12}px ${cv('--font') || 'system-ui'}`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+    for (const c of labelled) {
+      const q = project(c.p3); if (!q) continue;
+      ctx.lineWidth = 4; ctx.strokeStyle = colors.surface; ctx.strokeText(c.label, q.x, q.y - 10);
+      ctx.fillStyle = active ? colors.ink : colors.ink2; ctx.fillText(c.label, q.x, q.y - 10);
+    }
+  };
+  const pick = (mx, my) => {
+    let best = null, bestD = 12 * 12;
+    for (let i = projected.length - 1; i >= 0; i--) { // nearest-first
+      const q = projected[i], dx = q.x - mx, dy = q.y - my, dd = dx * dx + dy * dy;
+      if (dd < Math.max(bestD, (q.r + 3) ** 2) && dd < bestD) { best = q; bestD = dd; }
+    }
+    return best;
+  };
+  // Fly to a newly highlighted topic.
+  let fly = null;
+  if (L.flyTo !== undefined && L.flyTo !== null) {
+    const c = d.byCluster[L.flyTo];
+    if (c) fly = { from: { ...L.cam, target: [...L.cam.target] }, to: { target: c.p3, zoom: Math.max(L.cam.zoom, 2.2) }, t0: performance.now(), ms: reduced ? 0 : 700 };
+    L.flyTo = null; L.spin = false;
+  }
+  const loop = now => {
+    if (!canvas.isConnected || !isLandscape()) { L.raf = 0; return; }
+    if (fly) {
+      const t = fly.ms ? Math.min(1, (now - fly.t0) / fly.ms) : 1, e = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      L.cam.target = fly.from.target.map((v, i) => v + (fly.to.target[i] - v) * e);
+      L.cam.zoom = fly.from.zoom + (fly.to.zoom - fly.from.zoom) * e; dirty = true;
+      if (t >= 1) fly = null;
+    }
+    if (L.spin) { L.cam.yaw += 0.0025; dirty = true; }
+    if (dirty) { draw(); dirty = false; }
+    L.raf = requestAnimationFrame(loop);
+  };
+  // Interaction: drag to rotate, wheel/pinch to zoom, click to select.
+  const pointers = new Map(); let moved = 0, pinch0 = 0, zoom0 = 1;
+  const stopSpin = () => { if (L.spin) { L.spin = false; el.querySelector('#land-spin').textContent = 'Spin'; } };
+  canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); pointers.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; tip.hidden = true;
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); zoom0 = L.cam.zoom; } });
+  canvas.addEventListener('pointermove', e => {
+    const prev = pointers.get(e.pointerId);
+    if (!prev) { // hover
+      const box = canvas.getBoundingClientRect(), q = pick(e.clientX - box.left, e.clientY - box.top);
+      if (!q) { tip.hidden = true; canvas.style.cursor = 'grab'; return; }
+      canvas.style.cursor = 'pointer'; const p = q.p;
+      tip.innerHTML = `<strong>${esc(p.label || KIND_LABEL[p.kind])}</strong> · ${esc(p.filename)}${p.page ? `, p. ${esc(p.page)}` : ''}<br><span class="muted">${esc(p.investigation ? invName(p.investigation) : '')}${p.cluster >= 0 ? ` · ${esc(topicName(p.cluster))}` : ''}</span><br>${esc(p.snippet.slice(0, 160))}${p.snippet.length > 160 ? '…' : ''}`;
+      tip.hidden = false; tip.style.left = `${Math.max(0, Math.min(q.x + 14, box.width - 300))}px`; tip.style.top = `${Math.min(q.y + 14, box.height - 120)}px`;
+      return;
+    }
+    const dx = e.clientX - prev.x, dy = e.clientY - prev.y; moved += Math.abs(dx) + Math.abs(dy);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; const dist = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) L.cam.zoom = Math.min(10, Math.max(0.5, zoom0 * dist / pinch0)); }
+    else { L.cam.yaw += dx * 0.008; L.cam.pitch = Math.max(-1.5, Math.min(1.5, L.cam.pitch + dy * 0.008)); }
+    if (moved > 3) { stopSpin(); canvas.style.cursor = 'grabbing'; }
+    dirty = true;
+  });
+  const release = e => {
+    const wasClick = pointers.size === 1 && moved <= 3; pointers.delete(e.pointerId); if (pointers.size < 2) pinch0 = 0; canvas.style.cursor = 'grab';
+    if (wasClick && e.type === 'pointerup') { const box = canvas.getBoundingClientRect(), q = pick(e.clientX - box.left, e.clientY - box.top); if (q) { stopSpin(); selectLandItem(q.p.id); } }
+  };
+  canvas.addEventListener('pointerup', release); canvas.addEventListener('pointercancel', release);
+  canvas.addEventListener('pointerleave', () => { if (!pointers.size) tip.hidden = true; });
+  canvas.addEventListener('wheel', e => { e.preventDefault(); stopSpin(); L.cam.zoom = Math.min(10, Math.max(0.5, L.cam.zoom * Math.exp(-e.deltaY * 0.0015))); dirty = true; }, { passive: false });
+  canvas.addEventListener('dblclick', () => { L.cam = CAM_HOME(); dirty = true; });
+  canvas.addEventListener('keydown', e => {
+    const k = e.key, step = 0.12;
+    if (k === 'ArrowLeft') L.cam.yaw -= step; else if (k === 'ArrowRight') L.cam.yaw += step;
+    else if (k === 'ArrowUp') L.cam.pitch = Math.max(-1.5, L.cam.pitch - step); else if (k === 'ArrowDown') L.cam.pitch = Math.min(1.5, L.cam.pitch + step);
+    else if (k === '+' || k === '=') L.cam.zoom = Math.min(10, L.cam.zoom * 1.2); else if (k === '-' || k === '_') L.cam.zoom = Math.max(0.5, L.cam.zoom / 1.2);
+    else if (k === '0') L.cam = CAM_HOME(); else return;
+    e.preventDefault(); stopSpin(); dirty = true;
+  });
+  el.querySelector('#land-spin').addEventListener('click', e => { L.spin = !L.spin; e.currentTarget.textContent = L.spin ? 'Pause spin' : 'Spin'; });
+  el.querySelector('#land-reset').addEventListener('click', () => { L.cam = CAM_HOME(); dirty = true; });
+  new ResizeObserver(resize).observe(canvas);
+  resize();
+  L.raf = requestAnimationFrame(loop);
+}
+function dimSwitchHTML() {
+  const on = state.land.view === 'three';
+  return `<div class="map-dim ui-switch"><span class="ui-switch-label${on ? '' : ' active'}">2D</span><button type="button" class="ui-switch-track" role="switch" aria-checked="${on}" aria-label="3-D view" data-land-dim><span class="ui-switch-knob"></span></button><span class="ui-switch-label${on ? ' active' : ''}">3D</span></div>`;
+}
+function bindDimSwitch(el) {
+  el.querySelector('[data-land-dim]')?.addEventListener('click', () => { const L = state.land; L.view = L.view === 'three' ? 'chart' : 'three'; drawLandscapeView(); el.querySelector('[data-land-dim]')?.focus(); });
 }
 function selectLandItem(id) {
   state.land.selected = id;
@@ -852,7 +1091,7 @@ function renderLandscapeDetail() {
   if (!p) { el.innerHTML = ''; return; }
   const topic = p.cluster >= 0 ? d.byCluster[p.cluster] : null;
   const related = p.neighbors.map(id => d.byId[id]).filter(Boolean);
-  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(p.label || KIND_LABEL[p.kind])}</h3>${p.kind === 'figure' ? '<span class="pill warn">AI figure description, unreviewed</span>' : ''}<span class="spacer"></span><button class="btn small" type="button" id="land-close">Close</button></div>
+  el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(p.label || KIND_LABEL[p.kind])}</h3>${p.kind === 'figure' ? '<span class="pill warn">AI figure description</span>' : ''}<span class="spacer"></span><button class="btn small" type="button" id="land-close">Close</button></div>
     <p style="margin-top:12px">${landItemHTML(p)}</p>
     <blockquote class="small">${esc(p.snippet)}${p.snippet.length >= 240 ? '…' : ''}</blockquote>
     ${topic ? `<p><span class="muted">Topic:</span> <strong>${esc(topic.label)}</strong>${p.core ? '' : ' <span class="muted small">(loosely)</span>'}${topic.description ? ` · <span class="small">${esc(topic.description)}</span>` : ''}</p>
@@ -864,64 +1103,6 @@ function renderLandscapeDetail() {
   el.querySelector('#land-ask')?.addEventListener('click', () => askQuestion(`What does the collection report about ${topic.label.toLowerCase()}?`));
   el.querySelectorAll('[data-related]').forEach(b => b.addEventListener('click', () => selectLandItem(b.dataset.related)));
 }
-
-// ---------- prediction ----------
-function renderPredict() {
-  if (!state.options && !state.optionsError) { main.innerHTML = '<p class="loading">Loading prediction options…</p>'; loadOptions().then(() => route() === 'predict' && renderPredict()); return; }
-  const head = pageHead('Prediction', 'Estimate an outcome from similar runs', 'Enter test conditions to see the closest observed runs and a statistical estimate. When the data cannot support an estimate, it says so.');
-  if (state.optionsError) { main.innerHTML = head + emptyBox('Not available yet', state.optionsError); return; }
-  const o = state.options, p = state.predict;
-  if (!o.targets?.length) { main.innerHTML = head + emptyBox('No outcomes to estimate yet', 'Prediction needs experiment runs with measured outcomes.'); return; }
-  if (!p.target) p.target = o.targets[0].key;
-  const field = f => {
-    const id = `f-${f.key}`, v = p.inputs[f.key] ?? '';
-    const control = f.kind === 'category'
-      ? `<select id="${id}" data-input="${esc(f.key)}"><option value="">Any</option>${(f.values || []).map(x => `<option ${String(v) === String(x) ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>`
-      : `<input id="${id}" data-input="${esc(f.key)}" type="number" step="any" inputmode="decimal" value="${esc(v)}" placeholder="${f.min != null ? `${fmt(f.min)}–${fmt(f.max)}` : ''}">`;
-    return `<div class="field"><label for="${id}">${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''}</label>${control}${f.kind !== 'category' && f.min != null ? `<div class="hint">Observed range ${fmt(f.min)}–${fmt(f.max)}</div>` : ''}</div>`;
-  };
-  main.innerHTML = head + `
-  <p class="notice warn">Statistical estimate from unreviewed candidate data. Not a validated prediction; do not use it for safety decisions.</p>
-  <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);margin-top:16px">
-    <form class="card" id="predict-form">
-      <div class="field"><label for="target">Outcome to estimate</label><select id="target">${o.targets.map(t => `<option value="${esc(t.key)}" ${p.target === t.key ? 'selected' : ''}>${esc(t.label)}${t.unit ? ` (${esc(t.unit)})` : ''} · ${count(t.n)} runs</option>`).join('')}</select></div>
-      ${(o.features || []).map(field).join('')}
-      <button class="btn primary" type="submit" ${p.loading ? 'disabled' : ''}>${p.loading ? 'Estimating…' : 'Estimate'}</button>
-    </form>
-    <div id="predict-result" aria-live="polite">${predictResult()}</div>
-  </div>`;
-  const form = main.querySelector('#predict-form');
-  form.querySelector('#target').addEventListener('change', e => { p.target = e.target.value; });
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    p.inputs = {};
-    form.querySelectorAll('[data-input]').forEach(el => { if (el.value !== '') p.inputs[el.dataset.input] = el.type === 'number' ? Number(el.value) : el.value; });
-    Object.assign(p, { loading: true, error: '', result: null }); renderPredict();
-    try { p.result = await postJSON('/api/predict', { target: p.target, inputs: p.inputs }); } catch (err) { p.error = err.message; }
-    p.loading = false; if (route() === 'predict') renderPredict();
-  });
-}
-function predictResult() {
-  const p = state.predict;
-  if (p.loading) return '<p class="loading">Finding similar runs…</p>';
-  if (p.error) return `<div class="error" role="alert">${esc(p.error)}</div>`;
-  if (!p.result) return emptyBox('Enter conditions', 'Results show the closest observed runs and, when supported, a model estimate.');
-  const r = p.result, mdl = r.model || {}, t = (state.options.targets || []).find(x => x.key === r.target) || { label: r.target };
-  const unit = t.unit ? ` ${esc(t.unit)}` : '';
-  const model = mdl.status === 'ok'
-    ? `<section class="card stack"><div class="eyebrow" style="margin:0">Model estimate · ${esc(t.label)}</div>
-        <div class="result-hero"><span class="big">${fmt(mdl.prediction)}</span><span class="muted">${unit}</span>${mdl.interval ? `<span class="pill">likely ${fmt(mdl.interval[0])}–${fmt(mdl.interval[1])}${unit}</span>` : ''}</div>
-        ${mdl.in_domain ? '' : '<p class="notice warn">These conditions are outside the range the model was trained on. Treat the estimate as unreliable.</p>'}
-        <dl class="kv"><dt>Cross-validated error (MAE)</dt><dd>${fmt(mdl.cv_mae)}${unit}</dd><dt>Training runs</dt><dd>${count(mdl.n_train)}</dd><dt>Inputs used</dt><dd>${esc((mdl.features || []).join(', ') || '—')}</dd><dt>Within training range</dt><dd>${mdl.in_domain ? 'Yes' : 'No'}</dd></dl></section>`
-    : `<section class="insufficient" role="status"><h3>Insufficient data</h3><p style="margin:0 0 8px">${esc(mdl.reason || 'There are not enough comparable runs to estimate this outcome.')}</p><span class="small">Training runs available: ${count(mdl.n_train || 0)}</span></section>`;
-  const near = (r.nearest || []).map(n => { const rec = n.record, out = rec.outcomes?.[r.target];
-    return `<tr><td class="num">${fmt(n.distance, 2)}</td><td>${esc(familyLabelSafe(rec))} · ${esc(rec.test_id)}</td><td class="num">${fmt(rec.oxygen_pct)}</td><td class="num">${fmt(rec.flow_cm_s)}</td><td class="num">${fmt(rec.pressure_kpa)}</td><td class="num">${out ? `${fmt(out.value)}${out.unit ? ` ${esc(out.unit)}` : ''}` : '—'}</td></tr>`; }).join('');
-  return `<div class="stack">${model}
-    <section class="card"><h3>Closest observed runs</h3><p class="muted small">Smaller distance means more similar conditions (standardized units). These are measurements, not estimates.</p>
-      ${near ? `<div class="table-scroll"><table><thead><tr><th class="num">Distance</th><th>Run</th><th class="num">O₂ (%)</th><th class="num">Flow (cm/s)</th><th class="num">Pressure (kPa)</th><th class="num">${esc(t.label)}</th></tr></thead><tbody>${near}</tbody></table></div>` : '<p class="muted">No comparable runs found.</p>'}</section>
-    ${(r.notes || []).map(n => `<p class="hint">${esc(n)}</p>`).join('')}</div>`;
-}
-function familyLabelSafe(rec) { return state.coverage ? familyLabel(rec.family) : (rec.family || invName(rec.investigation_id)); }
 
 // ---------- sources ----------
 function renderSources() {
@@ -972,7 +1153,7 @@ function renderUpload() {
     <button class="btn primary" type="submit">${visitor ? 'Upload and index' : 'Add to corpus'}</button>
     <p class="hint">${visitor
       ? `Each visitor can upload ${esc(limits.per_day)} documents per day${limits.remaining_today != null ? ` (${esc(limits.remaining_today)} left today)` : ''}; uploads also count toward the site's daily AI limit. Text is extracted and indexed for semantic search; figures are not described.`
-      : 'Figures are not described automatically yet; text search and cited answers work immediately.'}</p>
+      : 'Text search and cited answers work immediately; figures in uploads are not described automatically.'}</p>
     <div id="u-status" aria-live="polite"></div>
   </form>
   ${visitor && mine.length ? `<section class="card section" style="max-width:720px"><h3 style="margin-top:0">Your uploads (included in your questions)</h3><ul class="plain">${mine.map(u => `<li>${esc(u.filename || u.source_id)}</li>`).join('')}</ul><p class="hint">Only questions from this browser search these documents.</p></section>` : ''}
@@ -1000,7 +1181,7 @@ function renderUpload() {
         rememberUpload(r.source_id, r.filename);
         state.me = await api('/api/me');
         status.innerHTML = `<p class="notice">Indexed <strong>${esc(r.filename)}</strong>: ${esc(r.physical_pages)} pages, ${esc(r.chunks_added)} passages. It is private to this browser until reviewed. ${esc(r.uploads_left_today)} upload${r.uploads_left_today === 1 ? '' : 's'} left today.</p><button class="btn" type="button" id="ask-upload">Ask about this document →</button>`;
-        status.querySelector('#ask-upload').addEventListener('click', () => { state.ask.question = ''; location.hash = '#/ask'; });
+        status.querySelector('#ask-upload').addEventListener('click', () => { state.ask.draft = ''; location.hash = '#/ask'; });
       } else {
         await loadCorpus(true);
         status.innerHTML = `<p class="notice">${r.status === 'unchanged' ? 'Already indexed — nothing changed.' : `Added <strong>${esc(r.filename)}</strong> (${esc(r.investigation_id)}): ${esc(r.physical_pages)} pages, ${esc(r.chunks_added)} passages, ${esc(r.embedded_chunks)} with semantic search.`}</p>`;
@@ -1035,6 +1216,16 @@ async function renderPendingUploads() {
 }
 
 // ---------- start ----------
+// Explore menu in the header: click to open; closes on choice, outside click or Escape.
+{
+  const btn = document.querySelector('.nav-drop-btn'), menu = document.querySelector('#explore-menu');
+  const setOpen = open => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+  btn.addEventListener('click', e => { e.stopPropagation(); setOpen(menu.hidden); if (!menu.hidden) menu.querySelector('a')?.focus(); });
+  menu.addEventListener('click', () => setOpen(false));
+  document.addEventListener('click', e => { if (!e.target.closest('.nav-drop')) setOpen(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
+  window.addEventListener('hashchange', () => setOpen(false));
+}
 document.querySelector('.nav-toggle').addEventListener('click', e => {
   const nav = document.querySelector('#site-nav'), open = !nav.classList.contains('open');
   nav.classList.toggle('open', open); e.currentTarget.setAttribute('aria-expanded', String(open));
@@ -1074,5 +1265,5 @@ function limitsHint() {
   const wait = l.next_available_in_s ? ` Next one available in ${l.next_available_in_s} s.` : '';
   return left + wait;
 }
-loadLimits().then(() => { if (route() === 'ask') renderAsk(); });
+loadLimits().then(() => { if (route() === 'ask' && !state.ask.loading) renderAsk(); });
 start();

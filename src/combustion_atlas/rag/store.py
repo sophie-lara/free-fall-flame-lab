@@ -564,6 +564,43 @@ class DocumentStore:
                 ],
             )
 
+    def figure_search(
+        self,
+        *,
+        investigation_id: str | None = None,
+        query_vector: list[float] | None = None,
+        model_key: str | None = None,
+        top_k: int = 8,
+    ) -> list[dict[str, object]]:
+        """Figure and table-image descriptions, ranked by similarity or in page order."""
+        rows = self.connection.execute(
+            """
+            SELECT c.*, v.vector AS vector
+            FROM visual_chunks AS vc
+            JOIN chunks AS c ON c.chunk_id = vc.chunk_id
+            LEFT JOIN vectors AS v ON v.chunk_id = c.chunk_id AND v.model_key = ?
+            WHERE (? IS NULL OR lower(c.investigation_id) = lower(?))"""
+            + self._visibility()[0]
+            + """
+            ORDER BY c.filename, c.physical_page, c.chunk_id
+            """,
+            (model_key, investigation_id, investigation_id, *self._visibility()[1]),
+        ).fetchall()
+        results = [dict(row) for row in rows]
+        if query_vector is not None and model_key is not None:
+            dimensions = len(query_vector)
+            for result in results:
+                blob = result.get("vector")
+                result["score"] = (
+                    cosine_similarity(query_vector, decode_vector(blob, dimensions))
+                    if blob
+                    else -1.0
+                )
+            results.sort(key=lambda item: -float(item["score"]))
+        for result in results:
+            result.pop("vector", None)
+        return self._attach_visuals(results[:top_k])
+
     def dense_search(
         self,
         query_vector: list[float],

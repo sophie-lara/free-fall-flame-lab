@@ -71,6 +71,8 @@ def test_public_mode_serves_public_ui_and_hides_workspace(servers) -> None:
     assert call(hosted, "/p/app.js", hosted=True)[0] == 200
     assert call(hosted, "/p/styles.css", hosted=True)[0] == 200
     assert call(hosted, "/p/logo.svg", hosted=True)[2] == "image/svg+xml"
+    assert call(hosted, "/p/flame-story.js", hosted=True)[2].startswith("text/javascript")
+    assert call(hosted, "/p/flame-story.css", hosted=True)[2].startswith("text/css")
     assert call(hosted, "/workspace", hosted=True)[0] == 403  # not signed in as admin
     admin = {"X-MS-CLIENT-PRINCIPAL-NAME": "sophie@example.org"}
     status, body, _ = call(hosted, "/workspace", hosted=True, headers=admin)
@@ -211,7 +213,7 @@ def test_ask_stream_emits_progress_then_result(tmp_path: Path, monkeypatch) -> N
         def answered_by(self) -> dict[str, object]:
             return {"model": "m", "provider": "OpenAI", "backup": False}
 
-        def answer(self, question: str, context: list, progress=None):  # type: ignore[no-untyped-def]
+        def answer(self, question: str, context: list, progress=None, history=None):  # type: ignore[no-untyped-def]
             if progress:
                 progress("answering", "Drafting a cited answer")
             return openai_answers.GroundedAnswer(
@@ -410,3 +412,14 @@ def test_ask_stream_keeps_results_when_the_answer_fails(tmp_path: Path, monkeypa
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_public_nav_has_explore_and_no_prediction() -> None:
+    public = Path(__file__).parents[1] / "src/combustion_atlas/app/public"
+    html = (public / "index.html").read_text(encoding="utf-8")
+    js = (public / "app.js").read_text(encoding="utf-8")
+    assert 'href="#/coverage"' in html and 'href="#/landscape"' in html  # Explore menu
+    assert 'aria-controls="explore-menu"' in html
+    assert "#/predict" not in html and "#/predict" not in js
+    # Old links keep working: coverage and landscape both open the Explore page.
+    assert "coverage: renderExplore, landscape: renderExplore" in js

@@ -22,7 +22,7 @@ from combustion_atlas.io import read_json
 from combustion_atlas.normalization.schema import ExperimentRecord
 from combustion_atlas.providers import ProviderConfig
 from combustion_atlas.providers.openai_answers import OpenAIAnswerProvider
-from combustion_atlas.rag.search import retrieve
+from combustion_atlas.rag.search import retrieve, retrieve_conversation
 from combustion_atlas.rag.store import QUARANTINE, DocumentStore
 from combustion_atlas.retrieval.structured import filter_records
 
@@ -42,9 +42,19 @@ from .usage import PaidCallLimiter
 _WRITE_LOCK = threading.Lock()
 
 
+class HistoryTurn(BaseModel):
+    """An earlier turn of the conversation, sent by the browser for follow-up questions."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    question: str = Field(min_length=1, max_length=1000)
+    answer: str = Field(default="", max_length=4000)
+
+
 class EvidenceRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     question: str = Field(min_length=1, max_length=1000)
+    # Earlier turns (oldest first); only the last few are used, to interpret follow-ups.
+    history: list[HistoryTurn] = Field(default_factory=list, max_length=6)
     method: Literal["keyword", "dense", "hybrid"] = "keyword"
     investigation: str | None = Field(default=None, max_length=80)
     generate_answer: bool = False
@@ -103,9 +113,10 @@ def ask_evidence(
     fallback = None
     with DocumentStore(workspace.database) as store:
         try:
-            results = retrieve(
+            results = retrieve_conversation(
                 store,
                 request.question,
+                [turn.question for turn in request.history],
                 method=request.method,
                 investigation=request.investigation or None,
                 visible_sources=frozenset(request.include_sources),
@@ -114,9 +125,10 @@ def ask_evidence(
             if request.method == "keyword":
                 raise
             fallback = semantic_unavailable(exc)
-            results = retrieve(
+            results = retrieve_conversation(
                 store,
                 request.question,
+                [turn.question for turn in request.history],
                 method="keyword",
                 investigation=request.investigation or None,
                 visible_sources=frozenset(request.include_sources),
@@ -133,7 +145,11 @@ def ask_evidence(
     if request.generate_answer:
         try:
             provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
-            payload["answer"] = provider.answer(request.question, results).model_dump()
+            payload["answer"] = provider.answer(
+                request.question,
+                results,
+                history=[turn.model_dump() for turn in request.history],
+            ).model_dump()
             payload["answered_by"] = provider.answered_by()
         except (ValueError, OpenAIError) as exc:
             refund = charged and isinstance(exc, OpenAIError)
@@ -1208,6 +1224,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
             "/p/app.js": "app.js",
             "/p/styles.css": "styles.css",
             "/p/logo.svg": "logo.svg",
+            "/p/flame-story.js": "flame-story.js",
+            "/p/flame-story.css": "flame-story.css",
         }
         workspace_assets = {"/app.js": "app.js", "/styles.css": "styles.css"}
         if self.ui_mode == "public":
