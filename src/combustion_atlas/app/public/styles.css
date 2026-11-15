@@ -395,15 +395,15 @@ ul.plain { margin: 0; padding-left: 18px; }
 @media (max-width: 860px) { .source-cols { grid-template-columns: 1fr; } }
 
 /* Ask: real NASA photo backdrop (orbital sunrise from the ISS), dark overlay for text */
-body[data-route="ask"]::before { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(to bottom, rgba(4, 7, 18, .45), rgba(4, 7, 18, .55) 45%, rgba(4, 7, 18, .85)), url("/p/space-orbital-sunrise.jpg") center 30% / cover no-repeat, #04070f; }
-body[data-route="ask"] { background: #04070f; }
-body[data-route="ask"] .chat-head h1, body[data-route="ask"] .chat-intro { color: #f3f5fa; text-shadow: 0 1px 12px rgba(0, 0, 0, .6); }
-body[data-route="ask"] .chat-head .eyebrow { color: #ffb36b; }
-body[data-route="ask"] .recommended > summary, body[data-route="ask"] .recommended-title { color: #f3f5fa; }
-body[data-route="ask"] .recommended .hint, body[data-route="ask"] .composer-meta .hint { color: #c5cbd8; }
-body[data-route="ask"] .composer-meta .ui-switch-label { color: #c5cbd8; }
-body[data-route="ask"] .composer-meta .ui-switch-label.active { color: #fff; }
-body[data-route="ask"] .chat-composer { background: linear-gradient(to bottom, transparent, rgba(4, 7, 18, .92) 28%); }
-body[data-route="ask"] .msg.bot .avatar { filter: drop-shadow(0 0 6px rgba(255, 140, 60, .6)); }
-.photo-credit { margin: 6px 6px 0; font-size: 11px; color: var(--muted); }
-body[data-route="ask"] .photo-credit { color: #9aa3b5; }
+body[data-route="ask"][data-space="on"]::before { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(to bottom, rgba(4, 7, 18, .45), rgba(4, 7, 18, .55) 45%, rgba(4, 7, 18, .85)), url("/p/space-orbital-sunrise.jpg") center 30% / cover no-repeat, #04070f; }
+body[data-route="ask"][data-space="on"] { background: #04070f; }
+body[data-route="ask"][data-space="on"] .chat-head h1, body[data-route="ask"][data-space="on"] .chat-intro { color: #f3f5fa; text-shadow: 0 1px 12px rgba(0, 0, 0, .6); }
+body[data-route="ask"][data-space="on"] .chat-head .eyebrow { color: #ffb36b; }
+body[data-route="ask"][data-space="on"] .recommended > summary, body[data-route="ask"][data-space="on"] .recommended-title { color: #f3f5fa; }
+body[data-route="ask"][data-space="on"] .recommended .hint, body[data-route="ask"][data-space="on"] .composer-meta .hint { color: #c5cbd8; }
+body[data-route="ask"][data-space="on"] .composer-meta .ui-switch-label { color: #c5cbd8; }
+body[data-route="ask"][data-space="on"] .composer-meta .ui-switch-label.active { color: #fff; }
+body[data-route="ask"][data-space="on"] .chat-composer { background: linear-gradient(to bottom, transparent, rgba(4, 7, 18, .92) 28%); }
+body[data-route="ask"][data-space="on"] .msg.bot .avatar { filter: drop-shadow(0 0 6px rgba(255, 140, 60, .6)); }
+.photo-credit { display: none; margin: 6px 6px 0; font-size: 11px; color: var(--muted); }
+body[data-route="ask"][data-space="on"] .photo-credit { display: block; color: #9aa3b5; }

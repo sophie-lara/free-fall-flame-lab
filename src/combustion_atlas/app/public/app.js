@@ -63,6 +63,7 @@ async function loadCorpus(force = false) {
 function renderShell() {
   const page = route();
   document.body.dataset.route = page; // lets a page restyle the backdrop (Ask has a photo)
+  document.body.dataset.space = localStorage.getItem('atlas-space') === 'off' ? 'off' : 'on';
   document.querySelectorAll('[data-route]').forEach(a => { const current = a.dataset.route === page || (a.dataset.route === 'explore' && isExplore()) || (a.dataset.route === 'coverage' && page === 'explore');
     if (current) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   document.querySelectorAll('.admin-only').forEach(el => { el.hidden = !(state.me?.is_admin || state.me?.can_upload); });
@@ -183,6 +184,8 @@ function renderAsk() {
       <div class="composer-meta">
         <span class="ui-switch"><button type="button" class="ui-switch-track" id="ai-toggle" role="switch" aria-checked="${a.ai}" aria-label="AI answers"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${a.ai ? ' active' : ''}">AI ${a.ai ? 'on' : 'off'}</span></span>
         <span class="hint" style="margin:0">${a.ai ? `Cited answers from the indexed documents.${limitsHint()}` : 'Keyword search only: no AI calls.'}</span>
+        <span class="spacer"></span>
+        <span class="ui-switch"><button type="button" class="ui-switch-track" id="space-toggle" role="switch" aria-checked="${document.body.dataset.space !== 'off'}" aria-label="Space background"><span class="ui-switch-knob"></span></button><span class="ui-switch-label${document.body.dataset.space !== 'off' ? ' active' : ''}">Space background</span></span>
       </div>
       <p class="photo-credit">Background: orbital sunrise over the Pacific Ocean, photographed from the International Space Station on Aug. 6, 2024. Image: NASA (iss071e439624).</p>
     </form></div>`;
@@ -192,6 +195,13 @@ function renderAsk() {
   q.addEventListener('input', () => { a.draft = q.value; grow(); });
   q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); main.querySelector('#ask-form').requestSubmit(); } });
   main.querySelector('#ask-form').addEventListener('submit', e => { e.preventDefault(); const text = q.value.trim(); if (text) sendQuestion(text); });
+  main.querySelector('#space-toggle').addEventListener('click', () => {
+    const on = document.body.dataset.space === 'off';
+    localStorage.setItem('atlas-space', on ? 'on' : 'off');
+    document.body.dataset.space = on ? 'on' : 'off';
+    renderAsk();
+    main.querySelector('#space-toggle')?.focus();
+  });
   main.querySelector('#ai-toggle').addEventListener('click', () => { if (a.loading) return; a.ai = !a.ai; localStorage.setItem('atlas-ai', a.ai ? 'on' : 'off'); renderAsk(); });
   main.querySelector('#new-chat')?.addEventListener('click', () => { if (a.loading) return; a.turns = []; a.draft = ''; saveChat(); renderAsk(); main.querySelector('#q').focus(); });
   main.querySelectorAll('[data-example]').forEach(b => b.addEventListener('click', () => sendQuestion(b.dataset.example)));
