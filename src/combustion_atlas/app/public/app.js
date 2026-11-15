@@ -76,7 +76,7 @@ function renderHome() {
   <section class="hero">
     <div>
       <div class="eyebrow">Built for the NASA Space Apps Challenge 2026</div>
-      <h1>Ask decades of NASA microgravity-combustion research.</h1>
+      <h1>Decades of NASA microgravity-combustion research, at your fingertips.</h1>
       <p class="lead">Combustion Atlas makes NASA's spacecraft fire-safety experiments searchable and comparable: every answer quotes the original report and page, and the coverage map shows where the evidence is thin.</p>
       <form class="hero-search" id="hero-search" role="search">
         <label for="hero-q" class="visually-hidden" hidden>Question</label>
@@ -88,6 +88,14 @@ function renderHome() {
     <div class="hero-art" aria-hidden="true"></div>
   </section>
   <section class="section">
+    <div class="grid cols-${state.me?.is_admin ? 4 : 3}">
+      ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
+      ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
+      ${tile('#/predict', '≈', 'Prediction', 'Enter conditions to find the closest observed runs and a statistical estimate, or “insufficient data”.')}
+      ${state.me?.is_admin ? tile('#/upload', '+', 'Add to corpus', 'Upload a NASA report or paper (PDF). Visible to administrators only.') : ''}
+    </div>
+  </section>
+  <section class="section">
     <div class="section-head"><h2>Data sources</h2><a href="#/sources">View all sources →</a></div>
     <div class="grid cols-5">
       ${stat(count(t.documents), 'Documents')}
@@ -97,14 +105,6 @@ function renderHome() {
       ${stat(runs == null ? '—' : count(runs), 'Experiment runs')}
     </div>
     <p class="hint">Documents come from NASA's Physical Sciences Informatics repository and technical reports. Experiment runs are parsed from PSI experiment tables and are unreviewed candidates.</p>
-  </section>
-  <section class="section">
-    <div class="grid cols-${state.me?.is_admin ? 4 : 3}">
-      ${tile('#/ask', '?', 'Ask a question', 'Get answers built only from indexed NASA documents, with every claim linked to its page. Or plan next research steps.')}
-      ${tile('#/coverage', '◎', 'Experiment coverage', 'See which conditions have been tested across investigations, and where this collection has no runs.')}
-      ${tile('#/predict', '≈', 'Prediction', 'Enter conditions to find the closest observed runs and a statistical estimate, or “insufficient data”.')}
-      ${state.me?.is_admin ? tile('#/upload', '+', 'Add to corpus', 'Upload a NASA report or paper (PDF). Visible to administrators only.') : ''}
-    </div>
   </section>`;
   main.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => askQuestion(b.dataset.try)));
   main.querySelector('#hero-search').addEventListener('submit', e => {
