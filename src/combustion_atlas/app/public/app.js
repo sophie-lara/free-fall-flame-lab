@@ -135,7 +135,7 @@ function renderHome() {
 
 // ---------- ask ----------
 // Recommended questions, grouped by what they demonstrate. Each was checked against the
-// indexed corpus; the last group intentionally shows an honest "not in this collection".
+// indexed corpus.
 const RECOMMENDED = [
   { group: 'Big picture', hint: 'General questions, answered across several reports', questions: [
     'How do flames behave in microgravity compared with on Earth?',
@@ -149,17 +149,6 @@ const RECOMMENDED = [
   ] },
   { group: 'Figures', hint: 'AI descriptions of report figures, with the original page image', questions: [
     'Which components are labelled in Figure 5.1 of the BASS-II duct schematic?',
-  ] },
-  { group: 'Reviewed table records', hint: 'Exact values from human-reviewed tables, with their notes', questions: [
-    'What was the initial CO reading for BASS-II test O12?',
-    'Which FLEX tables report droplet extinction diameters?',
-    'How does adding helium to the atmosphere affect FLEX droplet flames?',
-  ] },
-  { group: 'Careful answers', hint: 'Partial evidence is scoped, never totalled or guessed', questions: [
-    'How many samples were burned in BASS-II?',
-  ] },
-  { group: 'Honest gaps', hint: 'Says when the collection has no evidence', questions: [
-    'What flame spread rates were measured for titanium alloy at Martian surface pressure?',
   ] },
 ];
 const HOME_TRY = [
