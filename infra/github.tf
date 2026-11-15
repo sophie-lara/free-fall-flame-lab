@@ -1,3 +1,11 @@
+data "github_user" "owner" {
+  username = var.github_owner
+}
+
+data "github_repository" "this" {
+  full_name = "${var.github_owner}/${var.github_repository}"
+}
+
 # GitHub Actions deploy identity: OIDC federation, no stored passwords.
 
 resource "azuread_application" "deploy" {
@@ -16,7 +24,10 @@ resource "azuread_application_federated_identity_credential" "deploy" {
   description    = "GitHub Actions deploys from ${var.github_owner}/${var.github_repository} on ${var.github_branch}"
   issuer         = "https://token.actions.githubusercontent.com"
   audiences      = ["api://AzureADTokenExchange"]
-  subject        = "repo:${var.github_owner}/${var.github_repository}:ref:refs/heads/${var.github_branch}"
+  # GitHub's OIDC subject includes immutable owner and repository IDs
+  # ("repo:<owner>@<owner_id>/<repo>@<repo_id>:ref:..."), so a renamed or recreated
+  # repository with the same name cannot reuse this trust.
+  subject = "repo:${var.github_owner}@${data.github_user.owner.id}/${var.github_repository}@${data.github_repository.this.repo_id}:ref:refs/heads/${var.github_branch}"
 }
 
 resource "azurerm_role_assignment" "deploy" {
