@@ -234,3 +234,4 @@ dl.kv dd { margin: 0; }
 .recommended-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 12px; }
 .recommended-title { font-weight: 600; font-size: 0.9rem; }
 .hero-try { margin-top: 16px; align-items: center; }
+.cite.also { margin-top: -4px; opacity: .85; }

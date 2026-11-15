@@ -239,6 +239,38 @@ function stepsSummaryHTML(steps, failed = false) {
     <ol class="steps">${steps.map(s => `<li class="done"><span>${esc(s.message)}</span><span class="muted small">${fmt(s.elapsed_s, 3)} s</span></li>`).join('')}</ol></details>`;
 }
 function updateProgress() { const el = main.querySelector('#ask-results'); if (el && route() === 'ask' && state.ask.loading) el.innerHTML = progressHTML(); }
+// ---- Claim display: evidence tag, no label prefixes, near-duplicate quotes grouped ----
+const LABEL_PREFIX = /^\s*(?:structured\s+)?(?:document|table(?:\s+record)?|record|figure|visual)(?:\s+description)?\s+evidence\s*[:\-–—]\s*/i;
+function quoteTokens(text) {
+  return new Set(String(text).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w.length > 2));
+}
+function similarQuotes(a, b) {
+  const x = quoteTokens(a), y = quoteTokens(b);
+  if (!x.size || !y.size) return false;
+  let shared = 0; x.forEach(w => { if (y.has(w)) shared += 1; });
+  return shared / (x.size + y.size - shared) >= 0.6;
+}
+function evidenceTag(supports, byId) {
+  const sources = supports.map(s => byId[s.chunk_id] || {});
+  if (sources.some(src => src.record_card || src.record_row)) return '<span class="pill ok">Table record</span>';
+  if (sources.some(src => src.visual)) return '<span class="pill warn">Figure description</span>';
+  return '<span class="pill">Report</span>';
+}
+function sourceLink(support, byId) {
+  const src = byId[support.chunk_id] || {};
+  if (src.record_card) return esc(src.record_card.locator || src.filename || 'Reviewed evidence');
+  return src.source_id ? `<a href="${docLink(src.source_id, src.physical_page)}" target="_blank" rel="noopener noreferrer">${esc(src.filename || 'Source')}, page ${esc(src.physical_page)} ↗</a>` : esc(support.chunk_id);
+}
+function claimHTML(claim, byId) {
+  const groups = [];
+  claim.supports.forEach(s => {
+    const group = groups.find(g => similarQuotes(g[0].quote, s.quote));
+    if (group) group.push(s); else groups.push([s]);
+  });
+  const body = groups.map(([first, ...rest]) => citeHTML(first, byId) + (rest.length
+    ? `<div class="cite also">Also stated in: ${rest.map(s => sourceLink(s, byId)).join(' · ')}</div>` : '')).join('');
+  return `<div class="claim"><div class="row" style="gap:8px;align-items:baseline"><p style="margin:0">${esc(String(claim.text).replace(LABEL_PREFIX, ''))}</p>${evidenceTag(claim.supports, byId)}</div>${body}</div>`;
+}
 function citeHTML(support, byId) {
   const src = byId[support.chunk_id] || {};
   const card = src.record_card;
@@ -278,7 +310,7 @@ function askResultBody() {
     const status = ans.status !== 'answered' ? '<span class="pill bad">Insufficient evidence</span>' : partial ? '<span class="pill warn">Partial evidence</span>' : '<span class="pill ok">Answered from sources</span>';
     const body = ans.status !== 'answered'
       ? `<p>The indexed documents do not support an answer to this question. That means it is missing from this collection, not that it was never studied.</p>`
-      : ans.claims.map(c => `<div class="claim"><p>${esc(c.text)}</p>${c.supports.map(s => citeHTML(s, byId)).join('')}</div>`).join('');
+      : ans.claims.map(c => claimHTML(c, byId)).join('');
     return `<section class="card stack"><div class="row"><h2 style="margin:0">Answer</h2>${status}</div>${body}
       ${(ans.limitations || []).map(l => `<p class="notice">${esc(l)}</p>`).join('')}
       <p class="hint">Every quote is checked against the retrieved text. Verify scientific meaning and numbers against the original page.</p></section>${sourcesSummary(results)}`;

@@ -210,7 +210,7 @@ function renderSearchResults() {
   if(result.error) { el.innerHTML=stepsSummaryHTML(true)+`<div class="error" role="alert">${esc(result.error)}</div>`; return; }
   if(!result.hits.length) { el.innerHTML=empty('No matching passages.','Try different terms or a broader investigation scope. This search provides no supported answer.'); return; }
   const answer=result.answer;
-  const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(claim.text)}</p>${claim.supports.map(s=>`<blockquote>${esc(s.quote)}</blockquote><button class="btn link" data-support="${esc(s.chunk_id)}">View supporting passage →</button>`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}${answer.status==='answered'?'<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p>':'<p class="form-hint">No claim was supported by the retrieved passages. This means missing from the indexed collection, not unstudied.</p>'}</div></section>` : '';
+  const answerHTML=answer ? `<section class="panel"><div class="panel-body"><h2>${answer.status==='answered'?'Answer from retrieved evidence':'Insufficient evidence'}</h2>${answer.claims.map(claim=>`<div class="draft-note"><p>${esc(String(claim.text).replace(LABEL_PREFIX,''))}</p>${groupSupports(claim.supports).map(([first,...rest])=>`<blockquote>${esc(first.quote)}</blockquote><button class="btn link" data-support="${esc(first.chunk_id)}">View supporting passage →</button>${rest.length?`<small class="form-hint" style="display:block">Also stated in ${rest.length} other passage${rest.length===1?'':'s'}: ${rest.map(s=>`<button class="btn link" data-support="${esc(s.chunk_id)}">${esc(s.chunk_id.split(':').slice(1,2).join('') || 'passage')}</button>`).join(' · ')}</small>`:''}`).join('')}</div>`).join('')}${answer.limitations.map(l=>`<p class="form-hint">${esc(l)}</p>`).join('')}${answer.status==='answered'?'<p class="form-hint">Citation and excerpt checks passed. Scientific support still requires source verification.</p>':'<p class="form-hint">No claim was supported by the retrieved passages. This means missing from the indexed collection, not unstudied.</p>'}</div></section>` : '';
   el.innerHTML=stepsSummaryHTML() + answerHTML + `<div class="results-meta"><span>${result.hits.length} passages for “${esc(result.question)}”</span><span>${esc(pretty(result.method || 'keyword'))} retrieval · Original excerpts</span></div>` + result.hits.map((hit,i) => {
     const c=hit.chunk; const source=state.sources.find(s=>s.source_id===c.source_id);
     const link=source?.available_locally ? `/api/documents/${encodeURIComponent(c.source_id)}#page=${c.page}` : safeURL(c.file_url || c.source_url);
@@ -468,5 +468,14 @@ function uiSwitchHTML(me, current) {
 }
 function bindUiSwitch(root) {
   root.querySelector('[data-ui-target]')?.addEventListener('click', e => { window.location.assign(e.currentTarget.dataset.uiTarget); });
+}
+// ---- Answer display: strip label prefixes, group near-duplicate quotes ----
+const LABEL_PREFIX = /^\s*(?:structured\s+)?(?:document|table(?:\s+record)?|record|figure|visual)(?:\s+description)?\s+evidence\s*[:\-–—]\s*/i;
+function groupSupports(supports) {
+  const tokens = t => new Set(String(t).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w.length > 2));
+  const similar = (a, b) => { const x = tokens(a), y = tokens(b); if (!x.size || !y.size) return false; let n = 0; x.forEach(w => { if (y.has(w)) n += 1; }); return n / (x.size + y.size - n) >= 0.6; };
+  const groups = [];
+  supports.forEach(s => { const g = groups.find(group => similar(group[0].quote, s.quote)); if (g) g.push(s); else groups.push([s]); });
+  return groups;
 }
 start();
