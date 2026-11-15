@@ -8,7 +8,7 @@ import pytest
 from pypdf import PdfWriter
 from test_app import request, server, workspace  # noqa: F401  (pytest fixtures)
 
-from combustion_atlas.app.server import ingest_upload
+from combustion_atlas.app.core import ingest_upload
 from combustion_atlas.rag.chunk import chunk_page
 from combustion_atlas.rag.corpus import corpus_summary, page_sections
 from combustion_atlas.rag.models import PageRecord

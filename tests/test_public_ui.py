@@ -3,15 +3,12 @@
 import http.client
 import json
 import sys
-import threading
 from collections.abc import Iterator
-from http.server import ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
 import pytest
-
-from combustion_atlas.app.server import AtlasHandler
+import serve
 
 PUBLIC = "atlas.example.net"
 ADMIN = "Sophie@Example.org"
@@ -19,19 +16,17 @@ ADMIN = "Sophie@Example.org"
 
 def start(
     tmp_path: Path, *, hosted: bool, admins: frozenset[str] = frozenset()
-) -> ThreadingHTTPServer:
+) -> serve.RunningServer:
     attrs = {
         "workspace": tmp_path,
         "allowed_hosts": frozenset({PUBLIC}) if hosted else frozenset(),
         "admins": frozenset(a.casefold() for a in admins),
     }
-    server = ThreadingHTTPServer(("127.0.0.1", 0), type("H", (AtlasHandler,), attrs))
-    threading.Thread(target=server.serve_forever, daemon=True).start()
-    return server
+    return serve.start(**attrs)
 
 
 @pytest.fixture
-def servers(tmp_path: Path) -> Iterator[dict[str, ThreadingHTTPServer]]:
+def servers(tmp_path: Path) -> Iterator[dict[str, serve.RunningServer]]:
     made = {
         "hosted": start(tmp_path, hosted=True, admins=frozenset({ADMIN})),
         "local": start(tmp_path, hosted=False),
@@ -43,7 +38,7 @@ def servers(tmp_path: Path) -> Iterator[dict[str, ThreadingHTTPServer]]:
 
 
 def call(
-    server: ThreadingHTTPServer,
+    server: serve.RunningServer,
     path: str,
     *,
     method: str = "GET",
@@ -64,17 +59,32 @@ def call(
 def test_public_ui_is_served_at_the_root_everywhere(servers) -> None:
     hosted = servers["hosted"]
     status, body, kind = call(hosted, "/", hosted=True)
-    assert status == 200 and kind.startswith("text/html") and b"/p/app.js" in body
-    assert call(hosted, "/p/app.js", hosted=True)[0] == 200
-    assert call(hosted, "/p/styles.css", hosted=True)[0] == 200
-    assert call(hosted, "/p/logo.svg", hosted=True)[2] == "image/svg+xml"
-    assert call(hosted, "/p/flame-story.js", hosted=True)[2].startswith("text/javascript")
-    assert call(hosted, "/p/flame-story.css", hosted=True)[2].startswith("text/css")
+    assert status == 200 and kind.startswith("text/html") and b"/assets/index-test.js" in body
+    status, body, kind = call(hosted, "/assets/index-test.js", hosted=True)
+    assert status == 200 and "javascript" in kind
+    assert call(hosted, "/logo.svg", hosted=True)[2] == "image/svg+xml"
     admin = {"X-MS-CLIENT-PRINCIPAL-NAME": "sophie@example.org"}
-    for gone in ("/workspace", "/public", "/app.js", "/styles.css"):
+    for gone in ("/workspace", "/public", "/p/app.js", "/assets/../index.html", "/api"):
         assert call(hosted, gone, hosted=True, headers=admin)[0] == 404
     status, body, _ = call(servers["local"], "/")
-    assert status == 200 and b"/p/app.js" in body
+    assert status == 200 and b"/assets/index-test.js" in body
+
+
+def test_cache_headers_and_compression(servers) -> None:
+    hosted = servers["hosted"]
+
+    def headers(path: str, extra: dict[str, str] | None = None) -> dict[str, str]:
+        conn = http.client.HTTPConnection("127.0.0.1", hosted.server_port)
+        conn.request("GET", path, headers={"Host": PUBLIC, **(extra or {})})
+        response = conn.getresponse()
+        response.read()
+        conn.close()
+        return {k.lower(): v for k, v in response.getheaders()}
+
+    assert "immutable" in headers("/assets/index-test.js")["cache-control"]  # hashed asset
+    assert headers("/")["cache-control"] == "no-cache"  # always revalidate the page
+    assert headers("/api/health")["cache-control"] == "no-store"
+    assert headers("/api/health")["x-content-type-options"] == "nosniff"
 
 
 def test_identity_trusts_easy_auth_header_only_when_hosted(servers) -> None:
@@ -217,25 +227,19 @@ def test_admin_identity_falls_back_to_email_claim_when_hosted(tmp_path) -> None:
     import base64
     import http.client
     import json as _json
-    import threading
-    from http.server import ThreadingHTTPServer
 
-    from combustion_atlas.app.server import AtlasHandler
+    import serve
 
     claims = {"claims": [{"typ": "email", "val": "Admin@Example.edu"}]}
     principal = base64.b64encode(_json.dumps(claims).encode()).decode().rstrip("=")
     for hosted, expected in ((frozenset({"atlas.example.net"}), True), (frozenset(), None)):
-        handler = type(
-            "H",
-            (AtlasHandler,),
-            {
+        server = serve.start(
+            **{
                 "workspace": tmp_path,
                 "allowed_hosts": hosted,
                 "admins": frozenset({"admin@example.edu"}),
-            },
+            }
         )
-        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-        threading.Thread(target=server.serve_forever, daemon=True).start()
         host = "atlas.example.net" if hosted else f"127.0.0.1:{server.server_port}"
         conn = http.client.HTTPConnection("127.0.0.1", server.server_port)
         conn.request("GET", "/api/me", headers={"Host": host, "X-MS-CLIENT-PRINCIPAL": principal})
@@ -251,23 +255,17 @@ def test_admin_identity_falls_back_to_email_claim_when_hosted(tmp_path) -> None:
 
 def test_hosted_allowlist_blocks_other_signed_in_accounts(tmp_path) -> None:
     import http.client
-    import threading
-    from http.server import ThreadingHTTPServer
 
-    from combustion_atlas.app.server import AtlasHandler
+    import serve
 
-    handler = type(
-        "H",
-        (AtlasHandler,),
-        {
+    server = serve.start(
+        **{
             "workspace": tmp_path,
             "allowed_hosts": frozenset({"atlas.example.net"}),
             "admins": frozenset({"owner-gh"}),
             "allowed_users": frozenset({"friend-gh"}),
-        },
+        }
     )
-    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    threading.Thread(target=server.serve_forever, daemon=True).start()
 
     def status(path: str, user: str | None) -> int:
         conn = http.client.HTTPConnection("127.0.0.1", server.server_port)
@@ -356,12 +354,12 @@ def test_ask_stream_keeps_results_when_the_answer_fails(tmp_path: Path, monkeypa
         server.server_close()
 
 
-def test_public_nav_has_explore_and_no_prediction() -> None:
-    public = Path(__file__).parents[1] / "src/combustion_atlas/app/public"
-    html = (public / "index.html").read_text(encoding="utf-8")
-    js = (public / "app.js").read_text(encoding="utf-8")
-    assert 'href="#/coverage"' in html and 'href="#/landscape"' in html  # Explore menu
-    assert 'aria-controls="explore-menu"' in html
-    assert "#/predict" not in html and "#/predict" not in js
-    # Old links keep working: coverage and landscape both open the Explore page.
-    assert "coverage: renderExplore, landscape: renderExplore" in js
+def test_react_nav_has_explore_menu_and_no_prediction() -> None:
+    src = Path(__file__).parents[1] / "frontend/src"
+    header = (src / "components/Header.tsx").read_text(encoding="utf-8")
+    routes = (src / "lib/routes.ts").read_text(encoding="utf-8")
+    assert 'href="#/coverage"' in header and 'href="#/landscape"' in header  # Explore menu
+    assert 'aria-controls="explore-menu"' in header
+    assert "predict" not in header
+    # Old links keep working: coverage and landscape both belong to Explore.
+    assert "p === 'coverage' || p === 'landscape'" in routes

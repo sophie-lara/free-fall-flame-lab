@@ -1,14 +1,13 @@
 """Evidence landscape: clustering, related-evidence links, caching and the read-only API."""
 
 import json
-import threading
-from http.server import ThreadingHTTPServer
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
 import pytest
+import serve
 
 from combustion_atlas.analysis import landscape
 from combustion_atlas.analysis.landscape import (
@@ -19,7 +18,6 @@ from combustion_atlas.analysis.landscape import (
     reuse_labels,
     sentence_case,
 )
-from combustion_atlas.app.server import AtlasHandler
 from combustion_atlas.rag.chunk import chunk_page
 from combustion_atlas.rag.models import PageRecord
 from combustion_atlas.rag.store import DocumentStore
@@ -158,13 +156,7 @@ def test_cache_reports_stale_when_index_changes(tmp_path: Path) -> None:
 def test_api_serves_cached_landscape_read_only(tmp_path: Path) -> None:
     import http.client
 
-    handler = type(
-        "H",
-        (AtlasHandler,),
-        {"workspace": tmp_path, "allowed_hosts": frozenset()},
-    )
-    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    threading.Thread(target=server.serve_forever, daemon=True).start()
+    server = serve.start(**{"workspace": tmp_path, "allowed_hosts": frozenset()})
 
     def get() -> Any:
         conn = http.client.HTTPConnection("127.0.0.1", server.server_port)

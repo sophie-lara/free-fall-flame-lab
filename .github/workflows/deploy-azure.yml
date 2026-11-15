@@ -54,6 +54,14 @@ jobs:
         run: |
           uv export --no-dev --no-hashes --no-editable --no-header --format requirements-txt --frozen --quiet -o /tmp/requirements.txt
           diff -u requirements.txt /tmp/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Front end checks
+        working-directory: frontend
+        run: npm ci && npm run typecheck && npm test
 
   deploy:
     needs: verify
@@ -66,7 +74,17 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - name: Package code only
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build the React front end into src/combustion_atlas/app/web
+        working-directory: frontend
+        run: npm ci && npm run build
+      - name: Check the build exists
+        run: test -f src/combustion_atlas/app/web/index.html
+      - name: Package code and built front end
         run: zip -r app.zip src pyproject.toml requirements.txt README.md -x '*__pycache__*'
       - uses: azure/login@v2
         with:

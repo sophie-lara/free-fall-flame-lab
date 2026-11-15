@@ -1,16 +1,15 @@
 import hashlib
 import http.client
 import json
-import threading
 from collections.abc import Iterator
 from datetime import UTC, datetime
-from http.server import ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
 import pytest
+import serve
 
-from combustion_atlas.app.server import Atlas, AtlasHandler
+from combustion_atlas.app.core import Atlas
 from combustion_atlas.artifacts import CandidateBatch, SourceIdentity
 from combustion_atlas.normalization.schema import (
     Conditions,
@@ -66,19 +65,14 @@ def workspace(tmp_path: Path) -> Atlas:
 
 
 @pytest.fixture
-def server(workspace: Atlas) -> Iterator[ThreadingHTTPServer]:
-    handler = type("TestHandler", (AtlasHandler,), {"workspace": workspace.root})
-    instance = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    thread = threading.Thread(target=instance.serve_forever, daemon=True)
-    thread.start()
+def server(workspace: Atlas) -> Iterator[serve.RunningServer]:
+    instance = serve.start(workspace=workspace.root)
     yield instance
     instance.shutdown()
-    instance.server_close()
-    thread.join()
 
 
 def request(
-    server: ThreadingHTTPServer,
+    server: serve.RunningServer,
     path: str,
     payload: dict[str, Any] | None = None,
     headers: dict[str, str] | None = None,
@@ -99,7 +93,7 @@ def request(
     return response.status, result
 
 
-def test_status_endpoints_and_static_paths(server: ThreadingHTTPServer) -> None:
+def test_status_endpoints_and_static_paths(server: serve.RunningServer) -> None:
     readiness = request(server, "/api/rag-status")[1]
     assert readiness["indexed_chunks"] == 0 and readiness["embedded_chunks"] == 0
     assert not readiness["semantic_ready"]
@@ -137,7 +131,7 @@ def test_review_notes_are_bound_and_drafts_only(workspace: Atlas) -> None:
 
 
 def test_documents_require_matching_local_bytes(
-    server: ThreadingHTTPServer, workspace: Atlas
+    server: serve.RunningServer, workspace: Atlas
 ) -> None:
     raw = workspace.data / "raw/fixture.csv"
     sha = hashlib.sha256(raw.read_bytes()).hexdigest()
@@ -154,7 +148,7 @@ def test_documents_require_matching_local_bytes(
 
 
 def test_ask_preserves_native_chunk_citations(
-    server: ThreadingHTTPServer, workspace: Atlas
+    server: serve.RunningServer, workspace: Atlas
 ) -> None:
     page = PageRecord(
         source_id="toy",
@@ -186,7 +180,7 @@ def test_empty_root_has_no_invented_records(tmp_path: Path) -> None:
     assert store.records() == [] and store.notes() == [] and store.preserved() == []
 
 
-def test_visual_crop_endpoint_is_hash_bound(server: ThreadingHTTPServer, workspace: Atlas) -> None:
+def test_visual_crop_endpoint_is_hash_bound(server: serve.RunningServer, workspace: Atlas) -> None:
     from PIL import Image
 
     from combustion_atlas.rag.visual_models import (

@@ -54,14 +54,16 @@ uv run python -m combustion_atlas.providers embed --allow-provider-calls
 uv run python -m combustion_atlas.rag query "oxygen concentration and extinction" \
   --method hybrid --allow-provider-calls
 
-# Launch the local experiment and document-evidence interface
+# Build the React front end (Node 22), then launch the web app (FastAPI + Uvicorn)
+(cd frontend && npm ci && npm run build)
 uv run python -m combustion_atlas.app --port 8765
 ```
 
 ## Repository layout
 
 ```text
-src/combustion_atlas/  Application package
+src/combustion_atlas/  Application package (FastAPI back end in app/api.py)
+frontend/              React + TypeScript + Vite front end (built into app/web/)
 tests/                 Unit tests and versioned fixtures
 docs/                  Architecture, scientific review, and operating guidance
 data/                  Local NASA captures, review, and retrieval artifacts (ignored)

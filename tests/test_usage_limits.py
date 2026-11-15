@@ -3,7 +3,7 @@
 from datetime import UTC, datetime
 from pathlib import Path
 
-from combustion_atlas.app.server import EvidenceRequest, apply_paid_limit
+from combustion_atlas.app.core import EvidenceRequest, apply_paid_limit
 from combustion_atlas.app.usage import PaidCallLimiter
 
 NOON = datetime(2026, 11, 15, 12, 0, tzinfo=UTC).timestamp()

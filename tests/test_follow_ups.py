@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from combustion_atlas.app.server import EvidenceRequest
+from combustion_atlas.app.core import EvidenceRequest
 from combustion_atlas.providers import ProviderConfig
 from combustion_atlas.providers.openai_answers import GroundedAnswer, OpenAIAnswerProvider
 from combustion_atlas.rag.chunk import chunk_page

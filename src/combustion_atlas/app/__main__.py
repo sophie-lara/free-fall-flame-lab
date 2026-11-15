@@ -1,4 +1,4 @@
-"""Launch the browser interface (loopback by default; see docs/deploy_azure.md)."""
+"""Launch the web app with Uvicorn (loopback by default; see docs/deploy_azure.md)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,6 @@ import argparse
 import logging
 import os
 from pathlib import Path
-
-from .server import serve
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -79,19 +77,33 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
-    serve(
-        workspace=args.workspace,
-        port=args.port,
-        host=args.host,
+    if not 1 <= args.port <= 65535:
+        raise SystemExit("Port must be between 1 and 65535")
+    if args.host not in {"127.0.0.1", "localhost"} and not args.allowed_host:
+        raise SystemExit("Listening beyond loopback requires at least one allowed host name")
+    import uvicorn
+
+    from .api import Settings, create_app
+
+    # App Service keeps /home on a network share; a local snapshot makes reads fast.
+    cache = env.get("COMBUSTION_ATLAS_CACHE_DIR") or (
+        "/tmp/combustion-atlas" if env.get("WEBSITE_INSTANCE_ID") else ""
+    )
+    settings = Settings(
+        workspace=args.workspace.resolve(),
         allowed_hosts=frozenset(args.allowed_host),
-        admins=frozenset(args.admin),
-        allowed_users=frozenset(args.allowed_user),
+        admins=frozenset(a.casefold() for a in args.admin),
+        allowed_users=frozenset(u.casefold() for u in args.allowed_user),
         paid_daily_limit=args.paid_daily_limit,
         paid_min_interval_s=args.paid_min_interval,
         public_uploads=args.public_uploads,
         upload_code=args.upload_code,
         uploads_per_day=args.uploads_per_day,
+        cache_dir=Path(cache) if cache else None,
+        warm_caches=True,
     )
+    print(f"Combustion Atlas: http://{args.host}:{args.port}", flush=True)
+    uvicorn.run(create_app(settings), host=args.host, port=args.port, log_level="info")
     return 0
 
 

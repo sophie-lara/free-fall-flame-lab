@@ -247,14 +247,21 @@ uv run python -m combustion_atlas.review apply \
 
 ## Local interface
 
+The back end is FastAPI (`src/combustion_atlas/app/api.py`), run by Uvicorn; the front
+end is React + TypeScript + Vite in `frontend/`, built into `src/combustion_atlas/app/web/`.
+
 ```sh
+(cd frontend && npm ci && npm run build)      # build the UI once (Node 22)
 uv run python -m combustion_atlas.app --port 8765
 ```
 
 Open `http://127.0.0.1:8765`. The server binds only to the loopback interface and
-serves the same public UI as the hosted site: Ask (chat with cited answers), Explore
+serves the same UI as the hosted site: Ask (chat with cited answers), Explore
 (experiment coverage and the evidence landscape), Sources and Add to corpus. The local
 user is treated as an administrator, so AI answers are not counted against limits.
+
+For front-end work, run `npm run dev` in `frontend/` (Vite dev server with hot reload;
+it proxies `/api` to the Python server on port 8765).
 
 ## Verification
 
@@ -263,6 +270,6 @@ uv run ruff format --check .
 uv run ruff check .
 uv run mypy src
 uv run pytest
-node --input-type=module --check < src/combustion_atlas/app/public/app.js
+(cd frontend && npm run typecheck && npm test && npm run build)
 uv build
 ```

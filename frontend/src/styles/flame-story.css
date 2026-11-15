@@ -1,0 +1,139 @@
+/* "Fire in free fall" explainer (FlameStory.tsx). Uses the tokens from styles.css. */
+.fs-section { padding: 16px 0 40px; scroll-margin-top: 80px; }
+.fs-head h2 { font-size: 32px; letter-spacing: -.02em; margin: 0; }
+.fs-head .eyebrow { margin-bottom: 8px; }
+.fs-lead { color: var(--ink-2); font-size: 18px; max-width: 720px; margin: 8px 0 0; }
+.fs-card { padding: 20px 24px 24px; }
+
+.fs-steps { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; }
+.fs-step { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--plane); color: var(--ink-2); font: 600 14px var(--font); padding: 6px 14px 6px 6px; border-radius: 999px; cursor: pointer; }
+.fs-step span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); color: var(--muted); font-size: 13px; }
+.fs-step:hover { border-color: var(--brand); }
+.fs-step.active { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+.fs-step.active span { background: var(--brand-fill); color: #fff; }
+
+.fs-body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.fs-svg { width: 100%; height: auto; display: block; }
+.fs-side { display: flex; flex-direction: column; gap: 16px; }
+.fs-story h3 { font-size: 22px; margin: 8px 0 6px; letter-spacing: -.01em; }
+.fs-story p { color: var(--ink-2); font-size: 16px; line-height: 1.6; margin: 0; min-height: 5.5em; }
+.fs-status { display: inline-block; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.fs-status.on { background: var(--ok-bg); color: var(--ok); }
+.fs-status.weak { background: var(--warn-bg); color: var(--warn); }
+.fs-status.off { background: var(--plane); color: var(--muted); border: 1px solid var(--line); }
+.fs-cites { margin-top: 10px; font-size: 14px; }
+.fs-cites summary, .fs-mapbox summary { cursor: pointer; color: var(--brand); font-weight: 600; }
+.fs-cites ul { margin: 8px 0 0; padding-left: 18px; }
+.fs-cites li + li { margin-top: 6px; }
+.fs-cites a { color: var(--ink-2); text-decoration: none; }
+.fs-cites a:hover q { text-decoration: underline; }
+.fs-cites q { font-style: italic; }
+.fs-src { display: block; color: var(--brand); font-size: 13px; }
+.fs-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; align-items: center; }
+
+.fs-controls { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 16px 14px; margin: 0; }
+.fs-controls legend { font-weight: 700; font-size: 14px; padding: 0 6px; color: var(--ink); }
+.fs-row { display: block; margin: 8px 0 0; }
+.fs-label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.fs-label output { color: var(--brand); font-variant-numeric: tabular-nums; }
+.fs-controls input[type="range"] { width: 100%; min-height: 0; padding: 0; border: 0; background: none; accent-color: var(--brand-fill); }
+.fs-zones { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; font-size: 12px; }
+.fs-mapbox { font-size: 14px; }
+.fs-left { display: flex; flex-direction: column; gap: 14px; }
+.fs-map { width: 100%; max-width: 420px; height: auto; display: block; margin-top: 8px; }
+.fs-nav { display: flex; justify-content: space-between; margin-top: 20px; }
+
+/* One visual language: a dark chamber with a rounded frame, used for the photos, the
+   illustrated flame and the flammability map alike. */
+.fs-frame { position: relative; overflow: hidden; border-radius: 14px; background: radial-gradient(120% 90% at 45% 55%, #141d31 0%, #090d17 55%, #030409 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 8px 28px rgba(3,6,14,.28); color: #dfe6f2; }
+.fs-stage-frame { aspect-ratio: 420 / 260; }
+.fs-layer { position: absolute; inset: 0; opacity: 0; visibility: hidden; transform: scale(1.015); transition: opacity .45s ease, transform .45s ease, visibility 0s linear .45s; }
+.fs-layer.on { opacity: 1; visibility: visible; transform: none; transition: opacity .45s ease, transform .45s ease, visibility 0s; }
+.fs-cap { font: 700 13px/1.2 var(--font); color: #e6ecf7; letter-spacing: .01em; text-shadow: 0 1px 6px rgba(0,0,0,.7); }
+.fs-credit { position: absolute; right: 12px; bottom: 9px; font: 11px/1.3 var(--font); color: rgba(226,232,244,.72); text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+
+/* photo pair: the active gravity is emphasized, the other recedes */
+.fs-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; }
+.fs-photo { position: relative; margin: 0; overflow: hidden; border-radius: 10px; background: #000; opacity: .38; filter: saturate(.55) brightness(.75); transition: opacity .5s ease, filter .5s ease; }
+.fs-photo.active { opacity: 1; filter: none; box-shadow: 0 0 0 1px rgba(255,255,255,.14); }
+.fs-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transform: scale(1.02); transition: transform .6s ease; }
+.fs-photo:last-of-type img { object-position: 50% 62%; }
+.fs-photo.active img { transform: scale(1.06); }
+.fs-photo figcaption { position: absolute; left: 12px; top: 10px; }
+.fs-bass img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 60% 45%; }
+.fs-bass::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(3,4,9,.45), transparent 30%, transparent 70%, rgba(3,4,9,.6)); pointer-events: none; }
+.fs-bass-cap { position: absolute; left: 14px; top: 12px; z-index: 1; }
+.fs-bass .fs-credit { z-index: 1; }
+
+/* illustrated flame */
+.fs-window { fill: none; stroke: rgba(255,255,255,.06); }
+.fs-tag { font: 700 13px var(--font); fill: #e6ecf7; }
+.fs-g { font: 600 12px var(--font); fill: #aab6ca; }
+.fs-note { font: 11px var(--font); fill: rgba(226,232,244,.62); }
+.fs-out { font: 700 15px var(--font); fill: #c7d0dd; }
+.fs-additive { mix-blend-mode: screen; }
+.fs-streak { stroke: #a9c6ff; stroke-opacity: .8; stroke-width: 1.3; stroke-linecap: round; animation: fs-stream var(--dur, 2.4s) linear infinite; animation-delay: var(--d, 0s); }
+.fs-rise-streak { stroke: #f2a66a; stroke-opacity: .45; stroke-width: 1.2; stroke-linecap: round; stroke-dasharray: 6 10; animation: fs-rise-dash 1.6s linear infinite; animation-delay: var(--d, 0s); }
+.fs-wisp circle { fill: #8b94a3; }
+.fs-wisp.up { animation: fs-wisp-up 2.8s ease-out forwards; }
+.fs-wisp.drift { animation: fs-wisp-drift 3.2s ease-out forwards; }
+
+/* hero: the real photo pair */
+.fs-hero-wrap { justify-self: center; width: min(380px, 100%); text-align: center; }
+.fs-hero { border: 0; background: none; padding: 0; cursor: pointer; width: 100%; text-align: center; color: var(--brand); font: 600 15px var(--font); }
+.fs-hero-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.fs-hero-card { position: relative; display: block; overflow: hidden; border-radius: 16px; aspect-ratio: 152 / 232; background: #000; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 18px rgba(11,18,32,.18); }
+.fs-hero-card img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
+.fs-hero-card:last-child img { object-position: 50% 62%; }
+.fs-hero-lbl { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; }
+.fs-hero:hover .fs-hero-cta { text-decoration: underline; }
+.fs-hero-credit { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+
+/* map, on the same dark stage */
+.fs-map-frame { margin-top: 8px; max-width: 420px; padding: 8px 10px 4px; }
+.fs-map-burn { fill: rgba(27,175,122,.2); }
+.fs-map-orbit { fill: none; stroke: #5b9bff; stroke-width: 2.5; }
+.fs-map-earth { stroke: #ff8a4c; stroke-width: 2; stroke-dasharray: 6 4; }
+.fs-map-air { stroke: rgba(255,255,255,.28); stroke-width: 1; }
+.fs-map-lbl { font: 600 10px var(--font); fill: #aab6ca; }
+.fs-map-lbl.earth { fill: #ff9a64; } .fs-map-lbl.orbit { fill: #7fb0ff; }
+.fs-map-pt { stroke: #060910; stroke-width: 2; }
+.fs-map-pt.on { fill: #7ddc9a; } .fs-map-pt.off { fill: #ff8a8a; }
+.fs-axis { stroke: #4b5a72; }
+.fs-tick { font: 10px var(--font); fill: #9aa8bc; }
+.fs-axis-title { font: 600 11px var(--font); fill: #c7d0dd; }
+.fs-map-note { font: 10px var(--font); fill: rgba(226,232,244,.55); }
+
+/* motion */
+@keyframes fs-flicker { 0%, 100% { transform: scale(1, 1); } 35% { transform: scale(.985, 1.025); } 70% { transform: scale(1.012, .99); } }
+@keyframes fs-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+@keyframes fs-oscillate { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(.84); filter: brightness(.65); } }
+@keyframes fs-stream { from { transform: translateX(0); } to { transform: translateX(480px); } }
+@keyframes fs-rise-dash { to { stroke-dashoffset: 32; } }
+@keyframes fs-wisp-up { from { transform: translateY(0) scale(.8); opacity: .55; } to { transform: translateY(-60px) scale(1.6); opacity: 0; } }
+@keyframes fs-wisp-drift { from { transform: scale(.8); opacity: .5; } to { transform: translate(18px, -6px) scale(1.9); opacity: 0; } }
+@keyframes fs-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fs-flame-earth { animation: fs-flicker 1.3s ease-in-out infinite; }
+.fs-breathe { animation: fs-breathe 3.2s ease-in-out infinite; }
+.fs-oscillate { animation: fs-oscillate .9s ease-in-out infinite; } /* the report notes ~1.1 Hz pre-quench oscillation */
+.fs-flame, .fs-streak, .fs-wisp { transform-box: view-box; }
+.fs-wisp { transform-origin: 182px 130px; }
+.fs-story-anim { animation: fs-fade-in .35s ease-out; }
+.fs-paused .fs-stage * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  .fs-flame-earth, .fs-breathe, .fs-oscillate, .fs-streak, .fs-rise-streak, .fs-story-anim { animation: none; }
+  .fs-wisp { animation: none; opacity: .3; }
+  .fs-layer, .fs-layer.on, .fs-photo, .fs-photo img { transition: none; }
+}
+
+@media (max-width: 900px) {
+  .fs-body { grid-template-columns: 1fr; }
+  .fs-head h2 { font-size: 26px; }
+}
+@media (max-width: 900px) { .fs-hero-wrap { width: min(300px, 100%); } }
+@media (max-width: 900px) {
+  .fs-left { display: contents; }
+  .fs-stage { order: 1; } .fs-side { order: 2; } .fs-mapbox { order: 3; }
+}
+.fs-disclaimer { margin: 12px 0 0; max-width: 720px; font-size: 14px; color: var(--warn); background: var(--warn-bg); border-radius: var(--radius-sm); padding: 8px 12px; }
+.fs-map-frame .fs-map { margin-top: 0; }

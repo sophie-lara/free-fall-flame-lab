@@ -8,7 +8,9 @@ Live site: **https://combustion-atlas.azurewebsites.net** (public; admins sign i
 Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, optional for visitors)
                                               │
                          Web app "combustion-atlas" (Python 3.12, Linux, B1, westeurope)
-                           ├─ /home/site/wwwroot  code, deployed by GitHub Actions
+                           │    FastAPI on Uvicorn: the JSON API and the built React UI
+                           ├─ /home/site/wwwroot  code + built UI, deployed by GitHub Actions
+                           ├─ /tmp/combustion-atlas  local snapshot of the index (fast reads)
                            ├─ /home/site/data     data, uploaded by scripts/azure_upload_data.sh
                            │    raw/ PDFs + PSI tables · processed/ figures, caches
                            │    embeddings/rag.sqlite3 (passages, vectors, figures, table cards)
@@ -37,6 +39,12 @@ Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, 
 - `/home` is App Service's persistent network share (like EFS, but included in the
   plan: 1 GB on F1, 10 GB on B1). Code deploys never touch `/home/site/data`.
   SQLite on this share is safe for **one instance only**.
+- **Speed:** SQLite reads over the network share are slow, so the app reads from a
+  snapshot of the index on local disk (`/tmp/combustion-atlas`, refreshed with SQLite's
+  backup API whenever the shared file changes, for example after an upload). Coverage,
+  Sources and the evidence landscape are cached in memory and built at startup; stored
+  vectors are kept in memory for semantic search; responses are gzipped (except the
+  answer stream); hashed front-end assets are cached by browsers for a year.
 - Secrets (OpenAI key, GitHub OAuth secret) are app settings, never files.
 
 ## Everything is Terraform (`infra/`)
@@ -77,8 +85,10 @@ local or in a private backend; never commit it.
 ## Day-to-day operations
 
 **Deploy code** (never automatic): GitHub **Actions → Deploy to Azure → Run workflow**
-on `main`, type `deploy`. It checks the approver list, runs lint, types, tests and the
-`requirements.txt` lockfile check, then deploys with OIDC (no stored passwords).
+on `main`, type `deploy`. It checks the approver list, runs lint, types, Python and
+front-end tests and the `requirements.txt` lockfile check, builds the React front end
+(`frontend/` → `src/combustion_atlas/app/web/`), then deploys with OIDC (no stored
+passwords). The start command (`python -m combustion_atlas.app …`) runs Uvicorn.
 
 **Update data** after changing the local index (new documents, figures, table cards):
 

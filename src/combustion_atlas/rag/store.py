@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import re
 import sqlite3
+import threading
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
 from .models import ChunkRecord, PageRecord
@@ -33,9 +35,15 @@ def keyword_query(question: str) -> str:
 QUARANTINE = "VISITOR-UPLOAD"
 
 
+_VECTOR_LOCK = threading.Lock()
+# (database path, mtime_ns, size, model_key) -> (rows without vectors, normalized matrix)
+_VECTOR_CACHE: dict[tuple[str, int, int, str], tuple[list[dict[str, object]], Any]] = {}
+
+
 class DocumentStore:
     def __init__(self, path: Path):
         path.parent.mkdir(parents=True, exist_ok=True)
+        self.path = path
         self.connection = sqlite3.connect(path)
         self.connection.row_factory = sqlite3.Row
         # Quarantined (visitor-upload) sources this request may see; empty = none.
@@ -609,29 +617,74 @@ class DocumentStore:
         investigation_id: str | None = None,
         top_k: int = 5,
     ) -> list[dict[str, object]]:
+        """Passages most similar to the query vector (cosine), using a cached matrix.
+
+        The decoded vectors are kept in memory per database file and model, and
+        reloaded only when the file changes; filtering matches the SQL visibility rule.
+        """
+        import numpy as np
+
+        rows, matrix = self._vector_matrix(model_key)
+        if len(query_vector) != matrix.shape[1]:
+            raise ValueError("Query vector dimensions do not match the stored namespace")
+        if not rows:
+            return []
+        query = np.asarray(query_vector, dtype=np.float32)
+        norm = float(np.linalg.norm(query)) or 1.0
+        scores = (matrix @ query) / norm
+        wanted_investigation = investigation_id.lower() if investigation_id else None
+        candidates = [
+            i
+            for i, row in enumerate(rows)
+            if (
+                wanted_investigation is None
+                or str(row.get("investigation_id") or "").lower() == wanted_investigation
+            )
+            and (
+                row.get("investigation_id") != QUARANTINE
+                or row.get("source_id") in self.visible_sources
+            )
+        ]
+        candidates.sort(key=lambda i: (-float(scores[i]), str(rows[i]["chunk_id"])))
+        ranked = [{**rows[i], "score": float(scores[i])} for i in candidates[:top_k]]
+        return self._attach_visuals(ranked)
+
+    def _vector_matrix(self, model_key: str) -> tuple[list[dict[str, object]], Any]:
+        """(rows without vectors, unit-normalized float32 matrix) for one model."""
+        import numpy as np
+
+        try:
+            stat = self.path.stat()
+            key = (str(self.path.resolve()), stat.st_mtime_ns, stat.st_size, model_key)
+        except OSError:
+            key = None
+        with _VECTOR_LOCK:
+            cached = _VECTOR_CACHE.get(key) if key else None
+        if cached is not None:
+            return cached
         namespace = self.connection.execute(
             "SELECT dimensions FROM vector_namespaces WHERE model_key = ?", (model_key,)
         ).fetchone()
         if namespace is None:
             raise ValueError(f"No stored vectors for {model_key}")
         dimensions = int(namespace["dimensions"])
-        if len(query_vector) != dimensions:
-            raise ValueError("Query vector dimensions do not match the stored namespace")
-        rows = self.connection.execute(
-            """
-            SELECT c.*, v.vector
-            FROM vectors AS v
-            JOIN chunks AS c ON c.chunk_id = v.chunk_id
-            WHERE v.model_key = ?
-              AND (? IS NULL OR lower(c.investigation_id) = lower(?))"""
-            + self._visibility()[0],
-            (model_key, investigation_id, investigation_id, *self._visibility()[1]),
-        ).fetchall()
-        ranked = []
-        for row in rows:
+        rows: list[dict[str, object]] = []
+        vectors: list[Any] = []
+        for row in self.connection.execute(
+            "SELECT c.*, v.vector FROM vectors AS v JOIN chunks AS c ON c.chunk_id = v.chunk_id "
+            "WHERE v.model_key = ?",
+            (model_key,),
+        ):
             result = dict(row)
-            stored = decode_vector(result.pop("vector"), dimensions)
-            result["score"] = cosine_similarity(query_vector, stored)
-            ranked.append(result)
-        ranked.sort(key=lambda item: (-float(item["score"]), str(item["chunk_id"])))
-        return self._attach_visuals(ranked[:top_k])
+            vectors.append(decode_vector(result.pop("vector"), dimensions))
+            rows.append(result)
+        raw: Any = np.asarray(vectors, dtype=np.float32).reshape(len(vectors), dimensions)
+        norms = np.linalg.norm(raw, axis=1, keepdims=True)
+        matrix: Any = (raw / np.where(norms == 0, 1.0, norms)).astype(np.float32)
+        entry = (rows, matrix)
+        if key:
+            with _VECTOR_LOCK:
+                for stale in [k for k in _VECTOR_CACHE if k[0] == key[0] and k[3] == model_key]:
+                    del _VECTOR_CACHE[stale]
+                _VECTOR_CACHE[key] = entry
+        return entry

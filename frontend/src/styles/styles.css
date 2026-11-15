@@ -71,7 +71,7 @@ small, .small { font-size: 14px; }
 .site-nav a[aria-current="page"] { background: var(--brand-soft); color: var(--brand); }
 .user-badge { font-size: 13px; color: var(--muted); white-space: nowrap; }
 .user-badge .pill { margin-left: 6px; }
-.nav-toggle { display: none; margin-left: auto; }
+.nav-toggle, .btn.nav-toggle { display: none; margin-left: auto; }
 
 /* Buttons, inputs */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 600 15px var(--font); cursor: pointer; text-decoration: none; transition: background .15s, border-color .15s; }
@@ -208,7 +208,7 @@ dl.kv dd { margin: 0; }
   .grid.cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
-  .nav-toggle { display: inline-flex; min-height: 40px; }
+  .nav-toggle, .btn.nav-toggle { display: inline-flex; min-height: 40px; }
   .site-nav { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px 24px 16px; }
   .site-nav.open { display: flex; }
   .user-badge { display: none; }
@@ -394,16 +394,46 @@ ul.plain { margin: 0; padding-left: 18px; }
 .source-runs > summary { cursor: pointer; font-weight: 600; color: var(--brand); margin-bottom: 8px; }
 @media (max-width: 860px) { .source-cols { grid-template-columns: 1fr; } }
 
-/* Ask: real NASA photo backdrop (orbital sunrise from the ISS), dark overlay for text */
-body[data-route="ask"][data-space="on"]::before { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(to bottom, rgba(4, 7, 18, .45), rgba(4, 7, 18, .55) 45%, rgba(4, 7, 18, .85)), url("/p/space-orbital-sunrise.jpg") center 30% / cover no-repeat, #04070f; }
-body[data-route="ask"][data-space="on"] { background: #04070f; }
-body[data-route="ask"][data-space="on"] .chat-head h1, body[data-route="ask"][data-space="on"] .chat-intro { color: #f3f5fa; text-shadow: 0 1px 12px rgba(0, 0, 0, .6); }
-body[data-route="ask"][data-space="on"] .chat-head .eyebrow { color: #ffb36b; }
-body[data-route="ask"][data-space="on"] .recommended > summary, body[data-route="ask"][data-space="on"] .recommended-title { color: #f3f5fa; }
-body[data-route="ask"][data-space="on"] .recommended .hint, body[data-route="ask"][data-space="on"] .composer-meta .hint { color: #c5cbd8; }
-body[data-route="ask"][data-space="on"] .composer-meta .ui-switch-label { color: #c5cbd8; }
-body[data-route="ask"][data-space="on"] .composer-meta .ui-switch-label.active { color: #fff; }
-body[data-route="ask"][data-space="on"] .chat-composer { background: linear-gradient(to bottom, transparent, rgba(4, 7, 18, .92) 28%); }
-body[data-route="ask"][data-space="on"] .msg.bot .avatar { filter: drop-shadow(0 0 6px rgba(255, 140, 60, .6)); }
-.photo-credit { display: none; margin: 6px 6px 0; font-size: 11px; color: var(--muted); }
-body[data-route="ask"][data-space="on"] .photo-credit { display: block; color: #9aa3b5; }
+/* Space background (site-wide, on by default): a real NASA photo of an orbital sunrise from
+   the ISS behind every page, with the dark token set so all text, cards and charts stay readable. */
+body[data-space="on"] {
+  color-scheme: dark;
+  --brand: #7aa5ff; --brand-hover: #9dbcff; --brand-soft: #16233d;
+  --brand-fill: #2559c7; --brand-fill-hover: #1d4fb8;
+  --ink: #e8edf5; --ink-2: #c7d0dd; --muted: #9aa8bc;
+  --line: #243044; --line-strong: #33415a;
+  --plane: #0b1220; --surface: #111827; --focus: #7aa5ff;
+  --ok: #7ddc9a; --ok-bg: #12301d; --warn: #ffd27a; --warn-bg: #33270d; --bad: #ff9a9a; --bad-bg: #3a1616;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --neutral: #475569;
+  --grid: #1c2638; --axis: #6b7a90;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  background: #04070f;
+}
+body[data-space="on"]::before { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(to bottom, rgba(4, 7, 18, .55), rgba(4, 7, 18, .68) 40%, rgba(4, 7, 18, .9)), url("/space-orbital-sunrise.jpg") center 30% / cover no-repeat, #04070f; }
+/* Text that sits directly on the photo gets a soft shadow; text inside cards does not need it. */
+body[data-space="on"] .page-head h1, body[data-space="on"] .page-head p, body[data-space="on"] .hero h1, body[data-space="on"] .hero p.lead,
+body[data-space="on"] .chat-head h1, body[data-space="on"] .section > .section-head, body[data-space="on"] .fs-head, body[data-space="on"] main > .row,
+body[data-space="on"] .recommended > summary, body[data-space="on"] .recommended-title { text-shadow: 0 1px 12px rgba(0, 0, 0, .6); }
+body[data-space="on"] .eyebrow { color: #ffb36b; }
+body[data-space="on"] .hint, body[data-space="on"] .composer-meta .hint { color: #c5cbd8; }
+body[data-space="on"] .card .hint { color: var(--muted); }
+body[data-space="on"] .ui-switch-label { color: #c5cbd8; }
+body[data-space="on"] .ui-switch-label.active { color: #fff; }
+body[data-space="on"] .ui-switch-track { background: #2a3448; border-color: #5b6880; }
+body[data-space="on"] .ui-switch-track[aria-checked="true"] { background: var(--brand-fill); border-color: #7aa5ff; }
+body[data-space="on"] .ui-switch-track:focus-visible { outline-color: var(--focus); }
+body[data-space="on"] .chat-composer { background: linear-gradient(to bottom, transparent, rgba(4, 7, 18, .92) 28%); }
+body[data-space="on"] .msg.bot .avatar { filter: drop-shadow(0 0 6px rgba(255, 140, 60, .6)); }
+body[data-space="on"] .empty { background: var(--surface); }
+body[data-space="on"] .loading { color: #c5cbd8; }
+body[data-space="on"] .tile:hover, body[data-space="on"] .btn:hover, body[data-space="on"] .chip:hover { border-color: var(--brand); }
+.site-credit { padding: 8px 0 20px; }
+.photo-credit { margin: 0; font-size: 11px; color: #9aa3b5; }
+
+/* Space switch in the header: always visible, also on small screens */
+.header-space { flex: none; }
+.header-space .ui-switch-label { cursor: pointer; font-size: 13px; }
+@media (max-width: 720px) {
+  .header-inner { gap: 12px; }
+  .nav-toggle { margin-left: auto; }
+}

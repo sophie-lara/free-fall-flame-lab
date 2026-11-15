@@ -1,17 +1,16 @@
 """Public visitor uploads: quarantine, caps, code, per-visitor quota, approve/delete."""
 
+import dataclasses
 import http.client
 import json
-import threading
 from collections.abc import Iterator
-from http.server import ThreadingHTTPServer
 from io import BytesIO
 from pathlib import Path
 
 import pytest
+import serve
 from pypdf import PdfWriter
 
-from combustion_atlas.app.server import AtlasHandler
 from combustion_atlas.app.usage import PaidCallLimiter
 from combustion_atlas.rag.chunk import chunk_page
 from combustion_atlas.rag.corpus import corpus_summary
@@ -42,7 +41,7 @@ class FakeEmbeddings:
 
 
 @pytest.fixture
-def hosted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[ThreadingHTTPServer]:
+def hosted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[serve.RunningServer]:
     monkeypatch.setattr("combustion_atlas.providers.OpenAIEmbeddingProvider", FakeEmbeddings)
     page = PageRecord(
         source_id="a" * 16,
@@ -54,27 +53,23 @@ def hosted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Threadin
     )
     with DocumentStore(tmp_path / "data/embeddings/rag.sqlite3") as store:
         store.replace([page], chunk_page(page))
-    handler = type(
-        "H",
-        (AtlasHandler,),
-        {
+    server = serve.start(
+        **{
             "workspace": tmp_path,
             "allowed_hosts": frozenset({HOST}),
             "admins": frozenset({ADMIN}),
             "public_uploads": True,
             "uploads_per_day": 3,
             "limiter": PaidCallLimiter(tmp_path / "data/usage/paid.json", daily_limit=100),
-        },
+        }
     )
-    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    threading.Thread(target=server.serve_forever, daemon=True).start()
     yield server
     server.shutdown()
     server.server_close()
 
 
 def post(
-    server: ThreadingHTTPServer,
+    server: serve.RunningServer,
     path: str,
     body: bytes,
     *,
@@ -100,7 +95,7 @@ def post(
     return result
 
 
-def get(server: ThreadingHTTPServer, path: str, user: str | None = None) -> dict:
+def get(server: serve.RunningServer, path: str, user: str | None = None) -> dict:
     conn = http.client.HTTPConnection("127.0.0.1", server.server_port)
     headers = {"Host": HOST}
     if user:
@@ -131,7 +126,7 @@ def test_quarantined_source_is_hidden_unless_named(tmp_path: Path) -> None:
         assert corpus_summary(store)["totals"]["documents"] == 1
 
 
-def test_visitor_upload_rules_and_admin_review(hosted: ThreadingHTTPServer) -> None:
+def test_visitor_upload_rules_and_admin_review(hosted: serve.RunningServer) -> None:
     me = get(hosted, "/api/me")
     assert me["can_upload"] and me["visitor_upload"]
     assert me["upload_limits"]["max_mb"] == 15 and me["upload_limits"]["max_pages"] == 60
@@ -191,16 +186,17 @@ def test_visitor_upload_rules_and_admin_review(hosted: ThreadingHTTPServer) -> N
     assert source not in remaining and other not in remaining
 
 
-def test_upload_code_and_site_limit(hosted: ThreadingHTTPServer) -> None:
-    hosted.RequestHandlerClass.upload_code = "judges-2026"  # type: ignore[attr-defined]
+def test_upload_code_and_site_limit(hosted: serve.RunningServer) -> None:
+    service = hosted.app.state.service
+    service.settings = dataclasses.replace(service.settings, upload_code="judges-2026")
     assert post(hosted, "/api/upload?filename=a.pdf", pdf())[0] == 403
     assert (
         post(hosted, "/api/upload?filename=a.pdf", pdf(), extra={"X-Upload-Code": "judges-2026"})[0]
         == 201
     )
-    hosted.RequestHandlerClass.upload_code = ""  # type: ignore[attr-defined]
-    hosted.RequestHandlerClass.limiter = PaidCallLimiter(  # type: ignore[attr-defined]
-        Path(hosted.RequestHandlerClass.workspace) / "data/usage/tight.json",  # type: ignore[attr-defined]
+    service.settings = dataclasses.replace(service.settings, upload_code="")
+    service.limiter = PaidCallLimiter(
+        Path(service.settings.workspace) / "data/usage/tight.json",
         daily_limit=1,
     )
     assert post(hosted, "/api/upload?filename=x.pdf", pdf(text=b"x"), ip="9.9.9.9")[0] == 201

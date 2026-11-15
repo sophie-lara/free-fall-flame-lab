@@ -17,6 +17,9 @@ dependencies = [
   "pdfplumber>=0.11,<0.12",
   "python-dotenv>=1,<2",
   "scikit-learn>=1.6,<2",
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.30,<1",
+  "numpy>=1.26,<3",
 ]
 
 [project.scripts]

@@ -6,7 +6,7 @@ import httpx
 import openai
 import pytest
 
-from combustion_atlas.app.server import EvidenceRequest, ask_evidence
+from combustion_atlas.app.core import EvidenceRequest, ask_evidence
 from combustion_atlas.app.usage import PaidCallLimiter
 from combustion_atlas.providers.retry import call_with_retries, describe
 from combustion_atlas.rag.chunk import chunk_page
@@ -83,7 +83,7 @@ def test_failed_answer_is_refunded(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     database = tmp_path / "data/embeddings/rag.sqlite3"
     with DocumentStore(database) as store:
         store.replace([page], chunk_page(page))
-    workspace = type("W", (), {"database": database})()
+    workspace = type("W", (), {"database": database, "read_database": database})()
     limiter = PaidCallLimiter(tmp_path / "paid.json", daily_limit=3)
 
     class FailingProvider:
@@ -95,7 +95,7 @@ def test_failed_answer_is_refunded(tmp_path: Path, monkeypatch: pytest.MonkeyPat
         def answer(self, *_: object, **__: object) -> None:
             raise status_error(openai.InternalServerError, 503)
 
-    monkeypatch.setattr("combustion_atlas.app.server.OpenAIAnswerProvider", FailingProvider)
+    monkeypatch.setattr("combustion_atlas.app.core.OpenAIAnswerProvider", FailingProvider)
     request = EvidenceRequest(
         question="oxygen flame spread",
         method="keyword",
@@ -112,6 +112,6 @@ def test_failed_answer_is_refunded(tmp_path: Path, monkeypatch: pytest.MonkeyPat
 
             return GroundedAnswer(status="insufficient_evidence", claims=[], limitations=[])
 
-    monkeypatch.setattr("combustion_atlas.app.server.OpenAIAnswerProvider", WorkingProvider)
+    monkeypatch.setattr("combustion_atlas.app.core.OpenAIAnswerProvider", WorkingProvider)
     ask_evidence(workspace, request, limiter=limiter)  # type: ignore[arg-type]
     assert limiter.status()["remaining_today"] == 2  # successful answers still count

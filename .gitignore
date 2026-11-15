@@ -25,3 +25,7 @@ data/embeddings/*
 !data/embeddings/.gitkeep
 data/models/*
 !data/models/.gitkeep
+
+# React front end: dependencies and build output (built in CI and deploys)
+frontend/node_modules/
+src/combustion_atlas/app/web/
