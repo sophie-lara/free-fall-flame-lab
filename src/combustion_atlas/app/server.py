@@ -95,9 +95,11 @@ def ask_evidence(
         raise ValueError("Enable OpenAI calls for semantic search or generated answers")
     from openai import OpenAIError
 
-    from .streaming import answer_unavailable, semantic_unavailable
+    from .streaming import answer_unavailable, charged_call, semantic_unavailable
 
+    original = request
     request, limited = apply_paid_limit(request, limiter, exempt)
+    charged = charged_call(original, limiter, exempt, limited)
     fallback = None
     with DocumentStore(workspace.database) as store:
         try:
@@ -133,7 +135,12 @@ def ask_evidence(
             provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
             payload["answer"] = provider.answer(request.question, results).model_dump()
         except (ValueError, OpenAIError) as exc:
-            payload["answer_unavailable"] = answer_unavailable(exc)
+            refund = charged and isinstance(exc, OpenAIError)
+            if refund and limiter is not None:
+                limiter.refund()
+            payload["answer_unavailable"] = answer_unavailable(exc, refunded=refund)
+    elif charged and fallback and limiter is not None:
+        limiter.refund()
     return payload
 
 
@@ -187,11 +194,13 @@ def research_directions(
             seen.add(str(item["chunk_id"]))
             results.append(item)
     provider = ResearchDirectionsProvider(ProviderConfig.from_environment())
-    return {
-        "topic": request.topic,
-        "results": results,
-        "directions": provider.directions(request.topic, results).model_dump(),
-    }
+    try:
+        directions = provider.directions(request.topic, results).model_dump()
+    except OpenAIError:
+        if limiter is not None and not exempt:
+            limiter.refund()  # the provider failed after retries: not counted
+        raise
+    return {"topic": request.topic, "results": results, "directions": directions}
 
 
 MAX_UPLOAD_BYTES = 80 * 1024 * 1024
@@ -1126,6 +1135,8 @@ class AtlasHandler(BaseHTTPRequestHandler):
         except ValueError as exc:
             self._json({"error": str(exc)[:500]}, HTTPStatus.BAD_REQUEST)
         except OpenAIError:
+            if self.limiter is not None:
+                self.limiter.refund()
             self._json(
                 {"error": "Document indexed, but semantic search setup failed. Try again later."},
                 HTTPStatus.BAD_GATEWAY,

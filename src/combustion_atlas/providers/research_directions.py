@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from .config import ProviderConfig
 from .openai_answers import Claim, GroundedAnswer, validate_support
+from .retry import call_with_retries
 
 
 class Suggestion(BaseModel):
@@ -72,7 +73,7 @@ class ResearchDirectionsProvider:
         if client is None and not config.openai_api_key_present:
             raise ValueError("An OpenAI API key is required locally")
         self.model = config.answer_model
-        self.client = client or OpenAI(timeout=90.0, max_retries=1)
+        self.client = client or OpenAI(timeout=90.0, max_retries=0)
 
     def directions(self, topic: str, context: list[dict[str, object]]) -> ResearchDirections:
         if not context:
@@ -94,25 +95,28 @@ class ResearchDirectionsProvider:
     def _generate(
         self, topic: str, context: list[dict[str, object]], *, repair: str = ""
     ) -> ResearchDirections:
-        response = self.client.responses.parse(
-            model=self.model,
-            store=False,
-            max_output_tokens=4000,
-            instructions=INSTRUCTIONS,
-            input=json.dumps(
-                {
-                    "topic": topic,
-                    "passages": context,
-                    "repair_instruction": (
-                        f"The previous draft failed validation ({repair}). Use exact copied "
-                        "quotes, keep numbers inside quotes, and valid basis indexes."
-                        if repair
-                        else ""
-                    ),
-                },
-                ensure_ascii=False,
+        response = call_with_retries(
+            lambda: self.client.responses.parse(
+                model=self.model,
+                store=False,
+                max_output_tokens=4000,
+                instructions=INSTRUCTIONS,
+                input=json.dumps(
+                    {
+                        "topic": topic,
+                        "passages": context,
+                        "repair_instruction": (
+                            f"The previous draft failed validation ({repair}). Use exact copied "
+                            "quotes, keep numbers inside quotes, and valid basis indexes."
+                            if repair
+                            else ""
+                        ),
+                    },
+                    ensure_ascii=False,
+                ),
+                text_format=ResearchDirections,
             ),
-            text_format=ResearchDirections,
+            what="research directions",
         )
         parsed = response.output_parsed
         if not isinstance(parsed, ResearchDirections):

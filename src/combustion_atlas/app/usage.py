@@ -68,6 +68,18 @@ class PaidCallLimiter:
             "next_available_in_s": wait,
         }
 
+    def refund(self, now: float | None = None) -> None:
+        """Give back one call (e.g. the AI request failed); spacing is kept."""
+        if not self.daily_limit:
+            return
+        now = time.time() if now is None else now
+        today = datetime.fromtimestamp(now, UTC).date().isoformat()
+        with self._lock:
+            state = self._load(today)
+            if state["count"] > 0:
+                state["count"] -= 1
+                self._save(state)
+
     def acquire(self, now: float | None = None) -> Decision:
         """Reserve one paid call if allowed; otherwise explain why and when to retry."""
         if not self.enabled:

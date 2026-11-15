@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 from pathlib import Path
 
@@ -81,6 +82,10 @@ def main(argv: list[str] | None = None) -> int:
         help="Uploads per visitor per UTC day",
     )
     args = parser.parse_args(argv)
+    # App Service streams stdout/stderr to Log stream; keep provider failures visible there.
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
     serve(
         workspace=args.workspace,
         port=args.port,
