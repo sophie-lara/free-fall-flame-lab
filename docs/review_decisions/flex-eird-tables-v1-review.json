@@ -69,11 +69,15 @@
       "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-12/extraction.json",
       "extraction_sha256": "35639a79796543895f70c0d5d3ad5183a40874c99009594ef77888fb1e6e35eb",
       "comment": "Quick spot check only, not line by line; numeric rows verified automatically against the PDF text layer."
+    },
+    "2": {
+      "status": "checked",
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-02/extraction.json",
+      "extraction_sha256": "8a9fa17298e9ef35a4d6d3b6f6e69990295615057c7746c88446b4c05f01aa36",
+      "comment": "Checked; looks good."
     }
   },
-  "pending": [
-    "2"
-  ],
+  "pending": [],
   "record_notes": [
     {
       "id": "N1",
@@ -94,5 +98,11 @@
       "decided_at": "2026-11-14T19:10:00-06:00",
       "basis": "Applies to all matrices although p. 45 is only within Table 6's page window; reviewer approved applying it to Tables 6-12."
     }
-  ]
+  ],
+  "promotion": {
+    "decided_by": "Sophie",
+    "decided_at": "2026-11-14T19:34:00-06:00",
+    "decision": "Move all FLEX table results (Tables 2, 6-12, 14) into reviewed status, using the Table 14 symbol definitions from its context.",
+    "quote": "I want to move all of the table results into reviewed status. Use the definitions we pulled from table 14 context."
+  }
 }

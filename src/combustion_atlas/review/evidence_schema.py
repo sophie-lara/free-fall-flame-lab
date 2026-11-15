@@ -31,7 +31,9 @@ class SourceCell(EvidenceModel):
 class ValueNote(EvidenceModel):
     """A visible caveat on a value: where it was uncertain, ambiguous or assumed."""
 
-    kind: Literal["assumed", "inferred", "ambiguous", "unresolved", "pending", "model"]
+    kind: Literal[
+        "assumed", "inferred", "ambiguous", "unresolved", "pending", "model", "definition"
+    ]
     text: str = Field(min_length=1)
     by: Literal["model", "reviewer", "pipeline"]
     decision: str | None = None

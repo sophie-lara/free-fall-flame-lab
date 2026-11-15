@@ -9,13 +9,15 @@ Reviewer: **Sophie** · Date: **11/14/2026**
 | Table | Extraction run | Status | Notes |
 |---|---|---|---|
 | 1 | `flex-pdf-remaining-v1` | **Excluded** | Reduced Damköhler number formulas set out as a table; not data. |
-| 2 | `flex-pdf-remaining-v1` | Pending check | |
+| 2 | `flex-pdf-remaining-v1` | **Checked** | Background data (agent MEC values). |
 | 6, 7, 9, 10, 11, 12 | `flex-pdf-remaining-v1` | **Spot-checked** (not line by line) | Numeric rows verified automatically against the text layer; headers and condition rows only spot-checked. |
 | 8 | `flex-pdf-table8-v1` | **Checked**: table, headers and entries correct | Held-out table. |
 | 13 | `flex-pdf-remaining-v1` | Regression only | Used during development. |
 | 14 | `flex-pdf-remaining-v1` | **Checked**, with symbol definitions | See below. |
 
 ## Reviewer comments
+
+- **Table 2 and promotion:** "I checked table 2, it looks good. I want to move all of the table results into reviewed status. Use the definitions we pulled from table 14 context." All FLEX table results (Tables 2, 6–12, 14) are therefore promoted to reviewed status; Tables 6, 7 and 9–12 keep their spot-check note.
 
 - **Tables 6, 7, 9–12:** "I am doing quick spot checks of 6, 7, 9–12, not enough time for a full line by line. Let's proceed with mapping."
 

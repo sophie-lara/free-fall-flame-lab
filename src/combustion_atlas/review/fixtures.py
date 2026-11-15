@@ -19,7 +19,7 @@ class ReviewedEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
     investigation_id: str
     test_id: str
-    evidence_kind: Literal["run", "background_table_row"]
+    evidence_kind: Literal["run", "background_table_row", "planned_test_condition"]
     source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     candidate_fingerprint: str = Field(pattern=r"^[a-f0-9]{64}$")
     review_action: Literal["accept_extraction", "correction_proposed", "needs_research"]
