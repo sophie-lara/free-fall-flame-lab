@@ -206,11 +206,14 @@ def build(
         random_state=0,
     ).fit_transform(space)
     # A separate 3-D layout for the spin-and-zoom view (t-SNE supports up to 3 dims).
+    # Barnes-Hut is an approximation that is coarse for small sets; exact t-SNE is
+    # affordable there and gives the same layout on every platform.
     coords3 = TSNE(
         n_components=3,
         perplexity=min(perplexity, (len(points) - 1) / 3),
         init="pca",
         metric="euclidean",
+        method="exact" if len(points) <= 1000 else "barnes_hut",
         random_state=0,
     ).fit_transform(space)
     coords3 -= coords3.mean(axis=0)
