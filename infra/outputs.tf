@@ -28,3 +28,8 @@ output "next_steps" {
     3. Open https://${azurerm_linux_web_app.main.default_hostname} in a private window and sign in.
   EOT
 }
+
+output "azure_openai_endpoint" {
+  description = "Azure OpenAI v1 endpoint (empty when disabled)."
+  value       = var.azure_openai_enabled ? "${azurerm_cognitive_account.openai[0].endpoint}openai/v1/" : ""
+}

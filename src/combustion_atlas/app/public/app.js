@@ -381,6 +381,7 @@ function askResultBody() {
       a.result.limited ? `<strong>AI answers are paused.</strong> ${esc(a.result.limited.reason)} Showing free keyword search results below.` : '',
       a.result.answer_unavailable ? `<strong>No AI answer this time.</strong> ${esc(a.result.answer_unavailable)}` : '',
       a.result.retrieval_fallback ? esc(a.result.retrieval_fallback) : '',
+      a.result.answered_by?.backup ? `Answered by the backup model ${esc(a.result.answered_by.model)} (${esc(a.result.answered_by.provider)}) because the main model was unavailable. The same quote and number checks applied.` : '',
       !ans && !a.result.limited && !a.result.answer_unavailable ? '<strong>AI answers are off.</strong> Showing free keyword search results: reviewed table data first, then document passages.' : '',
     ].filter(Boolean);
     const limited = notices.length ? `<section class="card notice" role="status">${notices.join('<br>')}</section>` : '';
@@ -455,7 +456,9 @@ function renderCoverage() {
   if (state.coverageError) { main.innerHTML = head + emptyBox('Not available yet', state.coverageError); return; }
   initCoverageSelection();
   const cov = state.coverage, c = state.cov;
-  const viewSwitch = `<div class="segmented" role="group" aria-label="View"><button type="button" data-view="heatmap" aria-pressed="${c.view === 'heatmap'}">Heatmap</button><button type="button" data-view="chart" aria-pressed="${c.view === 'chart'}">Points</button><button type="button" data-view="table" aria-pressed="${c.view === 'table'}">Table</button></div>`;
+  // Points and Table views are hidden for now (code kept); the heatmap is the only view.
+  const viewSwitch = '';
+  c.view = 'heatmap';
   if (c.view === 'heatmap' && (cov.grids || []).length) { renderHeatmapPage(head, viewSwitch); return; }
   const fields = (cov.fields || []).filter(f => f.count > 0);
   const fieldOpt = sel => fields.map(f => `<option value="${esc(f.key)}" ${sel === f.key ? 'selected' : ''}>${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''} · ${count(f.count)}</option>`).join('');

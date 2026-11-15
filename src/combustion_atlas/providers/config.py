@@ -27,6 +27,18 @@ class ProviderConfig:
     embedding_batch_size: int
     answer_model: str
     openai_api_key_present: bool
+    # Optional backup answer model on another OpenAI-compatible endpoint (e.g. Azure
+    # OpenAI v1), used only when the primary provider is unavailable after retries.
+    fallback_model: str = ""
+    fallback_base_url: str = ""
+    fallback_api_key_present: bool = False
+    fallback_reasoning_effort: str = "low"
+
+    @property
+    def fallback_enabled(self) -> bool:
+        return bool(
+            self.fallback_model and self.fallback_base_url and self.fallback_api_key_present
+        )
 
     @classmethod
     def from_environment(cls) -> ProviderConfig:
@@ -47,7 +59,17 @@ class ProviderConfig:
             or 64,
             answer_model=os.getenv("COMBUSTION_ATLAS_ANSWER_MODEL", "").strip(),
             openai_api_key_present=api_key_present,
+            fallback_model=os.getenv("COMBUSTION_ATLAS_FALLBACK_MODEL", "").strip(),
+            fallback_base_url=os.getenv("COMBUSTION_ATLAS_FALLBACK_BASE_URL", "").strip(),
+            fallback_api_key_present=bool(
+                os.getenv("COMBUSTION_ATLAS_FALLBACK_API_KEY", "").strip()
+            ),
+            fallback_reasoning_effort=os.getenv(
+                "COMBUSTION_ATLAS_FALLBACK_REASONING_EFFORT", "low"
+            ).strip(),
         )
 
     def public_status(self) -> dict[str, object]:
-        return asdict(self)
+        status = asdict(self)
+        status.pop("fallback_base_url")  # endpoint details stay server-side
+        return status

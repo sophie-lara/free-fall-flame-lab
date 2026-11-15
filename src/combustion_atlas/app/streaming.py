@@ -129,6 +129,7 @@ def stream_ask(
                 payload["answer"] = provider.answer(
                     request.question, results, progress=progress
                 ).model_dump()
+                payload["answered_by"] = provider.answered_by()
             except (ValueError, OpenAIError) as exc:
                 # Never discard what was found: report the answer failure with the results,
                 # and give back the daily answer when the provider failed.

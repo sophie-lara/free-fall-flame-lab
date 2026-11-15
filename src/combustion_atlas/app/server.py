@@ -134,6 +134,7 @@ def ask_evidence(
         try:
             provider = OpenAIAnswerProvider(ProviderConfig.from_environment())
             payload["answer"] = provider.answer(request.question, results).model_dump()
+            payload["answered_by"] = provider.answered_by()
         except (ValueError, OpenAIError) as exc:
             refund = charged and isinstance(exc, OpenAIError)
             if refund and limiter is not None:

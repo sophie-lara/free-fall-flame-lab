@@ -208,6 +208,9 @@ def test_ask_stream_emits_progress_then_result(tmp_path: Path, monkeypatch) -> N
     class FakeProvider:
         def __init__(self, _config: object) -> None: ...
 
+        def answered_by(self) -> dict[str, object]:
+            return {"model": "m", "provider": "OpenAI", "backup": False}
+
         def answer(self, question: str, context: list, progress=None):  # type: ignore[no-untyped-def]
             if progress:
                 progress("answering", "Drafting a cited answer")

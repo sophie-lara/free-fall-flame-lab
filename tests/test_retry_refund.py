@@ -89,6 +89,9 @@ def test_failed_answer_is_refunded(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     class FailingProvider:
         def __init__(self, _config: object) -> None: ...
 
+        def answered_by(self) -> dict[str, object]:
+            return {"model": "m", "provider": "OpenAI", "backup": False}
+
         def answer(self, *_: object, **__: object) -> None:
             raise status_error(openai.InternalServerError, 503)
 

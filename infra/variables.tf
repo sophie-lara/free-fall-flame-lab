@@ -170,3 +170,27 @@ variable "uploads_per_user_day" {
   type        = number
   default     = 3
 }
+
+variable "azure_openai_enabled" {
+  description = "Create an Azure OpenAI account and deployment used as the backup answer model."
+  type        = bool
+  default     = false
+}
+
+variable "azure_openai_answer_model" {
+  description = "Azure OpenAI model to deploy for answers (deployment uses the same name)."
+  type        = string
+  default     = "gpt-5-mini"
+}
+
+variable "azure_openai_answer_model_version" {
+  description = "Model version for the answer deployment."
+  type        = string
+  default     = "2025-08-07"
+}
+
+variable "azure_openai_capacity_k_tpm" {
+  description = "Deployment capacity in thousands of tokens per minute (within subscription quota)."
+  type        = number
+  default     = 100
+}

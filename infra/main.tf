@@ -70,7 +70,7 @@ resource "azurerm_linux_web_app" "main" {
     }
   }
 
-  app_settings = {
+  app_settings = merge({
     OPENAI_API_KEY                           = var.openai_api_key
     COMBUSTION_ATLAS_EMBEDDING_PROVIDER      = "openai"
     COMBUSTION_ATLAS_EMBEDDING_MODEL         = var.embedding_model
@@ -89,7 +89,15 @@ resource "azurerm_linux_web_app" "main" {
     COMBUSTION_ATLAS_PUBLIC_UPLOADS          = var.public_uploads ? "1" : "0"
     COMBUSTION_ATLAS_UPLOAD_CODE             = var.upload_code
     COMBUSTION_ATLAS_UPLOADS_PER_USER_DAY    = tostring(var.uploads_per_user_day)
-  }
+    },
+    # Backup answer model on Azure OpenAI, used only when OpenAI is down after retries.
+    { for k, v in {
+      COMBUSTION_ATLAS_FALLBACK_MODEL            = var.azure_openai_answer_model
+      COMBUSTION_ATLAS_FALLBACK_BASE_URL         = var.azure_openai_enabled ? "${azurerm_cognitive_account.openai[0].endpoint}openai/v1/" : ""
+      COMBUSTION_ATLAS_FALLBACK_API_KEY          = var.azure_openai_enabled ? azurerm_cognitive_account.openai[0].primary_access_key : ""
+      COMBUSTION_ATLAS_FALLBACK_REASONING_EFFORT = "low"
+    } : k => v if var.azure_openai_enabled }
+  )
 
   auth_settings_v2 {
     auth_enabled = true
