@@ -44,12 +44,14 @@ qualifier/uncertainty, original value/unit, and `EvidenceLocation`. Raw cells ar
 also retained. Location includes source URL, filename, source SHA-256, CSV/table row,
 column, optional physical PDF page and table label, and a synthetic-data flag.
 Each `EvidenceValue` may also carry `notes` (`kind`: assumed, inferred, ambiguous,
-unresolved, pending or model; `by`: model, reviewer or pipeline; optional decision ID).
+unresolved, pending, model or definition; `by`: model, reviewer or pipeline; optional decision ID).
 Show these with the value: they record where a value was assumed from context or is
 unresolved. `EvidenceCandidate.additional_fields` holds source content with no faithful
 canonical field (e.g. an unlabeled dimension or a rod dimension) together with its
 notes; do not map these into canonical fields. Flag-review decisions are applied by
 `combustion_atlas.review.flag_decisions` from a versioned spec in `docs/review_decisions/`.
+Reviewed records have `evidence_kind` `run`, `background_table_row` or
+`planned_test_condition` (FLEX test matrices: planned conditions, never coverage runs).
 Review issues and status must accompany the candidate. Preserve unresolved values
 and source markers; an accepted transcription can still contain unresolved science.
 

@@ -220,11 +220,11 @@ def to_card(record: dict[str, Any]) -> dict[str, Any]:
     identity = candidate.identity
     lines = [
         f"Structured table record — {identity.investigation_id} test {identity.test_id}"
-        + (
-            " (background study row, not a flight run)"
-            if item.get("evidence_kind") == "background_table_row"
-            else ""
-        ),
+        + {
+            "background_table_row": " (background study row, not a flight run)",
+            "planned_test_condition": " (planned test condition from a test matrix, "
+            "not an observed result)",
+        }.get(item.get("evidence_kind") or "", ""),
         f"Review: {record['review_action']}; transcription status "
         f"{candidate.human_review_status}."
         + (

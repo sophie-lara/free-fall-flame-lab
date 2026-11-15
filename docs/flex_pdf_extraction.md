@@ -105,3 +105,22 @@ source hash, pages, page-image hashes, request hash, code and library versions, 
 a conservative cost reservation; any change requires a new plan. Each table is reserved in
 `run-ledger.jsonl` before its request is sent. Outputs per table are the page images,
 `extraction.json` and `review.md`, all unreviewed.
+
+## Reviewed evidence for the bridge
+
+`combustion_atlas.review.flex_reviewed` promotes the FLEX results after the reviewer's
+decision (recorded under `promotion` in the review record). It writes
+`data/processed/reviewed-evidence-flex-v1.json` and its decisions file, which the bridge
+loads like the CSV pair:
+- 290 `planned_test_condition` records (Tables 6–12). These appear as cards labelled
+  "planned test condition, not an observed result" and never become coverage runs.
+- 6 `background_table_row` records (Tables 2 and 14). Every cell is kept verbatim as an
+  additional field. Table 14 cells carry the reviewer's symbol definitions as
+  `definition` notes.
+
+Each record keeps its notes, the N1 note and, where relevant, the spot-check note. All
+inputs are verified by hash.
+
+```bash
+.venv/Scripts/python.exe -m combustion_atlas.review.flex_reviewed
+```
