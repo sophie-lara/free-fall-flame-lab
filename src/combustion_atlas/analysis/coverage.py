@@ -223,6 +223,7 @@ def load_records(raw_root: Path) -> list[dict[str, Any]]:
                         "file": path.name,
                         "record": row.record_number,
                         "sha256": digest,
+                        "url": PSI.format(table.accession),  # NASA PSI investigation page
                     },
                     "raw": {k: v for k, v in cells.items() if v not in (None, "")},
                 }

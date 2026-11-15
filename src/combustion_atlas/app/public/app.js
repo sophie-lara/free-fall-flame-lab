@@ -491,6 +491,9 @@ function renderCoverage() {
   renderCoverageDetail();
 }
 // ---------- coverage heatmap (bins and cell classes come from the server) ----------
+const extLink = (url, text) => url ? `<a href="${safeURL(url)}" target="_blank" rel="noopener noreferrer">${esc(text)} ↗</a>` : esc(text);
+const runSource = r => `${extLink(r.source?.url, `NASA ${r.investigation_id}`)}<br><span class="muted">${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}</span>`;
+const plannedSource = p => `${p.document_id ? `<a href="${docLink(p.document_id, p.page)}" target="_blank" rel="noopener noreferrer">EIRD Table ${esc(p.table)}, page ${esc(p.page)} ↗</a>` : `EIRD Table ${esc(p.table)}, page ${esc(p.page)}`}${p.source_url ? `<br>${extLink(p.source_url, `NASA ${p.investigation_id}`)}` : ''}`;
 const CELL_CLASSES = ['strong', 'moderate', 'sparse', 'planned', 'gap'];
 const CLASS_LABEL = { strong: 'Strong', moderate: 'Moderate', sparse: 'Sparse', planned: 'Planned only', gap: 'Gap' };
 const NOT_RECORDED = 'Not recorded';
@@ -617,12 +620,12 @@ function renderCellDetail() {
     ['Outcome', outcomeOf],
   ].filter(([, f]) => runs.some(r => f(r)));
   const runTable = runs.length ? `<div class="table-scroll" style="max-height:360px"><table><thead><tr><th>Run</th><th>Investigation</th>${cols.map(([h, , n]) => `<th${n ? ' class="num"' : ''}>${esc(h)}</th>`).join('')}<th>Source</th></tr></thead><tbody>
-    ${runs.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(r.test_id)}${r.review_status === 'reviewed' ? ' <span class="pill ok">Reviewed</span>' : ''}</td><td>${esc(invName(r.investigation_id))}</td>${cols.map(([, f, n]) => `<td${n ? ' class="num"' : ''}>${esc(f(r) || '—')}</td>`).join('')}<td class="small">${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}</td></tr>`).join('')}
+    ${runs.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(r.test_id)}${r.review_status === 'reviewed' ? ' <span class="pill ok">Reviewed</span>' : ''}</td><td>${esc(invName(r.investigation_id))}</td>${cols.map(([, f, n]) => `<td${n ? ' class="num"' : ''}>${esc(f(r) || '—')}</td>`).join('')}<td class="small">${runSource(r)}</td></tr>`).join('')}
   </tbody></table></div>` : `<p class="muted">No runs in this collection fall in ${gap ? 'this range' : 'this cell'}.</p>`;
   const proposed = cell.planned_ids.map(i => state.coverage.proposed?.[i]).filter(Boolean);
   const plannedTable = proposed.length ? `<h4 style="margin:20px 0 8px">Planned tests · ${count(proposed.length)}</h4><p class="muted small" style="margin:0 0 8px">From the FLEX EIRD test matrices: planned conditions, not runs, with no results.</p>
     <div class="table-scroll" style="max-height:300px"><table><thead><tr><th>Test</th><th>Source</th><th>Fuel</th><th>Added diluent</th><th class="num">O₂ (%)</th><th class="num">Pressure (atm)</th></tr></thead><tbody>
-    ${proposed.map(p => `<tr><td>${esc(p.test_id)}</td><td class="small">EIRD Table ${esc(p.table)}, page ${esc(p.page)}</td><td>${esc(({ C7H16: 'Heptane (C₇H₁₆)', CH3OH: 'Methanol (CH₃OH)' })[p.fuel] || p.fuel || '—')}</td><td>${esc(p.suppressant || 'none')}</td><td class="num">${fmt(p.fields?.oxygen_pct)}</td><td class="num">${p.fields?.pressure_kpa != null ? fmt(p.fields.pressure_kpa / 101.325) : '—'}</td></tr>`).join('')}
+    ${proposed.map(p => `<tr><td>${esc(p.test_id)}</td><td class="small">${plannedSource(p)}</td><td>${esc(({ C7H16: 'Heptane (C₇H₁₆)', CH3OH: 'Methanol (CH₃OH)' })[p.fuel] || p.fuel || '—')}</td><td>${esc(p.suppressant || 'none')}</td><td class="num">${fmt(p.fields?.oxygen_pct)}</td><td class="num">${p.fields?.pressure_kpa != null ? fmt(p.fields.pressure_kpa / 101.325) : '—'}</td></tr>`).join('')}
     </tbody></table></div>` : '';
   const outcomes = Object.entries(cell.outcomes || {});
   const title = gap ? gap.label : `${g.x.label} ${binText(g.x, g.x.bins[cell.x])} · ${g.y.label} ${binText(g.y, g.y.bins[cell.y])}`;
@@ -715,10 +718,10 @@ function drawCoverageView() {
 function coverageTable(records) {
   const cols = ['oxygen_pct', 'flow_cm_s', 'pressure_kpa'].map(fieldMeta);
   return `<div class="table-scroll"><table><caption class="visually-hidden" hidden>Experiment runs</caption><thead><tr><th>Family</th><th>Test</th><th>Material</th>${cols.map(f => `<th class="num">${esc(f.label)}${f.unit ? ` (${esc(f.unit)})` : ''}</th>`).join('')}<th>Gravity</th><th>Status</th><th>Source</th></tr></thead><tbody>
-    ${records.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(familyLabel(r.family))}</td><td>${esc(r.test_id)}</td><td>${esc(r.material || '—')}</td>${cols.map(f => `<td class="num">${fmt(r[f.key])}</td>`).join('')}<td>${esc(r.gravity || '—')}</td><td>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}</td><td class="small">${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}</td></tr>`).join('')}
+    ${records.map(r => `<tr data-row="${esc(r.id)}" tabindex="0" style="cursor:pointer"><td>${esc(familyLabel(r.family))}</td><td>${esc(r.test_id)}</td><td>${esc(r.material || '—')}</td>${cols.map(f => `<td class="num">${fmt(r[f.key])}</td>`).join('')}<td>${esc(r.gravity || '—')}</td><td>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}</td><td class="small">${runSource(r)}</td></tr>`).join('')}
   </tbody></table></div>`;
 }
-function bindRows(el) { el.querySelectorAll('[data-row]').forEach(tr => { const open = () => { state.cov.detail = tr.dataset.row; renderCoverageDetail(); }; tr.addEventListener('click', open); tr.addEventListener('keydown', e => { if (e.key === 'Enter') open(); }); }); }
+function bindRows(el) { el.querySelectorAll('[data-row]').forEach(tr => { const open = e => { if (e.target.closest('a')) return; state.cov.detail = tr.dataset.row; renderCoverageDetail(); }; tr.addEventListener('click', open); tr.addEventListener('keydown', e => { if (e.key === 'Enter') open(e); }); }); }
 function renderCoverageDetail() {
   const el = main.querySelector('#cov-detail'); if (!el) return;
   const r = state.coverage.records.find(x => String(x.id) === String(state.cov.detail));
@@ -728,7 +731,7 @@ function renderCoverageDetail() {
   el.innerHTML = `<section class="card"><div class="row"><h3 style="margin:0">${esc(familyLabel(r.family))} · ${esc(r.test_id)}</h3>${r.review_status === 'reviewed' ? '<span class="pill ok">Reviewed</span>' : ''}<span class="spacer"></span><button class="btn small" type="button" id="close-detail">Close</button></div>
     <dl class="kv" style="margin-top:16px">${row('Investigation', esc(invName(r.investigation_id)))}${row('Material', esc(r.material))}${row('Geometry', esc(r.geometry))}${row('Oxygen', r.oxygen_pct != null ? `${fmt(r.oxygen_pct)} %` : null)}${row('Flow', r.flow_cm_s != null ? `${fmt(r.flow_cm_s)} cm/s` : null)}${row('Pressure', r.pressure_kpa != null ? `${fmt(r.pressure_kpa)} kPa` : null)}${row('Gravity', esc(r.gravity))}
     ${outcomes.map(([k, o]) => row(k.replaceAll('_', ' '), `${o.value != null ? fmt(o.value) : '—'}${o.unit ? ` ${esc(o.unit)}` : ''} <span class="muted small">(source text: “${esc(o.raw)}”)</span>`)).join('')}
-    ${row('Source', `${esc(r.source?.file || '')}${r.source?.record != null ? `, record ${esc(r.source.record)}` : ''}`)}</dl></section>`;
+    ${row('Source', runSource(r))}</dl></section>`;
   el.querySelector('#close-detail').addEventListener('click', () => { state.cov.detail = null; renderCoverageDetail(); });
 }
 

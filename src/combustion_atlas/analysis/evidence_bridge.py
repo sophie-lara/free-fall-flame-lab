@@ -380,6 +380,10 @@ def to_proposed(record: dict[str, Any]) -> dict[str, Any] | None:
         "test_id": candidate.identity.test_id,
         "table": first.table,
         "page": first.page,
+        "file": first.file,
+        "source_url": first.source_url,  # NASA PSI investigation page
+        # Captured PDF, served by /api/documents/<id>.
+        "document_id": (item.get("source_sha256") or first.source_sha256 or "")[:16] or None,
         "fields": fields,
         "fuel": str(getattr(conditions.get("fuel"), "value", "") or "") or None,
         "suppressant": suppressant or None,
