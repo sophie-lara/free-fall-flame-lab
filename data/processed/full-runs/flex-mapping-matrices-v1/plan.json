@@ -1,0 +1,106 @@
+{
+  "schema_version": "flex-mapping-plan-v1",
+  "model": "gpt-6-luna",
+  "prompt_version": "flex-test-matrix-mapping-v1",
+  "budget_usd": "0.50",
+  "reservation_usd": "0.0886688",
+  "environment": {
+    "src/combustion_atlas/ingestion/flex_mapping.py": "1bff600ac54df74999dee6b6781ebac07de7032b49f2afd7af565f90a4798b9e",
+    "src/combustion_atlas/ingestion/flex_pdf_run.py": "bd24fedbab481d7d7d0cb59cf583291398ba1d1215006f1ffcdf75368b70d83c",
+    "src/combustion_atlas/review/evidence_schema.py": "040dc85d61258519cad6c732bf2601bd2aec78ea637cc86ec8315583c8e4a7b9"
+  },
+  "targets": [
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-06/extraction.json",
+      "extraction_sha256": "26516a3fe61173e703eb22f6c07d86621007278d68ed2a568f14cc74a638ff32",
+      "extraction_reviewer": "Sophie (spot check, not line by line)",
+      "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+      "label": "6",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        45,
+        46,
+        47
+      ],
+      "request_sha256": "65f6bba4cea5aa300172f4dcb9df75fc151e39c45da0f82ce863cf63d5dcf5c7",
+      "reservation_usd": "0.0131062"
+    },
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-07/extraction.json",
+      "extraction_sha256": "e653f2d327e7c183f2f0a090f075df5a203b435bb303ae3c70505aaddf7b08b6",
+      "extraction_reviewer": "Sophie (spot check, not line by line)",
+      "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+      "label": "7",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        46,
+        47,
+        48
+      ],
+      "request_sha256": "1f3c3fa6187f2cdeb5878f3f963e4bada05c28e7ecb12f90b45ad04f64b58148",
+      "reservation_usd": "0.0121656"
+    },
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-09/extraction.json",
+      "extraction_sha256": "46e1202cd4e4bd0a503755fc5f31ac728105c1086e805609f7c8e1b0c3cc3386",
+      "extraction_reviewer": "Sophie (spot check, not line by line)",
+      "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+      "label": "9",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "request_sha256": "6be4fc4f32feba4768cd68919b7e3f4a781239cd9a65a78807070663f399c01d",
+      "reservation_usd": "0.0168816"
+    },
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-10/extraction.json",
+      "extraction_sha256": "95dc7b5b91837f61b70552225b5531b5db853879cdd9e1909cce7e7cb50d509d",
+      "extraction_reviewer": "Sophie (spot check, not line by line)",
+      "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+      "label": "10",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        51,
+        52,
+        53,
+        54
+      ],
+      "request_sha256": "828ab6c418f57919a361d4c8eec7b612fdca5b0587fd124913038425a8c126e1",
+      "reservation_usd": "0.016886"
+    },
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-11/extraction.json",
+      "extraction_sha256": "8c51a3cae4da160619826f242633d0658903e89c3f3842a7fbe0ceaab6918cbc",
+      "extraction_reviewer": "Sophie (spot check, not line by line)",
+      "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+      "label": "11",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        53,
+        54,
+        55
+      ],
+      "request_sha256": "89cb0433beb9947cb177ecdb832fba761b6864d9a4f81e845e342b1b66eed764",
+      "reservation_usd": "0.0149424"
+    },
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-12/extraction.json",
+      "extraction_sha256": "35639a79796543895f70c0d5d3ad5183a40874c99009594ef77888fb1e6e35eb",
+      "extraction_reviewer": "Sophie (spot check, not line by line)",
+      "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+      "label": "12",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        54,
+        55,
+        56
+      ],
+      "request_sha256": "e395b1a6cb8094f0447b47e537fe641753fae4e42462a67ee6668fb2b3bf0d52",
+      "reservation_usd": "0.014687"
+    }
+  ]
+}

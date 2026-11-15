@@ -1,0 +1,849 @@
+{
+  "contract": "flex-table-extraction-v1",
+  "status": "unreviewed",
+  "plan_sha256": "5738a2d5b8047de89ff57e762dafb219144ff41864ec34c954d7091bd8d69608",
+  "source": {
+    "investigation_id": "PSI-69",
+    "path": "data/raw/preserved-review/PSI-69_Engineering Documents_FLEX_EIRD_v4.pdf",
+    "sha256": "be236c283ffd597bb79a4715fd4b24d296b2b93de1144c676c119b52a3a3ebe9",
+    "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+    "file_url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=684344b89e44646b74027069&version=1&redirect=true"
+  },
+  "target": {
+    "label": "7",
+    "evidence_class": "planned_test_matrix",
+    "role": "extraction",
+    "table_pages": [
+      47
+    ],
+    "context_pages": [
+      46,
+      47,
+      48
+    ],
+    "request_sha256": "49d44990922cf9315ac18a75ebd5dbbd82d4b887730d25d4db650f42147dbb5d",
+    "image_sha256": {
+      "47": "9c2c1c7270a2215d44182d02534290286b7b167a48e34420291ef679524546ba"
+    },
+    "reservation_usd": "0.0253034"
+  },
+  "extraction": {
+    "label": "Table 7",
+    "caption": "Table 7: Slow flow LOI test matrix",
+    "header_notes": [],
+    "rows": 25,
+    "columns": 3,
+    "cells": [
+      {
+        "page": 47,
+        "row": 0,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 3,
+        "role": "row_header",
+        "text": "Fuel: C7H16, Diluent: N2, SiC fiber support, Flow: 1.5 cm/s, D0 = 3, 5 mm, XN2 = 1.0 − XO2.",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 1,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "Test No.",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 1,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "P (atm)",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 1,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "header",
+        "text": "XO2",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 2,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "29",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 2,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 2,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.20",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 3,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "30",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 3,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 3,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.30",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 4,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "31",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 4,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 4,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.35",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 5,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "32",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 5,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 5,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.13",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 6,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "33",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 6,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 6,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.20",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 7,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "34",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 7,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 7,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.28",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 8,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "35",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 8,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 8,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.40",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 9,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "36",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 9,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 9,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.10",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 10,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "37",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 10,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 10,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.15",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 11,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "38",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 11,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 11,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.21",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 12,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "39",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 12,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 12,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.30",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 13,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 3,
+        "role": "row_header",
+        "text": "Fuel: CH3OH",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 14,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "40",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 14,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 14,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.20",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 15,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "41",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 15,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 15,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.30",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 16,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "42",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 16,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 16,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.35",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 17,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "43",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 17,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 17,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.13",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 18,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "44",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 18,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 18,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.20",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 19,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "45",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 19,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 19,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.28",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 20,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "46",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 20,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.75",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 20,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.40",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 21,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "47",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 21,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 21,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.10",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 22,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "48",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 22,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 22,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.15",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 23,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "49",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 23,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 23,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.21",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 24,
+        "column": 0,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "50",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 24,
+        "column": 1,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "1.00",
+        "state": "present",
+        "uncertainty": null
+      },
+      {
+        "page": 47,
+        "row": 24,
+        "column": 2,
+        "row_span": 1,
+        "column_span": 1,
+        "role": "data",
+        "text": "0.30",
+        "state": "present",
+        "uncertainty": null
+      }
+    ],
+    "footnotes": [],
+    "context_flags": [
+      "LOI is not defined on the supplied pages."
+    ],
+    "uncertainties": []
+  },
+  "check_issues": [
+    {
+      "code": "context_needed",
+      "message": "LOI is not defined on the supplied pages."
+    }
+  ],
+  "response_id": "resp_00136dd65faf64a0016af90134ef1087d1af65f5aecdf27287",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 4643,
+    "input_tokens_details": {
+      "cache_write_tokens": 4640,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 4640
+      }
+    },
+    "output_tokens": 5635,
+    "output_tokens_details": {
+      "reasoning_tokens": 423
+    },
+    "total_tokens": 10278
+  }
+}

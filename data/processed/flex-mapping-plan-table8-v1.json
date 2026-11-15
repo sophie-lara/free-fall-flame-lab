@@ -1,0 +1,30 @@
+{
+  "schema_version": "flex-mapping-plan-v1",
+  "model": "gpt-6-luna",
+  "prompt_version": "flex-test-matrix-mapping-v1",
+  "budget_usd": "0.50",
+  "reservation_usd": "0.016874",
+  "environment": {
+    "src/combustion_atlas/ingestion/flex_mapping.py": "5e148bb5d33c34d4a9235c22f885e5f0ba40d9d943bd02aa3b7f40cdb42aad62",
+    "src/combustion_atlas/ingestion/flex_pdf_run.py": "8093dc235c5a61d840ad78256e3e4675c7f8d5df2f1d355446e50b73513fe950",
+    "src/combustion_atlas/review/evidence_schema.py": "040dc85d61258519cad6c732bf2601bd2aec78ea637cc86ec8315583c8e4a7b9"
+  },
+  "targets": [
+    {
+      "extraction": "data/processed/full-runs/flex-pdf-table8-v1/table-08/extraction.json",
+      "extraction_sha256": "3cb8b2f76866e99c3cdd2cb998d0be7d9106b76d6de3bb27d4cb4ca8e4bff90f",
+      "extraction_reviewer": "Sophie",
+      "extraction_reviewed_at": "2026-11-14T18:40:00-06:00",
+      "label": "8",
+      "evidence_class_planned": "planned_test_matrix",
+      "context_pages": [
+        47,
+        48,
+        49,
+        50
+      ],
+      "request_sha256": "892a195b56845c7fa3cbb8275eed225d6a71b3613705e15f609106add12a386f",
+      "reservation_usd": "0.016874"
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "contract": "flex-table-mapping-v1",
+  "status": "unreviewed",
+  "plan_sha256": "c3063bbf62f54e74bdb7aa676ee3295ccc6e00b75d9a9d8d14b6d6678f0e093d",
+  "target": {
+    "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-10/extraction.json",
+    "extraction_sha256": "95dc7b5b91837f61b70552225b5531b5db853879cdd9e1909cce7e7cb50d509d",
+    "extraction_reviewer": "Sophie (spot check, not line by line)",
+    "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+    "label": "10",
+    "evidence_class_planned": "planned_test_matrix",
+    "context_pages": [
+      51,
+      52,
+      53,
+      54
+    ],
+    "request_sha256": "828ab6c418f57919a361d4c8eec7b612fdca5b0587fd124913038425a8c126e1",
+    "reservation_usd": "0.016886"
+  },
+  "mapping": {
+    "evidence_class": "planned_test_matrix",
+    "evidence_class_quote": "test matrix",
+    "evidence_class_reason": "The caption identifies the table as a test matrix, and the columns list test numbers and conditions rather than measured outcomes.",
+    "column_mappings": [
+      {
+        "column": 0,
+        "header_text": "Test No.",
+        "canonical_field": "test_number",
+        "unit": null,
+        "quantity_kind": "identifier",
+        "note": null
+      },
+      {
+        "column": 1,
+        "header_text": "P (atm)",
+        "canonical_field": "pressure",
+        "unit": "atm",
+        "quantity_kind": "planned_condition",
+        "note": null
+      },
+      {
+        "column": 2,
+        "header_text": "XO2",
+        "canonical_field": "oxygen_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "Mole fraction; no unit stated."
+      },
+      {
+        "column": 3,
+        "header_text": "XSF6",
+        "canonical_field": "suppressant_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "Mole fraction of SF6; no unit stated."
+      }
+    ],
+    "condition_rows": [
+      {
+        "source_row": 0,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: C7H16",
+            "value": "C7H16",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent",
+            "source_text": "Diluent: N2",
+            "value": "N2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "suppressant",
+            "source_text": "Suppressant: SF6",
+            "value": "SF6",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "fiber_support",
+            "source_text": "No fiber support",
+            "value": "No",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "flow_velocity",
+            "source_text": "Flow: 0.0 cm/s",
+            "value": "0.0",
+            "unit": "cm/s",
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "droplet_diameter",
+            "source_text": "D0 = 3, 5 mm",
+            "value": "3, 5",
+            "unit": "mm",
+            "status": "multiple_values_unassigned",
+            "note": "The table does not assign the listed diameters to particular tests."
+          },
+          {
+            "canonical_field": "diluent_mole_fraction",
+            "source_text": "XN2 = 1.0 − XO2 − XSF6.",
+            "value": "1.0 − XO2 − XSF6",
+            "unit": null,
+            "status": "formula",
+            "note": "Formula for the N2 mole fraction."
+          }
+        ]
+      },
+      {
+        "source_row": 30,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: CH3OH",
+            "value": "CH3OH",
+            "unit": null,
+            "status": "single",
+            "note": null
+          }
+        ]
+      }
+    ],
+    "context_flags": [
+      "The condition row lists D0 = 3, 5 mm without assigning a diameter to a particular test.",
+      "The symbols D0 and XN2 are defined only by their use in the condition row; the formula states the relation for XN2."
+    ],
+    "notes": []
+  },
+  "validation_issues": [
+    "context_flag:The condition row lists D0 = 3, 5 mm without assigning a diameter to a particular test.",
+    "context_flag:The symbols D0 and XN2 are defined only by their use in the condition row; the formula states the relation for XN2."
+  ],
+  "response_id": "resp_04385b6fdc1876a6016af905fc951c87d1a8df24d6c5e05206",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 16373,
+    "input_tokens_details": {
+      "cache_write_tokens": 16370,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 16370
+      }
+    },
+    "output_tokens": 1480,
+    "output_tokens_details": {
+      "reasoning_tokens": 880
+    },
+    "total_tokens": 17853
+  }
+}

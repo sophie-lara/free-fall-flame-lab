@@ -1,0 +1,146 @@
+{
+  "contract": "flex-table-mapping-v1",
+  "status": "unreviewed",
+  "plan_sha256": "c3063bbf62f54e74bdb7aa676ee3295ccc6e00b75d9a9d8d14b6d6678f0e093d",
+  "target": {
+    "extraction": "data/processed/full-runs/flex-pdf-remaining-v1/table-06/extraction.json",
+    "extraction_sha256": "26516a3fe61173e703eb22f6c07d86621007278d68ed2a568f14cc74a638ff32",
+    "extraction_reviewer": "Sophie (spot check, not line by line)",
+    "extraction_reviewed_at": "2026-11-14T19:07:00-06:00",
+    "label": "6",
+    "evidence_class_planned": "planned_test_matrix",
+    "context_pages": [
+      45,
+      46,
+      47
+    ],
+    "request_sha256": "65f6bba4cea5aa300172f4dcb9df75fc151e39c45da0f82ce863cf63d5dcf5c7",
+    "reservation_usd": "0.0131062"
+  },
+  "mapping": {
+    "evidence_class": "planned_test_matrix",
+    "evidence_class_quote": "do not represent the final test matrix",
+    "evidence_class_reason": "The surrounding text describes these matrices as plans prepared for engineering and safety review, and explicitly says they are not the final test matrix.",
+    "column_mappings": [
+      {
+        "column": 0,
+        "header_text": "Test No.",
+        "canonical_field": "test_number",
+        "unit": null,
+        "quantity_kind": "identifier",
+        "note": null
+      },
+      {
+        "column": 1,
+        "header_text": "P (atm)",
+        "canonical_field": "pressure",
+        "unit": "atm",
+        "quantity_kind": "planned_condition",
+        "note": null
+      },
+      {
+        "column": 2,
+        "header_text": "XO2",
+        "canonical_field": "oxygen_mole_fraction",
+        "unit": null,
+        "quantity_kind": "planned_condition",
+        "note": "Mole fraction is dimensionless."
+      }
+    ],
+    "condition_rows": [
+      {
+        "source_row": 0,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: C7H16",
+            "value": "C7H16",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "diluent",
+            "source_text": "Diluent: N2",
+            "value": "N2",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "fiber_support",
+            "source_text": "No fiber support",
+            "value": "No",
+            "unit": null,
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "flow_velocity",
+            "source_text": "Flow: 0.0 cm/s",
+            "value": "0.0",
+            "unit": "cm/s",
+            "status": "single",
+            "note": null
+          },
+          {
+            "canonical_field": "droplet_diameter",
+            "source_text": "D0 = 3, 5 mm",
+            "value": "3, 5",
+            "unit": "mm",
+            "status": "multiple_values_unassigned",
+            "note": "The source does not assign the listed diameters to particular tests."
+          },
+          {
+            "canonical_field": "diluent_mole_fraction",
+            "source_text": "XN2 = 1.0 − XO2",
+            "value": "1.0 − XO2",
+            "unit": null,
+            "status": "formula",
+            "note": null
+          }
+        ]
+      },
+      {
+        "source_row": 16,
+        "conditions": [
+          {
+            "canonical_field": "fuel",
+            "source_text": "Fuel: CH3OH",
+            "value": "CH3OH",
+            "unit": null,
+            "status": "single",
+            "note": null
+          }
+        ]
+      }
+    ],
+    "context_flags": [
+      "D0 is not defined in the provided pages.",
+      "The listed droplet diameters (3, 5 mm) are not assigned to particular tests."
+    ],
+    "notes": []
+  },
+  "validation_issues": [
+    "context_flag:D0 is not defined in the provided pages.",
+    "context_flag:The listed droplet diameters (3, 5 mm) are not assigned to particular tests."
+  ],
+  "response_id": "resp_002c28108d374214016af905d5fa5087d1b54a682a69839cf4",
+  "model": "gpt-6-luna",
+  "usage": {
+    "input_tokens": 7659,
+    "input_tokens_details": {
+      "cache_write_tokens": 7656,
+      "cached_tokens": 0,
+      "cache_write_tokens_details": {
+        "ttl_12h_tokens": 0,
+        "ttl_30m_tokens": 7656
+      }
+    },
+    "output_tokens": 1147,
+    "output_tokens_details": {
+      "reasoning_tokens": 654
+    },
+    "total_tokens": 8806
+  }
+}
