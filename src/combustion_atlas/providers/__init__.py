@@ -1,12 +1,6 @@
-"""Explicitly configured embedding and answer provider interfaces."""
+"""Explicitly configured embedding and answer providers."""
 
-from .base import AnswerProvider, EmbeddingProvider
 from .config import ProviderConfig
 from .openai_embeddings import OpenAIEmbeddingProvider
 
-__all__ = [
-    "AnswerProvider",
-    "EmbeddingProvider",
-    "OpenAIEmbeddingProvider",
-    "ProviderConfig",
-]
+__all__ = ["OpenAIEmbeddingProvider", "ProviderConfig"]

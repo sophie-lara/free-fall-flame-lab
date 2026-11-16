@@ -242,6 +242,8 @@ export interface AskPayload {
   answer_unavailable?: string | null;
   retrieval_fallback?: string | null;
   answered_by?: { model: string; provider: string; backup: boolean } | null;
+  /** A friendly reply to a greeting or other small talk (no search, no AI call). */
+  reply?: string | null;
 }
 
 export interface AskResult extends AskPayload { kind: 'answer' }

@@ -32,8 +32,8 @@ FIELDS: dict[str, dict[str, str]] = {
 OUTCOMES: dict[str, dict[str, str]] = {
     "extinction_diameter_mm": {"label": "Flame extinction diameter", "unit": "mm"},
     "burn_time_s": {"label": "Burn time", "unit": "s"},
-    # FLEX prints "Burning rate; mm"; the physical unit is unverified (likely mm²/s).
-    "burning_rate_printed": {"label": "Burning rate (unit as printed)", "unit": "mm (as printed)"},
+    # The PSI CSV header reads "Burning rate; mm"; NASA/TP-2015-216046 Table IX prints mm2/s.
+    "burning_rate_printed": {"label": "Burning rate", "unit": "mm²/s"},
     "spread_rate_1g_mm_s": {"label": "1-g flame spread rate", "unit": "mm/s"},
 }
 
@@ -97,8 +97,8 @@ TABLE_MAPS: list[TableMap] = [
         },
         notes=[
             "FLEX headers print 'O', 'N', 'CO' and 'He' without subscripts; 'O' is read as O₂.",
-            "FLEX 'Burning rate; mm' is shown with its printed unit; the physical unit is "
-            "unverified.",
+            "FLEX burning rate: the PSI table header reads 'mm'; the unit mm²/s is taken "
+            "from NASA/TP-2015-216046 Table IX.",
             "FLEX diluent CO/CO₂ fraction is not used as a model feature.",
         ],
     ),

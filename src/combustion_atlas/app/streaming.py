@@ -92,9 +92,17 @@ def _answer(
     from combustion_atlas.rag.search import retrieve_conversation
     from combustion_atlas.rag.store import DocumentStore
 
-    from .core import EvidenceRequest, apply_paid_limit, broad_queries
+    from .core import (
+        EvidenceRequest,
+        apply_paid_limit,
+        broad_queries,
+        small_talk,
+        small_talk_payload,
+    )
 
     request = EvidenceRequest.model_validate_json(raw)
+    if reply := small_talk(request.question):
+        return small_talk_payload(request, reply)  # no search, no AI call, not counted
     if not workspace.database.is_file():
         raise ValueError("Build the document index to search evidence")
     if (request.method != "keyword" or request.generate_answer) and not (
@@ -106,9 +114,13 @@ def _answer(
     charged = charged_call(original, limiter, exempt, limited)
     if limited:
         progress("limited", str(limited["reason"]))
-    progress("started", f"Searching the corpus ({request.method} retrieval)")
     fallback = None
     with DocumentStore(workspace.read_database) as store:
+        reports = store.connection.execute(
+            "SELECT count(DISTINCT source_id) FROM pages WHERE investigation_id IS NULL "
+            "OR investigation_id != 'VISITOR-UPLOAD'"
+        ).fetchone()[0]
+        progress("started", f"Searching {reports} reports ({request.method} search)")
         try:
             results = retrieve_conversation(
                 store,

@@ -31,7 +31,7 @@ def keyword_query(question: str) -> str:
 
 
 # Visitor uploads are indexed under this investigation and stay out of shared results
-# (search, corpus counts, topic map) unless a request names them in visible_sources.
+# (search, corpus counts, evidence landscape) unless a request names them in visible_sources.
 QUARANTINE = "VISITOR-UPLOAD"
 
 

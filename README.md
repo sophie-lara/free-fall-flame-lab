@@ -6,6 +6,10 @@ Combustion Atlas is an evidence-preserving research site for NASA microgravity-c
 
 Live at **https://combustion-atlas.azurewebsites.net**.
 
+Built for the **NASA Space Apps Challenge 2026**, challenge **"Flame in Freefall"**.
+
+**Team:** Sophie Lara and David Yang.
+
 - **Ask:** a chat that answers from 29 indexed NASA reports and PSI tables (BASS, BASS-II,
   FLEX, Saffire). Every claim quotes its source page; numbers are checked against the
   quotes. Supports follow-up questions, figure browsing and reviewed table records.
@@ -19,6 +23,34 @@ repository; see [`docs/local_artifacts.md`](docs/local_artifacts.md).
 
 Architecture, scientific review notes and operating instructions are in [`docs/`](docs/);
 [`docs/deploy_azure.md`](docs/deploy_azure.md) covers hosting.
+
+## How we used AI
+
+AI is used in two ways: inside the product, and to help us build it.
+
+**In the product**
+- **Answers (OpenAI gpt-6-luna):** written only from passages retrieved from the indexed
+  NASA documents. Every claim must quote its source; our code checks each quote and number
+  against the source text before showing it, and claims that fail are removed.
+- **Backup answers (Azure OpenAI gpt-5-mini):** used only if OpenAI is unavailable, with
+  the same checks.
+- **Search (OpenAI text-embedding-3-small):** turns passages and questions into vectors for
+  semantic search. For broad questions, gpt-6-luna suggests up to three extra search queries.
+- **Figure descriptions (gpt-6-luna, vision):** the 392 report figures were described once,
+  offline. The site labels these as AI descriptions and links each to its original page image.
+- **Topic names (gpt-6-luna):** names the 23 topics on the evidence landscape from their
+  keywords and example passages. The topics themselves are found by clustering (HDBSCAN),
+  not by AI.
+
+**In preparing the data**
+- **Table extraction (gpt-6-luna):** an LLM produced candidate transcriptions of the NASA
+  experiment tables (PSI tables and report tables), keeping each original cell and its
+  location. A team member reviewed these candidates; the site marks which records are
+  reviewed, and AI output is never presented as measured data.
+
+**In building the project**
+- We used an AI coding assistant (Claude Code, by Anthropic) to help write and test code,
+  documentation and infrastructure, under our direction and review.
 
 ## Local setup
 

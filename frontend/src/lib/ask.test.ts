@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  askRequest, buildFootnotes, evidenceType, fireState, groupSupports, historyFor, limitsHint, similarQuotes, stepIconKind, stripLabel,
+  askRequest, buildFootnotes, evidenceType, groupSupports, historyFor, limitsHint, milestones, similarQuotes, stepIconKind, stripLabel, summaryLabel,
 } from './ask';
 import type { Turn } from './types';
 
@@ -103,15 +103,41 @@ describe('limitsHint', () => {
 
 describe('progress fire', () => {
   it('maps stages to icons', () => {
-    expect(stepIconKind('keyword')).toBe('log');
-    expect(stepIconKind('generating')).toBe('flame');
-    expect(stepIconKind('checking')).toBe('check');
-    expect(stepIconKind('started')).toBe('dot');
+    expect(stepIconKind('keyword')).toBe('search');
+    expect(stepIconKind('generating')).toBe('write');
+    expect(stepIconKind('verified')).toBe('check');
+    expect(stepIconKind('done')).toBe('dot');
   });
-  it('titles the card by progress', () => {
-    expect(fireState([]).title).toBe('Striking a match…');
-    expect(fireState([{ stage: 'keyword', message: '', elapsed_s: 0 }]).title).toBe('Adding logs to the fire…');
-    expect(fireState([{ stage: 'keyword', message: '', elapsed_s: 0 }, { stage: 'generating', message: '', elapsed_s: 1 }])).toEqual({ logs: 1, lit: true, title: 'Burning…' });
+  it('shows the real steps as a progress line', () => {
+    const ev = (stage: string, message: string) => ({ stage, message, elapsed_s: 0 });
+    const start = milestones([], true);
+    expect(start.items.map(m => [m.label, m.state])).toEqual([
+      ['Searching the reports', 'current'], ['Finding passages', 'todo'], ['Writing the answer', 'todo'],
+      ['Checking quotes', 'todo'], ['Verified', 'todo'],
+    ]);
+    const mid = milestones([ev('started', 'Searching 29 reports (hybrid search)'), ev('retrieved', 'Selected 14 passages'), ev('generating', 'Writing')], true);
+    expect(mid.items.map(m => [m.label, m.state])).toEqual([
+      ['Searching 29 reports', 'done'], ['14 passages found', 'done'], ['Writing the answer', 'current'],
+      ['Checking quotes', 'todo'], ['Verified', 'todo'],
+    ]);
+    const end = milestones([
+      ev('started', 'Searching 29 reports (hybrid search)'), ev('retrieved', 'Found 8 figures'), ev('generating', 'w'),
+      ev('checking', 'Checking 6 quotes against the pages'), ev('verified', '5 of 6 quotes verified'),
+    ], true);
+    expect(end.items.map(m => m.label)).toEqual(['Searching 29 reports', '8 figures found', 'Writing the answer', 'Checking 6 quotes against the pages', '5 verified']);
+    expect(end.items.every(m => m.state === 'done')).toBe(true);
+    const keyword = milestones([ev('started', 'Searching 29 reports (keyword search)'), ev('retrieved', 'Found 5 matching passages')], false);
+    expect(keyword.items.map(m => [m.label, m.state])).toEqual([['Searching 29 reports', 'done'], ['5 passages found', 'done']]);
+  });
+  it('leaves small-talk replies out of follow-up history', () => {
+    const reply: Turn = { id: 'r', question: 'hi', ai: true, loading: false, progress: [], error: '', result: { kind: 'answer', reply: 'Hi! What would you like to know?' } };
+    const real = turn('q', 'How do flames behave?', ['They form spheres.']);
+    expect(historyFor([reply, real]).map(h => h.question)).toEqual(['How do flames behave?']);
+  });
+  it('labels the finished summary', () => {
+    expect(summaryLabel('8.5', true, false)).toBe('Answered in 8.5 s');
+    expect(summaryLabel('1.2', false, false)).toBe('Searched in 1.2 s');
+    expect(summaryLabel('3', false, true)).toBe('Stopped after 3 s');
   });
   it('classifies evidence', () => {
     expect(evidenceType({ chunk_id: 'a', source_id: 's', filename: 'f', record_card: { kind: 'row' } })).toBe('table');

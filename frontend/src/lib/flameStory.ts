@@ -93,7 +93,7 @@ export const BEATS: Beat[] = [
   {
     title: 'Why NASA burns things in space',
     preset: { gravity: 'orbit', oxygen: 21, flow: 35 },
-    body: 'Every material that flies on a crewed spacecraft is first screened with a flame test on Earth. But if things burn as well or better in microgravity, that test’s safety margin is in question, and astronauts can’t step outside a burning spacecraft. So NASA burned samples on the ISS (BASS), and even lit large fires inside uncrewed cargo ships after they left the station (Saffire). Combustion Atlas lets you search what those experiments found, and see where the evidence is still thin.',
+    body: 'Materials for the cabins of US spacecraft are screened with an upward flame test on Earth (NASA-STD-6001 Test 1). But if things burn as well or better in microgravity, that test’s safety margin is in question, and astronauts can’t step outside a burning spacecraft. So NASA burned samples on the ISS (BASS), and even lit large fires inside uncrewed cargo ships after they left the station (Saffire). Combustion Atlas lets you search what those experiments found, and see where the evidence is still thin.',
     cites: ['hypothesis', 'standard', 'saffire'],
     ask: 'What did the Saffire experiments show about flame spread on large samples?',
     explore: true,

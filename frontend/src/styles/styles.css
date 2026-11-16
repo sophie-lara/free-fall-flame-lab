@@ -159,13 +159,11 @@ blockquote { margin: 8px 0; padding: 8px 12px; background: var(--plane); border-
 /* Coverage chart */
 .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 16px; }
 .controls .field { margin: 0; }
-.family-chips .chip .swatch { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
 .chart-wrap { position: relative; }
 .chart { width: 100%; height: auto; display: block; background: var(--surface); border-radius: var(--radius-sm); }
 .chart text { fill: var(--muted); font: 12px var(--font); }
 .chart .axis-title { fill: var(--ink-2); font-weight: 600; font-size: 13px; }
 .chart .grid line { stroke: var(--grid); }
-.chart .axis-line { stroke: var(--axis); }
 .chart .pt { stroke: var(--surface); stroke-width: 2; }
 .chart .pt.reviewed { stroke: var(--ink); stroke-width: 2; }
 .chart .hit { cursor: pointer; outline: none; }
@@ -180,8 +178,6 @@ blockquote { margin: 8px 0; padding: 8px 12px; background: var(--plane); border-
 .land3d { display: block; width: 100%; height: 560px; border-radius: var(--radius-sm); cursor: grab; touch-action: none; background: var(--surface); }
 .land3d:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .land3d-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
-.chart .gap-rect { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 6 5; }
-.chart .gap-label { fill: var(--ink-2); font-weight: 700; }
 .tooltip { position: absolute; z-index: 10; pointer-events: none; max-width: 300px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; line-height: 1.5; box-shadow: var(--shadow); }
 .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: var(--ink-2); margin-top: 12px; }
 .legend svg { vertical-align: -3px; margin-right: 6px; }
@@ -195,10 +191,6 @@ dl.kv dt { color: var(--muted); }
 dl.kv dd { margin: 0; }
 
 /* Prediction */
-.result-hero { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.result-hero .big { font-size: 44px; font-weight: 700; letter-spacing: -.02em; }
-.insufficient { border: 2px solid var(--warn); background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 24px; }
-.insufficient h3 { color: var(--warn); font-size: 22px; }
 
 /* Footer */
 
@@ -245,14 +237,8 @@ dl.kv dd { margin: 0; }
 .note-mark.note-definition { background: var(--ok-bg, rgba(127,127,127,.15)); color: var(--ink-2); font-style: italic; }
 .note-mark.note-unresolved, .note-mark.note-pending { background: var(--bad-bg, #3a1616); color: var(--bad, #ff9a9a); }
 .note-mark:focus-visible { outline: 2px solid var(--s1); outline-offset: 1px; }
-.proposed-mark { fill: none; stroke: #8b5cf6; stroke-width: 1.6; opacity: .85; }
-.hit-proposed:focus-visible .proposed-mark, .hit-proposed:hover .proposed-mark { stroke-width: 2.6; opacity: 1; }
 .caveats { margin: 6px 0; padding: 8px 12px 8px 26px; border-radius: 8px; background: var(--warn-bg); color: var(--warn); font-size: 13px; line-height: 1.4; }
 .caveats li { margin: 2px 0; }
-.ai-row { gap: 10px; flex-wrap: wrap; }
-.ai-row .ui-switch { font-size: 14px; }
-.ai-row .ui-switch-label { color: var(--ink-2); }
-.ai-row .ui-switch-label.active { color: var(--ink); }
 .provenance { margin: 6px 0; font-size: 14px; color: var(--ink); }
 .recommended { margin-top: 4px; }
 .recommended summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; padding: 4px 0; }
@@ -298,9 +284,6 @@ ul.plain { margin: 0; padding-left: 18px; }
 .grid > .card + .card { margin-top: 0; }
 
 /* Explore page: evidence landscape section */
-.land-head { display: block; margin-bottom: 16px; }
-.land-head h2 { margin: 4px 0 8px; }
-.land-head p { max-width: 720px; margin: 0; }
 .topic-menu { position: relative; }
 .topic-menu > summary { list-style: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .topic-menu > summary::-webkit-details-marker { display: none; }
@@ -319,25 +302,17 @@ ul.plain { margin: 0; padding-left: 18px; }
 .result-thumb { display: block; max-width: min(100%, 520px); max-height: 320px; object-fit: contain; margin-top: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; }
 
 /* Ask progress as a fire: logs for search steps, a flame that grows and flickers */
-.burn-card .row { gap: 10px; }
-.burn-flame { display: inline-flex; transform-origin: 50% 90%; transform: scale(calc(.8 + var(--fuel, 0) * .06)); transition: transform .3s ease; filter: saturate(.6); }
-.burn-flame.lit { filter: none; animation: flicker 1.1s ease-in-out infinite alternate; }
-@keyframes flicker { 0% { transform: scale(calc(1 + var(--fuel, 0) * .07)) rotate(-2deg); } 100% { transform: scale(calc(1.08 + var(--fuel, 0) * .07)) rotate(2deg); } }
-.burn-logs { display: inline-flex; gap: 2px; }
-.burn-done { vertical-align: -3px; }
 .fire-steps li { padding-left: 30px; align-items: center; }
 .fire-steps li::before { display: none; }
 .fire-steps .step-icon { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); display: inline-flex; width: 20px; justify-content: center; color: var(--muted); }
 .fire-steps li.current .step-icon { color: var(--brand); }
 .fire-steps .step-text { flex: 1; }
-@media (prefers-reduced-motion: reduce) { .burn-flame, .burn-flame.lit { animation: none; transition: none; } }
 
 /* Ask: chat layout (thread, bubbles, pinned composer) */
 .chat { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; min-height: calc(100vh - 180px); }
 .chat-head { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
 .chat-head h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); }
 .chat-head .eyebrow { margin-bottom: 6px; }
-.chat-intro { color: var(--ink-2); font-size: 16px; max-width: 720px; }
 .chat-thread { flex: 1; display: flex; flex-direction: column; gap: 28px; padding-bottom: 24px; }
 .turn { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 80px; }
 .msg.user { display: flex; justify-content: flex-end; }
@@ -359,7 +334,6 @@ ul.plain { margin: 0; padding-left: 18px; }
 .composer-box .send:disabled { opacity: .4; cursor: not-allowed; }
 .composer-box .send:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .composer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 8px; padding: 0 6px; font-size: 13px; }
-.small-seg button { font-size: 13px; padding: 4px 12px; min-height: 30px; }
 @media (max-width: 640px) { .msg.user .bubble { max-width: 92%; } .msg.bot .avatar { display: none; } }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -437,3 +411,22 @@ body[data-space="on"] .tile:hover, body[data-space="on"] .btn:hover, body[data-s
   .header-inner { gap: 12px; }
   .nav-toggle { margin-left: auto; }
 }
+
+/* Ask progress: the real steps as a line, and a flame that turns from Earth to orbit */
+.progress-card { padding: 14px 18px; }
+.progress-row { display: flex; align-items: center; gap: 14px; }
+.milestones { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 4px; flex: 1; min-width: 0; }
+.ms { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.ms + .ms::before { content: "→"; color: var(--muted); margin: 0 6px 0 2px; opacity: .7; }
+.ms-mark { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; }
+.ms-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .45; }
+.ms-done { color: var(--ink-2); }
+.ms-done .ms-mark { color: var(--ok, #1baf7a); }
+.ms-current { color: var(--ink); font-weight: 600; }
+.ms-current .ms-dot { opacity: 1; background: var(--brand); animation: ms-pulse 1.2s ease-in-out infinite; }
+.ms-todo { opacity: .6; }
+.progress-time { flex: none; }
+.progress-detail { margin: 8px 0 0 0; }
+@keyframes ms-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(37, 89, 199, .45); } 50% { box-shadow: 0 0 0 5px rgba(37, 89, 199, 0); } }
+@media (max-width: 640px) { .ms + .ms::before { margin: 0 4px 0 0; } }
+@media (prefers-reduced-motion: reduce) { .ms-current .ms-dot { animation: none !important; } }

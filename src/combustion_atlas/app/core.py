@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import re
 import sqlite3
 import threading
 from pathlib import Path
@@ -51,6 +52,65 @@ class EvidenceRequest(BaseModel):
         return value
 
 
+# Greetings and other small talk get a friendly reply without searching or AI calls.
+# Patterns match the whole message, so real questions are never intercepted.
+_TOPIC = "flames in free fall"
+_INTRO = (
+    "I answer questions about NASA's microgravity combustion experiments (BASS, BASS-II, "
+    "FLEX and Saffire), quoting the original reports and tables."
+)
+SMALL_TALK: list[tuple[re.Pattern[str], str]] = [
+    (
+        re.compile(
+            r"(hi|hello|hey|hiya|howdy|yo|greetings|hi there|hello there|hey there|"
+            r"good (morning|afternoon|evening)|hi atlas|hello atlas)"
+        ),
+        f"Hi! {_INTRO} What would you like to know about {_TOPIC}?",
+    ),
+    (
+        re.compile(
+            r"(how are you|how are you doing|how's it going|hows it going|what's up|whats up|sup)"
+        ),
+        f"Doing well, thanks! What would you like to know about {_TOPIC}?",
+    ),
+    (
+        re.compile(
+            r"(thanks|thank you|thank you so much|thanks a lot|thx|ty|cheers|great|awesome|"
+            r"perfect|cool|ok|okay|nice|got it)"
+        ),
+        f"You're welcome! Ask anything else about {_TOPIC} whenever you like.",
+    ),
+    (
+        re.compile(
+            r"(who are you|what are you|what can you do|what do you do|help|how does this work|"
+            r"what is this|what is combustion atlas)"
+        ),
+        f"{_INTRO} Try asking how flames behave in microgravity, what a specific test "
+        "measured, or to see figures from an experiment.",
+    ),
+    (
+        re.compile(r"(bye|goodbye|see you|see ya|good night)"),
+        "Thanks for visiting! Come back anytime with more questions about fire in space.",
+    ),
+]
+
+
+def small_talk(question: str) -> str | None:
+    """A friendly reply when the whole message is a greeting, thanks or similar."""
+    text = re.sub(r"[\s!.,?:;)(]+", " ", question.casefold()).strip()
+    text = re.sub(r"\s+(atlas|there|team|everyone|friend)$", "", text)
+    if not text or len(text) > 40:
+        return None
+    for pattern, reply in SMALL_TALK:
+        if pattern.fullmatch(text):
+            return reply
+    return None
+
+
+def small_talk_payload(request: EvidenceRequest, reply: str) -> dict[str, object]:
+    return {"question": request.question, "method": request.method, "results": [], "reply": reply}
+
+
 def apply_paid_limit(
     request: EvidenceRequest, limiter: PaidCallLimiter | None, exempt: bool
 ) -> tuple[EvidenceRequest, dict[str, object] | None]:
@@ -76,6 +136,8 @@ def ask_evidence(
     limiter: PaidCallLimiter | None = None,
     exempt: bool = False,
 ) -> dict[str, object]:
+    if reply := small_talk(request.question):
+        return small_talk_payload(request, reply)  # no search, no AI call, not counted
     if not workspace.database.is_file():
         raise ValueError("Build the document index to search evidence")
     if (

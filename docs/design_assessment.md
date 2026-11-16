@@ -191,7 +191,7 @@ evaluation references must detect stale chunk identities after a rebuild.
 
 ### P2: Review UI and evaluation are not yet a closed scientific feedback loop
 
-Locations: `app/server.py`, `frontend/src/`, `evaluation/lexical.py`.
+Locations: `app/api.py`, `frontend/src/`, `evaluation/lexical.py`.
 
 UI notes are correctly separate from candidate mutation, but bind only to
 investigation/test IDs, not the exact candidate fingerprint. Regenerating a

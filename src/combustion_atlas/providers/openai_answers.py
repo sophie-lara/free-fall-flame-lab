@@ -80,6 +80,14 @@ def strip_chunk_ids(answer: GroundedAnswer, context: list[dict[str, object]]) ->
     return answer
 
 
+def quote_count(answer: GroundedAnswer) -> int:
+    return sum(len(claim.supports) for claim in answer.claims)
+
+
+def plural(count: int, noun: str) -> str:
+    return f"{count} {noun}{'' if count == 1 else 's'}"
+
+
 def claim_problem(claim: Claim, passages: dict[str, str]) -> str | None:
     """Why a claim fails the excerpt and number checks, or None if it passes."""
     for support in claim.supports:
@@ -275,19 +283,28 @@ class OpenAIAnswerProvider:
                 f"Writing a cited answer with {self.model} from {len(context)} passages",
             )
             answer = self._generate(question, context, on_retry=retrying)
-            say("checking", "Checking every quote and number against the passages")
+            checked = quote_count(answer)
+            say("checking", f"Checking {plural(checked, 'quote')} against the pages")
             try:
                 validate_support(answer, context)
             except ValueError as exc:
                 # A bounded repair attempt; never return the failed draft to the caller.
                 say("repairing", f"Fact check: {exc}. Asking the model to fix the draft once")
                 answer = self._generate(question, context, repair=True, on_retry=retrying)
-                say("checking", "Re-checking the repaired answer")
+                checked = quote_count(answer)
+                say("checking", f"Re-checking {plural(checked, 'quote')} in the repaired answer")
                 try:
                     validate_support(answer, context)
                 except ValueError as second:
                     say("filtering", f"Still failing ({second}); keeping only claims that pass")
                     answer = keep_supported(answer, context)
+            verified = quote_count(answer)
+            say(
+                "verified",
+                f"{verified} of {plural(checked, 'quote')} verified"
+                if checked
+                else "No quotes needed: the passages do not answer this question",
+            )
             return answer
 
         # Earlier turns help interpret follow-ups ("what about FLEX?"); never evidence.

@@ -146,3 +146,33 @@ def test_query_expansion_failure_returns_no_queries() -> None:
         "flame spread low flow",
         "extinction",
     ]
+
+
+def test_small_talk_gets_a_friendly_reply_without_search_or_ai(tmp_path: Path) -> None:
+    from combustion_atlas.app.core import Atlas, ask_evidence, small_talk
+    from combustion_atlas.app.usage import PaidCallLimiter
+
+    for greeting in ("hi", "Hello there!", "hey atlas", "good morning", "how are you?"):
+        reply = small_talk(greeting) or ""
+        assert "flames in free fall" in reply and "?" in reply
+    assert "welcome" in (small_talk("Thanks!") or "")
+    assert "BASS" in (small_talk("what can you do") or "")
+    for question in (
+        "hi, how does opposed flow affect flame spread?",
+        "hey what is the burning rate of heptane",
+        "help me find FLEX extinction data",
+        "high oxygen",
+    ):
+        assert small_talk(question) is None  # real questions are never intercepted
+
+    store_with(tmp_path).close()
+    atlas = Atlas(tmp_path)
+    atlas.database = tmp_path / "rag.sqlite3"
+    limiter = PaidCallLimiter(tmp_path / "paid.json", daily_limit=5)
+    request = EvidenceRequest(
+        question="hi", method="hybrid", generate_answer=True, allow_provider_calls=True
+    )
+    payload = ask_evidence(atlas, request, limiter=limiter)
+    assert payload["results"] == [] and "What would you like to know" in str(payload["reply"])
+    assert "answer" not in payload
+    assert limiter.status()["remaining_today"] == 5  # not counted

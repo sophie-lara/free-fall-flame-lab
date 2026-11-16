@@ -5,7 +5,7 @@ import type { AskRequest, Claim, HistoryItem, Limits, ProgressEvent, SearchResul
 export function historyFor(turns: Turn[], exclude?: Turn | string): HistoryItem[] {
   const excludeId = typeof exclude === 'string' ? exclude : exclude?.id;
   return turns
-    .filter(t => t.id !== excludeId && t.result && !t.error)
+    .filter(t => t.id !== excludeId && t.result && !t.error && !t.result.reply)
     .slice(-3)
     .map(t => ({
       question: t.question.slice(0, 1000),
@@ -28,27 +28,76 @@ export function limitsHint(l: Limits | null): string {
   return left + wait;
 }
 
-// ---------- progress as a fire ----------
-export const FUEL_STAGES = new Set(['keyword', 'embedding', 'semantic', 'ranking', 'records', 'figures', 'retrieved', 'context']);
-const FLAME_STAGES = ['generating', 'retrying', 'fallback', 'answer'];
+// ---------- progress: the real steps, ticked off as they finish ----------
+const SEARCH_STAGES = new Set(['keyword', 'embedding', 'semantic', 'ranking', 'records', 'figures', 'context']);
 const CHECK_STAGES = ['checking', 'repairing', 'filtering'];
-export type StepIconKind = 'log' | 'flame' | 'check' | 'dot';
+export type StepIconKind = 'search' | 'write' | 'check' | 'dot';
 
 export function stepIconKind(stage: string): StepIconKind {
-  if (FUEL_STAGES.has(stage)) return 'log'; // search adds fuel
-  if (FLAME_STAGES.includes(stage)) return 'flame'; // writing burns it
-  if (CHECK_STAGES.includes(stage)) return 'check'; // fact checks
+  if (SEARCH_STAGES.has(stage) || stage === 'retrieved' || stage === 'started') return 'search';
+  if (['generating', 'retrying', 'fallback', 'answer'].includes(stage)) return 'write';
+  if (CHECK_STAGES.includes(stage) || stage === 'verified') return 'check';
   return 'dot';
 }
 
-export function fireState(steps: ProgressEvent[]): { logs: number; lit: boolean; title: string } {
-  const logs = steps.filter(s => FUEL_STAGES.has(s.stage)).length;
-  const lit = steps.some(s => FLAME_STAGES.includes(s.stage));
-  const title = lit ? 'Burning…' : logs ? 'Adding logs to the fire…' : 'Striking a match…';
-  return { logs, lit, title };
+export type MilestoneState = 'done' | 'current' | 'todo';
+export interface Milestone { key: string; label: string; state: MilestoneState }
+
+const lastOf = (steps: ProgressEvent[], stage: string): ProgressEvent | undefined =>
+  [...steps].reverse().find(s => s.stage === stage);
+const firstNumber = (text: string): number | null => {
+  const m = /(\d+)/.exec(text);
+  return m ? Number(m[1]) : null;
+};
+
+/**
+ * The visible progress line: "Searching 29 reports → 14 passages found → Writing the
+ * answer → Checking 6 quotes against the pages → 5 verified". Labels come from the
+ * streamed events; steps not reached yet show a neutral placeholder.
+ */
+export function milestones(steps: ProgressEvent[], ai: boolean): { items: Milestone[] } {
+  const started = lastOf(steps, 'started');
+  const retrieved = lastOf(steps, 'retrieved');
+  const writing = lastOf(steps, 'generating');
+  const checking = lastOf(steps, 'checking');
+  const verified = lastOf(steps, 'verified');
+  const reports = started ? firstNumber(started.message) : null;
+  const found = retrieved ? firstNumber(retrieved.message) : null;
+  const kind = retrieved && /figure/i.test(retrieved.message) ? 'figure' : 'passage';
+  const quotes = checking ? firstNumber(checking.message) : null;
+  const verifiedCount = verified ? firstNumber(verified.message) : null;
+  const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
+  const items: Array<Omit<Milestone, 'state'> & { reached: boolean }> = [
+    { key: 'search', label: reports != null ? `Searching ${plural(reports, 'report')}` : 'Searching the reports', reached: true },
+    { key: 'found', label: found != null ? `${plural(found, kind)} found` : 'Finding passages', reached: !!retrieved },
+  ];
+  if (ai) {
+    items.push(
+      { key: 'write', label: 'Writing the answer', reached: !!writing },
+      { key: 'check', label: quotes != null ? `Checking ${plural(quotes, 'quote')} against the pages` : 'Checking quotes', reached: !!checking },
+      {
+        key: 'verified',
+        label: verified ? (verifiedCount != null && quotes ? `${verifiedCount} verified` : 'Nothing to verify') : 'Verified',
+        reached: !!verified,
+      },
+    );
+  }
+  let current = 0;
+  items.forEach((m, i) => { if (m.reached) current = i; });
+  const result = items.map((m, i): Milestone => ({
+    key: m.key,
+    label: m.label,
+    state: i < current || (i === current && i === items.length - 1 && m.reached && i > 0) ? 'done' : i === current ? 'current' : 'todo',
+  }));
+  return { items: result };
 }
 
-// ---------- claim text and quotes ----------
+/** Collapsed summary label once the turn finishes. */
+export function summaryLabel(totalSeconds: string, answered: boolean, failed: boolean): string {
+  if (failed) return `Stopped after ${totalSeconds} s`;
+  return answered ? `Answered in ${totalSeconds} s` : `Searched in ${totalSeconds} s`;
+}
+
 export const LABEL_PREFIX = /^\s*(?:structured\s+)?(?:document|table(?:\s+record)?|record|figure|visual)(?:\s+description)?\s+evidence\s*[:\-–—]\s*/i;
 export const stripLabel = (text: unknown): string => String(text).replace(LABEL_PREFIX, '');
 
