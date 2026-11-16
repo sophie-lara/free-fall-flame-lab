@@ -31,7 +31,7 @@ Use the 7-slide deck `combustion_atlas_slides_final.pptx`, uploaded to a public 
 **What it does.** Combustion Atlas has four public pages:
 
 - **Ask:** a chat over 29 indexed NASA reports and PSI tables. Every claim cites a numbered NASA source
-  and the quotes are checked. With AI off it is a free keyword search, and typing two or more exact
+  and the quotes and numbers are checked against the source. With AI off it is a free keyword search, and typing two or more exact
   values returns the matching reviewed table rows with their notes and a link to the source page.
 - **Experiment coverage:** heatmaps of runs by test condition (for FLEX, ambient oxygen against
   pressure). They separate performed runs, tests that were only planned in NASA's FLEX test
@@ -54,8 +54,8 @@ as results.
 
 **Benefits.** Researchers can check what has already been tested before proposing new
 microgravity experiments. They can find exact values with their sources and see under-tested
-regions, such as high-oxygen, high-pressure droplet combustion. That region matters for future
-lunar habitats, which are expected to run at about 30% oxygen or more.
+regions, such as high-oxygen, high-pressure droplet combustion. Elevated-oxygen conditions matter
+because spacecraft exploration atmospheres use more oxygen at lower pressure than the ISS.
 
 **Tools.**
 
@@ -65,8 +65,7 @@ lunar habitats, which are expected to run at about 30% oxygen or more.
 - **Front end:** React + TypeScript, built with Vite (SVG and canvas charts).
 - **Models:** OpenAI gpt-6-luna and text-embedding-3-small, with an optional Azure OpenAI backup.
 - **Hosting:** Azure App Service, defined in Terraform.
-- **Build:** GitHub Actions running ruff, mypy, pytest (209 tests) and Vitest (52 tests) on
-  Linux and Windows.
+- **Build:** GitHub Actions running ruff, mypy, pytest and Vitest on Linux and Windows.
 
 ## NASA data
 
@@ -75,7 +74,9 @@ lunar habitats, which are expected to run at about 30% oxygen or more.
   Saffire I–III (PSI-98, PSI-99, PSI-100). https://psi.nasa.gov
 - NASA Technical Reports Server (NTRS): technical reports on these investigations, including
   the BASS-II Summary Report (NASA/TM-20210011385). https://ntrs.nasa.gov
-- NASA ISS photograph iss071e439624 (Ask page background).
+- NASA images: ISS photograph iss071e439624 (orbital sunrise, site background); NASA Glenn
+  Research Center photo GRC-1998-C-00485 (candle flames in normal gravity and microgravity);
+  ISS photograph ISS040-E-021546 (BASS-II experiment aboard the ISS).
 
 ## Space agency partner data and other references
 
@@ -100,9 +101,14 @@ The project is MIT-licensed. The full list is in the README.
 - describe report figures (labelled as AI-generated on the site);
 - name topics;
 - transcribe and map PDF tables. Every number is checked against the source and flagged values
-  are reviewed by a person.
+  are reviewed by a person;
+- suggest extra search queries for broad questions.
+
+An Azure OpenAI model is a backup for answers if OpenAI is unavailable, with the same checks.
 
 **In development,** AI coding assistants helped write code, tests and documentation. The team chose
 the problem and the approach and made all scientific review decisions.
 
-No AI-generated images, video or audio are used.
+No AI image, video or audio generators were used. Photos are NASA's; the flame logo and the
+illustrated flames are vector graphics drawn in code, written with the help of an AI coding
+assistant.
