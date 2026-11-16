@@ -23,8 +23,8 @@ Browser ──HTTPS──► App Service front end ──► Easy Auth (GitHub, 
 - **Admins** (`COMBUSTION_ATLAS_ADMINS`, e.g. the GitHub username `sophie-lara`) sign
   in via *Admin sign-in* (`/.auth/login/github`). Admins approve or delete visitor
   uploads and add documents directly; their AI answers are not counted.
-- **AI answer limit** for visitors: `COMBUSTION_ATLAS_PAID_DAILY_LIMIT` (24) per UTC
-  day and `COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S` (60) between answers, site-wide,
+- **AI answer limit** for visitors: `COMBUSTION_ATLAS_PAID_DAILY_LIMIT` (100) per UTC
+  day and `COMBUSTION_ATLAS_PAID_MIN_INTERVAL_S` (10 s) between answers, site-wide,
   persisted in `/home/site/data/usage`. Over the limit, answers fall back to free
   keyword search. `/api/limits` reports what is left.
 - **Visitor uploads** (`public_uploads = true`): anyone can upload a PDF (15 MB, 60
@@ -75,7 +75,7 @@ Key variables:
 | `public_access` | `true` | Sign-in optional; admins still checked by the app |
 | `allowed_users` | `[]` | With `public_access = false`, the only accounts allowed in (GitHub sign-in admits any account otherwise; Terraform refuses that combination) |
 | `admin_emails` | GitHub username / emails | Admin identities |
-| `paid_daily_limit`, `paid_min_interval_s` | `24`, `60` | Visitor AI answer limits |
+| `paid_daily_limit`, `paid_min_interval_s` | `100`, `10` | Visitor AI answer limits |
 | `public_uploads`, `uploads_per_user_day` | `true`, `3` | Visitor uploads into quarantine |
 | `upload_code` | empty | Optional code visitors must enter to upload (`TF_VAR_upload_code`) |
 

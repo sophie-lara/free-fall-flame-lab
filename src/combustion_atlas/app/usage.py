@@ -105,8 +105,8 @@ class PaidCallLimiter:
             if self.min_interval_s and wait > 0:
                 return Decision(
                     False,
-                    "AI answers are limited to one per minute for this site. "
-                    f"Showing keyword results; try again in {int(wait) + 1} s.",
+                    f"AI answers are limited to one every {_interval(self.min_interval_s)} "
+                    f"for this site. Showing keyword results; try again in {int(wait) + 1} s.",
                     int(wait) + 1,
                     remaining,
                 )
@@ -114,3 +114,12 @@ class PaidCallLimiter:
             state["last"] = now
             self._save(state)
             return Decision(True, None, 0, None if remaining is None else remaining - 1)
+
+
+def _interval(seconds: int) -> str:
+    """Human wording for the spacing: "minute", "10 seconds", "2 minutes"."""
+    if seconds == 60:
+        return "minute"
+    if seconds % 60 == 0:
+        return f"{seconds // 60} minutes"
+    return "second" if seconds == 1 else f"{seconds} seconds"

@@ -14,7 +14,7 @@ def test_daily_cap_and_spacing_persist_and_reset(tmp_path: Path) -> None:
     limiter = PaidCallLimiter(path, daily_limit=2, min_interval_s=60)
     assert limiter.acquire(NOON).allowed
     spaced = limiter.acquire(NOON + 10)
-    assert not spaced.allowed and "one per minute" in (spaced.reason or "")
+    assert not spaced.allowed and "one every minute" in (spaced.reason or "")
     assert spaced.retry_after_s == 51
     assert limiter.acquire(NOON + 61).remaining_today == 0
     # A restarted server reads the same state from disk.
@@ -41,3 +41,12 @@ def test_limited_answers_fall_back_to_free_keyword_search(tmp_path: Path) -> Non
     assert limited is None and admin.generate_answer  # admins are not counted
     keyword = EvidenceRequest(question="flame spread")
     assert apply_paid_limit(keyword, limiter, exempt=False)[1] is None  # free search
+
+
+def test_spacing_message_states_the_configured_interval(tmp_path: Path) -> None:
+    limiter = PaidCallLimiter(tmp_path / "paid.json", daily_limit=100, min_interval_s=10)
+    assert limiter.acquire(NOON).allowed
+    refused = limiter.acquire(NOON + 3)
+    assert not refused.allowed and "one every 10 seconds" in (refused.reason or "")
+    assert refused.retry_after_s == 8
+    assert limiter.acquire(NOON + 11).allowed
